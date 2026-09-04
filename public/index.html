@@ -547,10 +547,44 @@
     .skin-coming-soon .csoon-title { font-size: 12.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255, 255, 255, 0.7); }
     .skin-coming-soon .csoon-sub { font-size: 10.5px; color: rgba(255, 255, 255, 0.4); }
     
-    #panel-map .skin-coming-soon { width: 100%; max-width: 300px; padding: 26px 16px 22px; }
-    #panel-map .skin-coming-soon .csoon-icon { font-size: 28px; }
-    #panel-map .skin-coming-soon .csoon-title { font-size: 14px; }
-    #panel-map .skin-coming-soon .csoon-sub { font-size: 11.5px; }
+    #panel-map .skin-coming-soon { width: 100%; max-width: 300px; padding: 18px 16px 16px; }
+    #panel-map .skin-coming-soon .csoon-icon { font-size: 22px; }
+    #panel-map .skin-coming-soon .csoon-title { font-size: 12.5px; }
+    #panel-map .skin-coming-soon .csoon-sub { font-size: 10.5px; }
+    #panel-map #nav-endless {
+      background: linear-gradient(135deg, #ff6a00 0%, #ffd200 100%);
+      border-color: #ffcc00 !important;
+      box-shadow: 0 0 20px rgba(255, 170, 0, 0.5);
+      text-shadow: 0 0 8px rgba(0,0,0,0.4);
+    }
+    #panel-endless .endless-desc {
+      font-size: 11.5px;
+      color: rgba(255, 255, 255, 0.55);
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.5;
+      margin: -4px 0 4px;
+    }
+    #panel-endless .map-size-btn { background: linear-gradient(135deg, #222 0%, #444 100%); }
+    #panel-endless #endless-map-medium { background: linear-gradient(135deg, #331100 0%, #aa5500 100%); }
+    #panel-endless #endless-map-large { background: linear-gradient(135deg, #440033 0%, #aa0077 100%); }
+    #panel-endless #endless-map-huge {
+      background: linear-gradient(135deg, #4a0072 0%, #d500f9 100%);
+      border-color: #e040fb !important;
+      box-shadow: 0 0 20px #9c27b0, inset 0 0 10px #e040fb;
+      text-shadow: 0 0 8px #ffffff;
+    }
+    #panel-endless #endless-map-huge:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 35px #d500f9, 0 0 15px #7b1fa2, inset 0 0 15px #e040fb;
+      filter: brightness(1.25);
+    }
+    #panel-endless #btn-start-endless {
+      background: linear-gradient(135deg, #ff6a00 0%, #ffd200 100%);
+      border-color: #ffcc00 !important;
+      box-shadow: 0 0 20px rgba(255, 170, 0, 0.5);
+      text-shadow: 0 0 8px rgba(0,0,0,0.4);
+    }
     @keyframes skinComingSoonPulse {
       0%, 100% { opacity: 0.65; border-color: rgba(255, 255, 255, 0.18); }
       50% { opacity: 1; border-color: rgba(255, 255, 255, 0.4); }
@@ -1255,22 +1289,25 @@
       border: 2px solid #611;
       box-shadow: 0 0 25px rgba(255, 0, 0, 0.25);
       border-radius: 12px;
-      padding: 14px 28px;
+      padding: 12px 26px;
       margin-bottom: 25px;
       min-width: 290px;
-      font-size: 15px;
-      line-height: 1.7;
+      font-size: 13px;
+      line-height: 1.55;
     }
     .stat-row {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px dashed #422;
-      padding: 4px 0;
+      padding: 3px 0;
     }
     .stat-val {
       color: #00ffff;
       font-weight: bold;
       text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    }
+    .stat-row-small {
+      opacity: 0.88;
     }
     .go-btn-container { display: flex; gap: 20px; }
     .go-btn {
@@ -1956,11 +1993,26 @@
         <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
       </div>
       <div id="panel-map" class="menu-panel">
+        <div class="menu-section-label zoom-rotate-item">Chế Độ Chơi Khác</div>
+        <button id="nav-endless" class="menu-btn zoom-rotate-item">🚀 Tăng Tốc Vô Tận</button>
         <div class="skin-coming-soon zoom-rotate-item">
           <div class="csoon-icon">🕹️</div>
           <div class="csoon-title">Coming Soon</div>
-          <div class="csoon-sub">Chế độ chơi mới sắp ra mắt...</div>
+          <div class="csoon-sub">Thêm chế độ chơi mới sắp ra mắt...</div>
         </div>
+        <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
+      </div>
+      <div id="panel-endless" class="menu-panel">
+        <div class="menu-section-label zoom-rotate-item">🚀 Tăng Tốc Vô Tận</div>
+        <div class="endless-desc zoom-rotate-item">Không có lựa chọn độ khó — tốc độ tự tăng dần liên tục theo thời gian, không giới hạn. Sống sót càng lâu, thử thách càng khắc nghiệt!</div>
+        <div class="map-column">
+          <div class="menu-section-label zoom-rotate-item">Kích Thước Bản Đồ</div>
+          <button id="endless-map-small" class="menu-btn map-size-btn zoom-rotate-item active-setting">NHỎ (MẶC ĐỊNH)</button>
+          <button id="endless-map-medium" class="menu-btn map-size-btn zoom-rotate-item">TRUNG BÌNH (x3)</button>
+          <button id="endless-map-large" class="menu-btn map-size-btn zoom-rotate-item">LỚN (x6)</button>
+          <button id="endless-map-huge" class="menu-btn map-size-btn zoom-rotate-item">CỰC LỚN (x10)</button>
+        </div>
+        <button id="btn-start-endless" class="menu-btn zoom-rotate-item">▶ BẮT ĐẦU</button>
         <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
       </div>
       <div id="panel-2p" class="menu-panel">
@@ -2041,6 +2093,8 @@
       <div class="stat-row"><span>Tổng điểm số:</span><span id="stat-score" class="stat-val">0</span></div>
       <div class="stat-row"><span>Số ô di chuyển:</span><span id="stat-steps" class="stat-val">0 ô</span></div>
       <div class="stat-row"><span>Số đá đã phá hủy:</span><span id="stat-rocks" class="stat-val">0</span></div>
+      <div class="stat-row stat-row-small"><span>Thời gian sống sót:</span><span id="stat-time" class="stat-val">00:00</span></div>
+      <div class="stat-row stat-row-small"><span>Tốc độ lúc chết:</span><span id="stat-topspeed" class="stat-val">0</span></div>
     </div>
     <div class="go-btn-container">
       <button id="btn-revive" class="go-btn">HỒI SINH (TIẾP TỤC)</button>
@@ -2169,13 +2223,15 @@ const panelDifficulty = document.getElementById("panel-difficulty");
 
 const panelMap = document.getElementById("panel-map");
 
+const panelEndless = document.getElementById("panel-endless");
+
 const panelSettings = document.getElementById("panel-settings");
 
 const panel2p = document.getElementById("panel-2p");
 
 const panelSkin = document.getElementById("panel-skin");
 
-const ALL_MENU_PANELS = () => [ panelRoot, panelDifficulty, panelMap, panel2p, panelSettings, panelSkin ];
+const ALL_MENU_PANELS = () => [ panelRoot, panelDifficulty, panelMap, panelEndless, panel2p, panelSettings, panelSkin ];
 
 function showOnlyPanel(targetPanel) {
   ALL_MENU_PANELS().forEach(p => {
@@ -2498,6 +2554,7 @@ let worm = {
   shieldTimer: 0,
   sizeScale: 1,
   speedMultiplier: 1,
+  speedBonus: 0,
   rollBuffTimer: 0,
   rollBuffLabel: "",
   rollBuffColor: ""
@@ -2544,6 +2601,8 @@ const rocksFx = createStatFx(STAT_FX_RED, STAT_FX_GREEN);
 
 const lengthFx = createStatFx(STAT_FX_GREEN, STAT_FX_RED);
 
+const speedFx = createStatFx(STAT_FX_GREEN, STAT_FX_RED);
+
 function resetStatFx(fx, initialValue) {
   fx.lastValue = initialValue;
   fx.popups = [];
@@ -2556,6 +2615,7 @@ function syncStatFxTrackers() {
   resetStatFx(horizontalFx, horizontalOffset);
   resetStatFx(rocksFx, obstacles.length);
   resetStatFx(lengthFx, worm.body.length);
+  resetStatFx(speedFx, worm.normalSpeed + (worm.speedBonus || 0));
 }
 
 function spawnStatPopup(fx, delta) {
@@ -2641,6 +2701,17 @@ let isMenuMode = true;
 let isPaused = false;
 
 let hasStartedMoving = false;
+
+let playTime = 0;
+
+function formatPlayTime(seconds) {
+  const total = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = n => String(n).padStart(2, "0");
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+}
 
 let totalStepsWalked = 0;
 
@@ -2758,8 +2829,34 @@ const ROLL_COOLDOWN_BY_DIFF = {
   easy: 0,
   normal: 6.5,
   hard: 15,
-  insane: 30
+  insane: 30,
+  endless: 6.5
 };
+
+const ENDLESS_SPEED_START = 10;
+const ENDLESS_CRAZY_RATIO = 5;
+const ENDLESS_SPEED_STEP_SECONDS = 10;
+const ENDLESS_SPEED_STEP_AMOUNT = 1;
+let endlessElapsedTime = 0;
+
+const DIFFICULTY_BASE_SPEED = {
+  easy: { normal: 10, crazy: 50, shield: 5 },
+  normal: { normal: 20, crazy: 100, shield: 4 },
+  hard: { normal: 30, crazy: 150, shield: 3 },
+  insane: { normal: 50, crazy: 250, shield: 1.5 },
+  endless: { normal: ENDLESS_SPEED_START, crazy: ENDLESS_SPEED_START * ENDLESS_CRAZY_RATIO, shield: 4 }
+};
+
+function resetSpeedForCurrentDifficulty() {
+  const preset = DIFFICULTY_BASE_SPEED[currentDifficulty];
+  if (!preset) return;
+  worm.normalSpeed = preset.normal;
+  worm.crazySpeed = preset.crazy;
+  maxShieldDuration = preset.shield;
+  if (currentDifficulty === "endless") {
+    endlessElapsedTime = 0;
+  }
+}
 
 let rollCooldownRemaining = 0;
 
@@ -3534,9 +3631,19 @@ document.querySelectorAll(".back-btn").forEach(btn => {
     playSound("click");
     const currentActivePanel = btn.parentElement;
     let type = "difficulty";
-    if (currentActivePanel === panelMap) type = "map"; else if (currentActivePanel === panelSettings) type = "settings"; else if (currentActivePanel === panel2p) type = "2p"; else if (currentActivePanel === panelSkin) type = "skin";
-    switchPanel(currentActivePanel, panelRoot, "out", type);
+    let backTarget = panelRoot;
+    if (currentActivePanel === panelMap) type = "map"; else if (currentActivePanel === panelSettings) type = "settings"; else if (currentActivePanel === panel2p) type = "2p"; else if (currentActivePanel === panelSkin) type = "skin"; else if (currentActivePanel === panelEndless) {
+      type = "map";
+      backTarget = panelMap;
+    }
+    switchPanel(currentActivePanel, backTarget, "out", type);
   });
+});
+
+document.getElementById("nav-endless").addEventListener("click", () => {
+  initAudio();
+  playSound("click");
+  switchPanel(panelMap, panelEndless, "in", "map");
 });
 
 function switchPanel(fromPanel, toPanel, direction, type) {
@@ -3654,6 +3761,65 @@ function setMapSizeConfig(size) {
   updateStartButtonGradient();
 }
 
+function setEndlessMapSizeConfig(size) {
+  currentMapSizeSetting = size;
+  document.querySelectorAll("#panel-endless .map-size-btn").forEach(b => b.classList.remove("active-setting"));
+  const btn = document.getElementById("endless-map-" + size);
+  if (btn) btn.classList.add("active-setting");
+  if (size === "small") {
+    canvas.width = 960;
+    canvas.height = 540;
+  } else if (size === "medium") {
+    canvas.width = 1660;
+    canvas.height = 940;
+  } else if (size === "large") {
+    canvas.width = 2360;
+    canvas.height = 1320;
+  } else if (size === "huge") {
+    canvas.width = 3040;
+    canvas.height = 1700;
+  }
+  cols = canvas.width / gridSize;
+  rows = canvas.height / gridSize;
+  initMenuDemo();
+}
+
+[ "small", "medium", "large", "huge" ].forEach(size => {
+  const btn = document.getElementById("endless-map-" + size);
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    initAudio();
+    playSound("click");
+    setEndlessMapSizeConfig(size);
+  });
+});
+
+function startEndlessMode() {
+  enterImmersiveMode();
+  showOnlyPanel(panelRoot);
+  currentDifficulty = "endless";
+  resetSpeedForCurrentDifficulty();
+  isMenuMode = false;
+  mainMenu.classList.remove("menu-appear");
+  setTimeout(() => {
+    mainMenu.style.display = "none";
+  }, 500);
+  resetAllStats();
+  resetGame(false);
+  applyControlUI();
+  showMobileActionBtns(true);
+  playTrack("game");
+}
+
+const btnStartEndlessEl = document.getElementById("btn-start-endless");
+if (btnStartEndlessEl) {
+  btnStartEndlessEl.addEventListener("click", () => {
+    initAudio();
+    playSound("click");
+    startEndlessMode();
+  });
+}
+
 let pendingDifficultyChoice = null;
 
 function selectDifficultyChoice(diff) {
@@ -3699,23 +3865,7 @@ function startGameWithDiff(diff) {
   enterImmersiveMode();
   showOnlyPanel(panelRoot);
   currentDifficulty = diff;
-  if (diff === "easy") {
-    worm.normalSpeed = 10;
-    worm.crazySpeed = 50;
-    maxShieldDuration = 5;
-  } else if (diff === "normal") {
-    worm.normalSpeed = 20;
-    worm.crazySpeed = 100;
-    maxShieldDuration = 4;
-  } else if (diff === "hard") {
-    worm.normalSpeed = 30;
-    worm.crazySpeed = 150;
-    maxShieldDuration = 3;
-  } else if (diff === "insane") {
-    worm.normalSpeed = 50;
-    worm.crazySpeed = 250;
-    maxShieldDuration = 1.5;
-  }
+  resetSpeedForCurrentDifficulty();
   isMenuMode = false;
   mainMenu.classList.remove("menu-appear");
   setTimeout(() => {
@@ -6086,7 +6236,7 @@ function triggerMobileDash() {
       mapChanged = true;
       dashEnteredMapGoingUp = true;
       mapTransitionFxDir = "up";
-      if (gameHeight >= WINNING_HEIGHT) {
+      if (gameHeight >= WINNING_HEIGHT && currentDifficulty !== "endless") {
         triggerGameWin();
         return;
       }
@@ -6155,6 +6305,10 @@ function triggerMobileDash() {
         playSound("roll_reveal");
         score += 40;
         teleportRandomHeight();
+      } else if (eatenFood.type === "speed") {
+        playSound("shield");
+        score += 25;
+        worm.speedBonus = (worm.speedBonus || 0) + 2;
       } else {
         playSound("eat");
         score += 15;
@@ -6162,7 +6316,7 @@ function triggerMobileDash() {
       }
       if (eatenFood.type !== "orb") {
         foods.splice(ateIndex, 1);
-        if (foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb").length === 0) {
+        if (foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb" && f.type !== "speed").length === 0) {
           spawnAllFoods();
         }
         sendLanMapState();
@@ -6182,6 +6336,8 @@ function triggerMobileDash() {
     dashCooldownTimer = 4.5;
   } else if (currentDifficulty === "insane") {
     dashCooldownTimer = 6;
+  } else if (currentDifficulty === "endless") {
+    dashCooldownTimer = 3;
   }
 }
 
@@ -6406,6 +6562,7 @@ function resetGame(isRevive = false) {
     y: 0
   };
   hasStartedMoving = false;
+  playTime = 0;
   isPaused = false;
   btnPause.textContent = "⏸";
   pauseOverlay.style.display = "none";
@@ -6429,6 +6586,8 @@ function resetGame(isRevive = false) {
   particles = [];
   worm.sizeScale = 1;
   worm.speedMultiplier = 1;
+  worm.speedBonus = 0;
+  resetSpeedForCurrentDifficulty();
   worm.rollBuffTimer = 0;
   worm.rollBuffLabel = "";
   worm.rollBuffColor = "";
@@ -6563,6 +6722,9 @@ function triggerGameOver() {
   } else if (currentDifficulty === "insane") {
     diffStat.textContent = "INSANE";
     diffStat.style.color = "#e040fb";
+  } else if (currentDifficulty === "endless") {
+    diffStat.textContent = "TĂNG TỐC VÔ TẬN";
+    diffStat.style.color = "#ffaa00";
   }
   const mapStat = document.getElementById("stat-map-size");
   if (currentMapSizeSetting === "small") mapStat.textContent = "NHỎ"; else if (currentMapSizeSetting === "medium") mapStat.textContent = "TRUNG BÌNH (x3)"; else if (currentMapSizeSetting === "large") mapStat.textContent = "LỚN (x6)"; else if (currentMapSizeSetting === "huge") mapStat.textContent = "CỰC LỚN (x10)";
@@ -6571,6 +6733,8 @@ function triggerGameOver() {
   document.getElementById("stat-score").textContent = score;
   document.getElementById("stat-steps").textContent = `${totalStepsWalked} ô`;
   document.getElementById("stat-rocks").textContent = totalRocksDestroyed;
+  document.getElementById("stat-time").textContent = formatPlayTime(playTime);
+  document.getElementById("stat-topspeed").textContent = Math.round(worm.normalSpeed + (worm.speedBonus || 0));
   if (isTwoPlayerFrame) {
     twoPlayerSelfDead = true;
     const goTitleEl = document.getElementById("go-title");
@@ -6627,7 +6791,7 @@ function triggerGameWin() {
   document.getElementById("win-steps-val").textContent = `${totalStepsWalked} ô`;
   document.getElementById("win-rocks-val").textContent = totalRocksDestroyed;
   let diffLabel = "TRUNG BÌNH";
-  if (currentDifficulty === "easy") diffLabel = "DỄ"; else if (currentDifficulty === "hard") diffLabel = "KHÓ"; else if (currentDifficulty === "insane") diffLabel = "INSANE";
+  if (currentDifficulty === "easy") diffLabel = "DỄ"; else if (currentDifficulty === "hard") diffLabel = "KHÓ"; else if (currentDifficulty === "insane") diffLabel = "INSANE"; else if (currentDifficulty === "endless") diffLabel = "TĂNG TỐC VÔ TẬN";
   document.getElementById("win-diff-val").textContent = diffLabel;
   setTimeout(() => {
     if (gameWin) {
@@ -6679,11 +6843,11 @@ function generateObstacles(isMapTransition = false, enteredMapGoingUp = false) {
   let attempts = 0;
   let cornerSafeRange = 0;
   if (isMapTransition) {
-    if (currentDifficulty === "easy") cornerSafeRange = 6; else if (currentDifficulty === "normal") cornerSafeRange = 5; else if (currentDifficulty === "hard") cornerSafeRange = 4; else if (currentDifficulty === "insane") cornerSafeRange = 3;
+    if (currentDifficulty === "easy") cornerSafeRange = 6; else if (currentDifficulty === "normal") cornerSafeRange = 5; else if (currentDifficulty === "hard") cornerSafeRange = 4; else if (currentDifficulty === "insane") cornerSafeRange = 3; else if (currentDifficulty === "endless") cornerSafeRange = 5;
   }
   let topEntrySafeRows = 0;
-  if (isMapTransition && enteredMapGoingUp && !isMenuMode) {
-    if (currentDifficulty === "easy") topEntrySafeRows = 5; else if (currentDifficulty === "normal") topEntrySafeRows = 4; else if (currentDifficulty === "hard") topEntrySafeRows = 3; else if (currentDifficulty === "insane") topEntrySafeRows = 2;
+  if (isMapTransition && !isMenuMode) {
+    topEntrySafeRows = 5;
   }
   const head = worm.body[0];
   const wormPad = new Set();
@@ -6771,6 +6935,9 @@ function spawnAllFoods() {
   for (let i = 0; i < 2; i++) {
     foods.push(generateSingleFood("gem", occupiedSet));
   }
+  for (let i = 0; i < 3; i++) {
+    foods.push(generateSingleFood("speed", occupiedSet));
+  }
   if (Math.random() < .1) {
     foods.push(generateSingleFood("orb", occupiedSet));
   }
@@ -6779,7 +6946,7 @@ function spawnAllFoods() {
 function teleportRandomHeight() {
   const MAX_TELEPORT_METERS = 500;
   const maxSteps = MAX_TELEPORT_METERS / 100;
-  const minHeight = 0, maxHeight = WINNING_HEIGHT - 100;
+  const minHeight = 0, maxHeight = currentDifficulty === "endless" ? gameHeight + MAX_TELEPORT_METERS : WINNING_HEIGHT - 100;
   let candidates = [];
   for (let s = -maxSteps; s <= maxSteps; s++) {
     if (s === 0) continue;
@@ -7025,6 +7192,7 @@ function update(dt) {
   updateStatFx(horizontalFx, horizontalOffset, dt);
   updateStatFx(rocksFx, obstacles.length, dt);
   updateStatFx(lengthFx, worm.body.length, dt);
+  updateStatFx(speedFx, worm.normalSpeed + (worm.speedBonus || 0), dt);
   if (dashCooldownTimer > 0) {
     dashCooldownTimer -= dt;
     if (dashCooldownTimer < 0) dashCooldownTimer = 0;
@@ -7139,7 +7307,15 @@ function update(dt) {
   updateRollFabState();
   updateRollBuffHud();
   if (!hasStartedMoving && !isMenuMode) return;
-  let currentBaseSpeed = worm.isCrazy ? worm.crazySpeed : worm.normalSpeed;
+  if (!isMenuMode) {
+    playTime += dt;
+  }
+  if (currentDifficulty === "endless" && !isMenuMode && !gameOver && !gameWin) {
+    endlessElapsedTime += dt;
+    worm.normalSpeed = ENDLESS_SPEED_START + Math.floor(endlessElapsedTime / ENDLESS_SPEED_STEP_SECONDS) * ENDLESS_SPEED_STEP_AMOUNT;
+    worm.crazySpeed = worm.normalSpeed * ENDLESS_CRAZY_RATIO;
+  }
+  let currentBaseSpeed = (worm.isCrazy ? worm.crazySpeed : worm.normalSpeed) + (worm.speedBonus || 0);
   currentBaseSpeed *= worm.speedMultiplier || 1;
   let finalCalculatedSpeed = currentBaseSpeed * transitionSlowFactor;
   let isNextDiagonal = worm.nextDir.x !== 0 && worm.nextDir.y !== 0;
@@ -7205,7 +7381,7 @@ function update(dt) {
         mapChanged = true;
         enteredMapGoingUp = true;
         mapTransitionFxDir = "up";
-        if (gameHeight >= WINNING_HEIGHT) {
+        if (gameHeight >= WINNING_HEIGHT && currentDifficulty !== "endless") {
           triggerGameWin();
           return;
         }
@@ -7311,6 +7487,10 @@ function update(dt) {
           playSound("roll_reveal");
           score += worm.isCrazy ? 80 : 40;
           teleportRandomHeight();
+        } else if (eatenFood.type === "speed") {
+          playSound("shield");
+          score += worm.isCrazy ? 50 : 25;
+          worm.speedBonus = (worm.speedBonus || 0) + 2;
         } else {
           playSound("eat");
           score += worm.isCrazy ? 30 : 15;
@@ -7323,7 +7503,7 @@ function update(dt) {
       }
       if (isMenuMode || eatenFood.type !== "orb") {
         foods.splice(ateIndex, 1);
-        if (foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb").length === 0) {
+        if (foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb" && f.type !== "speed").length === 0) {
           spawnAllFoods();
         }
         if (!isMenuMode) sendLanMapState();
@@ -7561,6 +7741,50 @@ function drawFoodList(targetCtx, list, offsetX, offsetY, alpha) {
       targetCtx.fill();
       targetCtx.restore();
     }
+  } else if (f.type === "speed") {
+    const t3 = performance.now() * .001;
+    const cx3 = f.x * gridSize + gridSize, cy3 = f.y * gridSize + gridSize;
+    const pulse3 = 1 + Math.sin(t3 * 5) * .18;
+    targetCtx.save();
+    targetCtx.translate(cx3, cy3);
+    targetCtx.rotate(Math.sin(t3 * 1.6) * .35);
+    targetCtx.scale(pulse3, pulse3);
+    const grad3 = targetCtx.createLinearGradient(-gridSize, gridSize, gridSize, -gridSize);
+    grad3.addColorStop(0, "#ff2d55");
+    grad3.addColorStop(.5, "#c800ff");
+    grad3.addColorStop(1, "#7a00e0");
+    targetCtx.fillStyle = grad3;
+    targetCtx.shadowBlur = 20 + Math.sin(t3 * 7) * 10;
+    targetCtx.shadowColor = Math.sin(t3 * 4) > 0 ? "#ff2d7a" : "#a000ff";
+    const r3 = gridSize * .95;
+    targetCtx.beginPath();
+    targetCtx.moveTo(r3 * .15, -r3);
+    targetCtx.lineTo(r3 * .55, -r3 * .15);
+    targetCtx.lineTo(r3, -r3 * .05);
+    targetCtx.lineTo(-r3 * .1, r3);
+    targetCtx.lineTo(-r3 * .45, r3 * .15);
+    targetCtx.lineTo(-r3, r3 * .05);
+    targetCtx.closePath();
+    targetCtx.fill();
+    targetCtx.lineWidth = 1.5;
+    targetCtx.strokeStyle = "rgba(255,255,255,0.85)";
+    targetCtx.stroke();
+    targetCtx.restore();
+    for (let s3 = 0; s3 < 5; s3++) {
+      const sAngle3 = t3 * 3 + s3 * (Math.PI * 2 / 5);
+      const sDist3 = gridSize * 1.3 + Math.sin(t3 * 6 + s3) * 5;
+      const sx3 = cx3 + Math.cos(sAngle3) * sDist3, sy3 = cy3 + Math.sin(sAngle3) * sDist3;
+      const sAlpha3 = Math.max(0, .4 + Math.sin(t3 * 9 + s3 * 2) * .5);
+      targetCtx.save();
+      targetCtx.globalAlpha = sAlpha3;
+      targetCtx.fillStyle = s3 % 2 === 0 ? "#ff6ad5" : "#c86dff";
+      targetCtx.shadowBlur = 10;
+      targetCtx.shadowColor = "#e040fb";
+      targetCtx.beginPath();
+      targetCtx.arc(sx3, sy3, 2.2, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+    }
   } else {
     targetCtx.fillStyle = "#ffaa00";
     targetCtx.shadowBlur = 0;
@@ -7694,7 +7918,9 @@ const STAT_HUD_ITEMS = [
   { fx: () => horizontalFx, icon: "\u2194", label: "Ngang", accent: { r: 0, g: 229, b: 255 }, value: () => `${horizontalOffset}`, suffix: "m" },
   { fx: () => rocksFx, icon: "\u26F0\uFE0F", label: "Đá", accent: { r: 255, g: 170, b: 60 }, value: () => `${obstacles.length}`, suffix: "" },
   { fx: () => lengthFx, icon: "\u{1F41B}", label: "Chiều Dài", accent: { r: 130, g: 255, b: 140 }, value: () => `${worm.body.length}`, suffix: "" },
-  { fx: () => scoreFx, icon: "\u2B50", label: "Điểm", accent: { r: 213, g: 0, b: 249 }, value: () => `${score}`, suffix: "" }
+  { fx: () => scoreFx, icon: "\u2B50", label: "Điểm", accent: { r: 213, g: 0, b: 249 }, value: () => `${score}`, suffix: "" },
+  { fx: () => speedFx, icon: "\u26A1", label: "Tốc Độ", accent: { r: 255, g: 214, b: 0 }, value: () => `${Math.round(worm.normalSpeed + (worm.speedBonus || 0))}`, suffix: "" },
+  { static: true, icon: "\u23F1\uFE0F", label: "Thời Gian", accent: { r: 255, g: 255, b: 255 }, value: () => formatPlayTime(playTime), suffix: "" }
 ];
 
 function drawStaticStatCell(targetCtx, item, x, y, w, h, fontSize) {
@@ -7713,7 +7939,8 @@ function drawStaticStatCell(targetCtx, item, x, y, w, h, fontSize) {
   targetCtx.textBaseline = "alphabetic";
   targetCtx.font = `900 ${Math.round(fontSize * 1.18)}px Arial`;
   targetCtx.fillStyle = `rgb(${item.accent.r}, ${item.accent.g}, ${item.accent.b})`;
-  targetCtx.fillText(`${item.value}${item.suffix || ""}`, cx, valueY);
+  const staticVal = typeof item.value === "function" ? item.value() : item.value;
+  targetCtx.fillText(`${staticVal}${item.suffix || ""}`, cx, valueY);
   targetCtx.restore();
 }
 
@@ -7826,12 +8053,18 @@ function drawStatCell(targetCtx, item, x, y, w, h, fontSize) {
   });
 }
 
+function getVisibleStatHudItems() {
+  if (currentDifficulty === "endless") return STAT_HUD_ITEMS;
+  return STAT_HUD_ITEMS.filter(item => item.label !== "Tốc Độ");
+}
+
 function drawStatsPanel(targetCtx, scaleUi, fontSize) {
+  const visibleItems = getVisibleStatHudItems();
   const cellW = Math.floor(102 * scaleUi);
   const cellH = Math.floor(48 * scaleUi);
   const panelX = Math.floor(14 * scaleUi);
   const panelY = Math.floor(10 * scaleUi);
-  const panelW = cellW * STAT_HUD_ITEMS.length;
+  const panelW = cellW * visibleItems.length;
   const panelH = cellH;
   const radius = Math.max(6, Math.floor(12 * scaleUi));
 
@@ -7852,7 +8085,7 @@ function drawStatsPanel(targetCtx, scaleUi, fontSize) {
   targetCtx.lineWidth = Math.max(1, Math.floor(1.5 * scaleUi));
   targetCtx.strokeStyle = "rgba(255, 255, 255, 0.14)";
   targetCtx.stroke();
-  for (let i = 1; i < STAT_HUD_ITEMS.length; i++) {
+  for (let i = 1; i < visibleItems.length; i++) {
     const dx = panelX + cellW * i;
     targetCtx.beginPath();
     targetCtx.moveTo(dx, panelY + panelH * .18);
@@ -7863,8 +8096,12 @@ function drawStatsPanel(targetCtx, scaleUi, fontSize) {
   }
   targetCtx.restore();
 
-  STAT_HUD_ITEMS.forEach((item, i) => {
-    drawStatCell(targetCtx, item, panelX + cellW * i, panelY, cellW, cellH, fontSize);
+  visibleItems.forEach((item, i) => {
+    if (item.static) {
+      drawStaticStatCell(targetCtx, item, panelX + cellW * i, panelY, cellW, cellH, fontSize);
+    } else {
+      drawStatCell(targetCtx, item, panelX + cellW * i, panelY, cellW, cellH, fontSize);
+    }
   });
 }
 
