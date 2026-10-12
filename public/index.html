@@ -49,17 +49,45 @@
 
     body.lan-split-view #lan-left-pane {
       width: 50%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     body.lan-split-view #game-container {
+      position: relative !important;
+      inset: auto !important;
       width: 100% !important;
       height: 100% !important;
-      margin-top: 0 !important;
-    }
-
-    body.lan-split-view canvas {
       max-width: 100% !important;
       max-height: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+    }
+
+    body.lan-split-view canvas#game {
+      max-width: calc(100% - 10px) !important;
+      max-height: calc(100% - 10px) !important;
+      width: auto !important;
+      height: auto !important;
+      object-fit: contain !important;
+      margin: auto !important;
+      border: 2.5px solid #00ffff !important;
+      box-shadow: 0 0 16px rgba(0, 255, 255, 0.4) !important;
+      border-radius: 6px !important;
+    }
+
+    body.lan-split-view.lan-is-p2 canvas#game {
+      border-color: #ff0055 !important;
+      box-shadow: 0 0 16px rgba(255, 0, 85, 0.4) !important;
     }
 
     #lan-split-divider {
@@ -87,12 +115,14 @@
       right: 0;
       width: 50%;
       height: 100%;
+      height: 100dvh;
       background: #030005;
       z-index: 259000;
       overflow: hidden;
       align-items: center;
       justify-content: center;
       pointer-events: none;
+      box-sizing: border-box;
     }
 
     body.lan-split-view #lan-opponent-pane {
@@ -130,13 +160,26 @@
     }
 
     #lan-opponent-canvas {
-      width: 100%;
-      height: 100%;
       display: none;
+      max-width: calc(100% - 10px) !important;
+      max-height: calc(100% - 10px) !important;
+      width: auto !important;
+      height: auto !important;
+      object-fit: contain !important;
+      margin: auto !important;
+      border: 2.5px solid #ff0055 !important;
+      box-shadow: 0 0 16px rgba(255, 0, 85, 0.4) !important;
+      border-radius: 6px !important;
+      box-sizing: border-box !important;
     }
 
     body.lan-opp-has-frame #lan-opponent-canvas {
-      display: block;
+      display: block !important;
+    }
+
+    body.lan-split-view.lan-is-p2 #lan-opponent-canvas {
+      border-color: #00ffff !important;
+      box-shadow: 0 0 16px rgba(0, 255, 255, 0.4) !important;
     }
 
     #lan-opponent-paused-badge {
@@ -163,28 +206,63 @@
       display: block;
     }
 
-    @media (max-width: 900px) and (orientation: portrait) {
+    @media (orientation: portrait), (max-width: 900px) and (orientation: portrait) {
       body.lan-split-view #lan-left-pane {
-        width: 100%;
-        height: 50%;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: auto !important;
+        width: 100% !important;
+        width: 100vw !important;
+        height: 50% !important;
+        height: 50dvh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
       }
 
       body.lan-split-view #lan-opponent-pane {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 50%;
+        position: fixed !important;
+        top: 50% !important;
+        top: 50dvh !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        width: 100vw !important;
+        height: 50% !important;
+        height: 50dvh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
       }
 
       body.lan-split-view #lan-split-divider {
-        left: 0;
-        right: 0;
-        top: 50%;
-        width: auto;
-        height: 3px;
-        transform: translateY(-1.5px);
-        background: linear-gradient(90deg, #00ffff, #ff0055);
+        left: 0 !important;
+        right: 0 !important;
+        top: 50% !important;
+        top: 50dvh !important;
+        bottom: auto !important;
+        width: 100% !important;
+        width: 100vw !important;
+        height: 3px !important;
+        transform: translateY(-1.5px) !important;
+        background: linear-gradient(90deg, #00ffff, #ff0055) !important;
+        z-index: 260000 !important;
+        display: block !important;
+      }
+
+      body.lan-split-view canvas#game,
+      body.lan-split-view #lan-opponent-canvas {
+        max-width: calc(100vw - 12px) !important;
+        max-height: calc(50dvh - 12px) !important;
+        width: auto !important;
+        height: auto !important;
       }
     }
 
@@ -529,10 +607,13 @@
 
     body.is-mobile-device canvas,
     body.perf-mode canvas,
-    body.gfx-ultralow canvas,
-    @media (orientation: portrait),
-    @media (max-width: 900px) {
-      canvas {
+    body.gfx-ultralow canvas {
+      box-shadow: none !important;
+      border-width: 2px !important;
+    }
+
+    @media (orientation: portrait), (max-width: 900px) {
+      body:not(.lan-split-view) canvas {
         box-shadow: none !important;
         border-width: 2px !important;
       }
@@ -857,7 +938,7 @@
         align-items: center;
       }
 
-      #game-container {
+      body:not(.lan-split-view) #game-container {
         position: fixed;
         inset: 0;
         height: 100vh !important;
@@ -875,7 +956,7 @@
         box-sizing: border-box !important;
       }
 
-      canvas {
+      body:not(.lan-split-view) canvas {
         max-height: 52vh !important;
         max-height: 52dvh !important;
         max-width: 100vw !important;
@@ -6917,6 +6998,26 @@
       font-size: 11px;
     }
 
+    .skin-preview-stage.stage-epic {
+      border-color: transparent !important;
+      background:
+        radial-gradient(ellipse at 50% 60%, rgba(28, 14, 46, 0.94) 0%, rgba(6, 3, 14, 0.98) 100%) padding-box,
+        linear-gradient(135deg, rgba(170, 0, 255, 0.75), rgba(255, 0, 128, 0.65), rgba(0, 229, 255, 0.65), rgba(255, 170, 0, 0.75)) border-box;
+      background-size: 100% 100%, 200% 200%;
+      border: 2px solid transparent;
+      animation: epicStageBorderGlow 4s ease-in-out infinite alternate;
+      box-shadow: 0 0 20px rgba(186, 85, 211, 0.35), inset 0 0 25px rgba(0, 0, 0, 0.75);
+    }
+
+    @keyframes epicStageBorderGlow {
+      0% {
+        box-shadow: 0 0 16px rgba(186, 85, 211, 0.28), 0 0 32px rgba(0, 229, 255, 0.18), inset 0 0 20px rgba(0, 0, 0, 0.75);
+      }
+      100% {
+        box-shadow: 0 0 26px rgba(255, 0, 128, 0.42), 0 0 45px rgba(170, 0, 255, 0.32), inset 0 0 25px rgba(0, 0, 0, 0.75);
+      }
+    }
+
     .skin-preview-stage.stage-ultra20 {
       border-color: transparent !important;
       background:
@@ -11096,6 +11197,188 @@
       }
     }
 
+    /* === NÚT & MODAL RESET GAME KHI BỊ LỖI === */
+    .settings-reset-lux-card {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(255, 23, 68, 0.18) 0%, rgba(30, 8, 16, 0.85) 100%);
+      border: 1.5px solid rgba(255, 61, 0, 0.5);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255, 23, 68, 0.15);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+      margin-top: 4px;
+      text-align: left;
+    }
+    .settings-reset-lux-card:hover {
+      background: linear-gradient(135deg, rgba(255, 23, 68, 0.32) 0%, rgba(45, 10, 22, 0.95) 100%);
+      border-color: #ff1744;
+      box-shadow: 0 6px 24px rgba(255, 23, 68, 0.35);
+      transform: translateY(-2px);
+    }
+    .settings-reset-lux-card:active {
+      transform: scale(0.98);
+    }
+    .settings-reset-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .settings-reset-halo-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 23, 68, 0.22);
+      border: 1px solid rgba(255, 23, 68, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .settings-reset-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #ff5252;
+      letter-spacing: 0.5px;
+    }
+    .settings-reset-desc {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.65);
+      margin-top: 2px;
+    }
+    .settings-reset-cta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255, 23, 68, 0.25);
+      border: 1px solid rgba(255, 23, 68, 0.5);
+      border-radius: 20px;
+      color: #ff8a80;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      transition: background 0.2s ease;
+    }
+    .settings-reset-lux-card:hover .settings-reset-cta {
+      background: rgba(255, 23, 68, 0.45);
+      color: #fff;
+    }
+
+    /* Modal Overlay & Dialog */
+    .reset-confirm-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100010;
+      padding: 16px;
+      animation: fadeIn 0.2s ease;
+    }
+    .reset-confirm-dialog {
+      background: linear-gradient(165deg, rgba(28, 12, 18, 0.98) 0%, rgba(12, 4, 8, 0.98) 100%);
+      border: 1.5px solid rgba(255, 61, 0, 0.6);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      padding: 22px;
+      box-shadow: 0 10px 40px rgba(255, 23, 68, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      box-sizing: border-box;
+      text-align: left;
+    }
+    .reset-confirm-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .reset-confirm-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 61, 0, 0.2);
+      border: 1px solid rgba(255, 61, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .reset-confirm-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: #ff5252;
+      letter-spacing: 0.5px;
+    }
+    .reset-confirm-subtitle {
+      font-size: 10.5px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 2px;
+    }
+    .reset-confirm-main-text {
+      font-size: 13px;
+      color: #ffffff;
+      font-weight: 600;
+      margin: 0 0 10px 0;
+      line-height: 1.4;
+    }
+    .reset-confirm-info-box {
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+    .reset-confirm-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .reset-modal-btn {
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+      border: none;
+    }
+    .reset-modal-btn.btn-cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .reset-modal-btn.btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+    .reset-modal-btn.btn-confirm {
+      background: linear-gradient(135deg, #ff1744 0%, #ff5252 100%);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(255, 23, 68, 0.5);
+    }
+    .reset-modal-btn.btn-confirm:hover {
+      background: linear-gradient(135deg, #d50000 0%, #ff1744 100%);
+      box-shadow: 0 0 22px rgba(255, 23, 68, 0.7);
+      transform: translateY(-1px);
+    }
+    .reset-modal-btn.btn-confirm:active {
+      transform: scale(0.96);
+    }
+
     .gift-pass-lux-card {
       width: 100%;
       box-sizing: border-box;
@@ -11524,19 +11807,20 @@
     @media (orientation: landscape) and (max-height: 560px),
     (max-width: 960px) and (orientation: landscape) {
       #panel-skin.skin-lux-panel {
-        width: 96vw !important;
-        max-width: 960px !important;
-        height: 96vh !important;
-        height: 96dvh !important;
-        max-height: 98vh !important;
-        padding: 6px 12px 6px !important;
-        gap: 5px !important;
-        border-radius: 16px !important;
+        width: 98vw !important;
+        max-width: 99vw !important;
+        height: 98vh !important;
+        height: 98dvh !important;
+        max-height: 99vh !important;
+        padding: 4px 10px 4px !important;
+        gap: 4px !important;
+        border-radius: 14px !important;
         box-sizing: border-box !important;
         flex-direction: column !important;
         overflow: hidden !important;
         background: radial-gradient(circle at 50% 0%, #150f24 0%, #08060e 100%) !important;
-        border: 1px solid rgba(0, 240, 255, 0.25) !important;
+        border: 1px solid rgba(0, 240, 255, 0.3) !important;
+        z-index: 200 !important;
       }
 
       #panel-skin.skin-lux-panel[style*="flex"] {
@@ -11545,53 +11829,116 @@
 
       .skin-lux-header {
         display: flex !important;
+        flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 2px 4px 4px !important;
-        gap: 8px !important;
+        padding: 2px 4px !important;
+        margin: 0 !important;
+        gap: 6px !important;
         flex-shrink: 0 !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        min-height: 26px !important;
+      }
+
+      .skin-lux-header-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-shrink: 0 !important;
       }
 
       .skin-header-halo-box {
-        width: 24px !important;
-        height: 24px !important;
+        width: 22px !important;
+        height: 22px !important;
       }
 
       .skin-header-icon {
-        font-size: 14px !important;
+        font-size: 13px !important;
       }
 
       .skin-header-title {
-        font-size: 12.5px !important;
-        letter-spacing: 0.8px !important;
+        font-size: 12px !important;
+        letter-spacing: 0.6px !important;
+        margin: 0 !important;
       }
 
       .skin-header-subtitle {
         display: none !important;
       }
 
-      .skin-collection-stat-box {
-        padding: 2.5px 8px !important;
-        border-radius: 12px !important;
+      .skin-header-right-tools {
+        width: auto !important;
+        margin-top: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        justify-content: flex-end !important;
+        flex-shrink: 0 !important;
       }
 
-      .skin-stat-lbl {
+      .skin-gfx-segmented-box {
+        width: auto !important;
+        margin-top: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+        padding: 1.5px 5px !important;
+      }
+
+      .skin-gfx-label {
         font-size: 8px !important;
       }
 
+      .skin-gfx-pills {
+        gap: 2px !important;
+      }
+
+      .skin-gfx-pill-btn {
+        min-width: 32px !important;
+        padding: 2px 5px !important;
+        font-size: 8px !important;
+        border-radius: 5px !important;
+      }
+
+      .gfx-pill-vi {
+        display: none !important;
+      }
+
+      .gfx-pill-en {
+        font-size: 7.5px !important;
+      }
+
+      .skin-collection-stat-box {
+        padding: 2px 6px !important;
+        border-radius: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+      }
+
+      .skin-stat-header {
+        display: flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+      }
+
+      .skin-stat-lbl {
+        font-size: 7.5px !important;
+      }
+
       .skin-stat-val {
-        font-size: 10px !important;
+        font-size: 9px !important;
       }
 
       .skin-collection-bar {
-        width: 75px !important;
-        height: 4px !important;
+        width: 50px !important;
+        height: 3.5px !important;
       }
 
+      /* BỐ CỤC CHỌN SKIN RỘNG RÃI TRÊN MÀN HÌNH NGANG: DÀNH 62% KHÔNG GIAN CHO MỤC CHỌN SKIN */
       .skin-two-col-layout {
         display: grid !important;
-        grid-template-columns: 1.12fr 1fr !important;
+        grid-template-columns: 1.6fr 1fr !important;
         gap: 8px !important;
         flex: 1 1 0% !important;
         height: auto !important;
@@ -11606,23 +11953,26 @@
         flex-direction: column !important;
         min-height: 0 !important;
         overflow: hidden !important;
-        gap: 4px !important;
+        gap: 3px !important;
+        padding-right: 2px !important;
       }
 
       .skin-toolbar {
         gap: 3px !important;
         margin-bottom: 0 !important;
         flex-shrink: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
       }
 
       .skin-search-wrap {
-        height: 25px !important;
+        height: 24px !important;
       }
 
       .skin-search-box {
-        padding: 3px 24px 3px 24px !important;
+        padding: 2px 24px 2px 24px !important;
         font-size: 10.5px !important;
-        height: 25px !important;
+        height: 24px !important;
         border-radius: 8px !important;
       }
 
@@ -11645,32 +11995,34 @@
       }
 
       .skin-pill {
-        padding: 2px 6px !important;
-        font-size: 9px !important;
+        padding: 2px 8px !important;
+        font-size: 9.5px !important;
         border-radius: 12px !important;
         white-space: nowrap !important;
         flex-shrink: 0 !important;
       }
 
       .pill-badge {
-        font-size: 7.5px !important;
-        padding: 0.5px 3.5px !important;
+        font-size: 8px !important;
+        padding: 0.5px 4px !important;
       }
 
+      /* KHU VỰC DANH SÁCH SKIN RỘNG RÃI, THOÁNG ĐÃNG, DỄ NHÌN */
       .skin-scroll-viewport {
         flex: 1 1 0% !important;
         min-height: 0 !important;
         overflow-y: auto !important;
-        padding-right: 2px !important;
+        padding-right: 3px !important;
         contain: content !important;
       }
 
       .skin-grid {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 4px !important;
+        gap: 5px !important;
         width: 100% !important;
         padding-right: 1px !important;
+        box-sizing: border-box !important;
       }
 
       .skin-card {
@@ -11678,39 +12030,44 @@
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 4px 6px !important;
-        gap: 5px !important;
-        border-radius: 8px !important;
+        padding: 4px 8px !important;
+        gap: 6px !important;
+        border-radius: 9px !important;
         min-width: 0 !important;
         box-sizing: border-box !important;
-        height: 38px !important;
-        background: rgba(255, 255, 255, 0.035) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        box-shadow: none !important;
+        height: 44px !important;
+        background: rgba(255, 255, 255, 0.045) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
         transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease !important;
+      }
+
+      .skin-card:active {
+        transform: scale(0.98) !important;
       }
 
       .skin-card.is-active-skin {
         border: 1.5px solid #00f0ff !important;
-        background: rgba(0, 240, 255, 0.12) !important;
-        box-shadow: 0 0 10px rgba(0, 240, 255, 0.25) !important;
+        background: rgba(0, 240, 255, 0.15) !important;
+        box-shadow: 0 0 12px rgba(0, 240, 255, 0.3) !important;
       }
 
       .card-thumb-wrap {
         flex-shrink: 0 !important;
-        padding: 1.5px 3px !important;
-        gap: 2px !important;
-        border-radius: 6px !important;
+        padding: 2px 4px !important;
+        gap: 2.5px !important;
+        border-radius: 7px !important;
+        background: rgba(0, 0, 0, 0.4) !important;
       }
 
       .card-thumb-dot {
-        width: 7px !important;
-        height: 7px !important;
+        width: 8px !important;
+        height: 8px !important;
       }
 
       .card-thumb-dot.is-head {
-        width: 10px !important;
-        height: 10px !important;
+        width: 11px !important;
+        height: 11px !important;
       }
 
       .card-info-wrap {
@@ -11719,39 +12076,40 @@
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 1.5px !important;
+        gap: 2px !important;
       }
 
       .card-skin-name {
-        font-size: 9.5px !important;
+        font-size: 10px !important;
         font-weight: 700 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         letter-spacing: 0.2px !important;
-        line-height: 1.1 !important;
+        line-height: 1.15 !important;
       }
 
       .card-sub-row {
         display: flex !important;
         align-items: center !important;
-        gap: 3px !important;
+        gap: 4px !important;
       }
 
       .card-rarity-badge {
         font-size: 7.5px !important;
-        padding: 0.5px 4px !important;
+        padding: 1px 4.5px !important;
         border-radius: 4px !important;
       }
 
       .card-state-badge {
         flex-shrink: 0 !important;
         font-size: 7.5px !important;
-        padding: 1.5px 5px !important;
+        padding: 1.5px 5.5px !important;
         border-radius: 5px !important;
         white-space: nowrap !important;
       }
 
+      /* CỘT CHI TIẾT & XEM TRƯỚC BÊN PHẢI GỌN GÀNG, KHÔNG LẤN CHIẾM */
       .skin-right-col {
         height: 100% !important;
         display: flex !important;
@@ -11765,8 +12123,8 @@
         height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
-        padding: 5px 8px !important;
-        gap: 4px !important;
+        padding: 4px 7px !important;
+        gap: 3px !important;
         border-radius: 12px !important;
         box-sizing: border-box !important;
         background: rgba(12, 10, 20, 0.92) !important;
@@ -11775,8 +12133,8 @@
       }
 
       .skin-preview-stage {
-        height: 76px !important;
-        min-height: 76px !important;
+        height: 80px !important;
+        min-height: 80px !important;
         border-radius: 10px !important;
         position: relative !important;
         display: flex !important;
@@ -11789,7 +12147,7 @@
       }
 
       #skin-preview-canvas {
-        height: 66px !important;
+        height: 70px !important;
         width: 100% !important;
         object-fit: contain !important;
       }
@@ -11837,7 +12195,7 @@
         flex-direction: column !important;
         justify-content: space-between !important;
         min-height: 0 !important;
-        gap: 3px !important;
+        gap: 2.5px !important;
         overflow: hidden !important;
       }
 
@@ -11866,47 +12224,25 @@
       }
 
       .skin-detail-desc {
-        font-size: 8.5px !important;
-        line-height: 1.2 !important;
-        font-style: italic !important;
-        color: rgba(255, 255, 255, 0.72) !important;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 1 !important;
-        line-clamp: 1 !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-        flex-shrink: 0 !important;
+        display: none !important;
       }
 
-      .skin-detail-desc {
-        display: none !important;
+      .skin-perks-box {
+        display: none !important; /* Ẩn bớt trên điện thoại màn hình ngang để nhường toàn bộ diện tích cho phần chọn skin & xem trước */
       }
 
       .skin-mission-box {
         display: flex !important;
-        padding: 3px 6px !important;
-        gap: 1.5px !important;
-        border-radius: 6px !important;
-        background: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid rgba(255, 255, 255, 0.07) !important;
-      }
-
-      .skin-perks-box {
-        display: flex !important;
-        padding: 3px 6px !important;
-        gap: 1.5px !important;
-        border-radius: 6px !important;
-        background: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid rgba(255, 255, 255, 0.07) !important;
-      }
-
-      .hidden-legacy-mission-box {
-        padding: 3px 6px !important;
+        padding: 2.5px 6px !important;
         gap: 1.5px !important;
         border-radius: 6px !important;
         background: rgba(255, 255, 255, 0.04) !important;
         border: 1px solid rgba(255, 255, 255, 0.07) !important;
         flex-shrink: 0 !important;
+      }
+
+      .hidden-legacy-mission-box {
+        display: none !important;
       }
 
       .mission-header {
@@ -11923,7 +12259,7 @@
       }
 
       .mission-desc {
-        font-size: 8.5px !important;
+        font-size: 8px !important;
         line-height: 1.15 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -11951,12 +12287,12 @@
 
       .btn-equip-lux {
         width: 100% !important;
-        padding: 5px 10px !important;
-        font-size: 10.5px !important;
+        padding: 4px 10px !important;
+        font-size: 10px !important;
         font-weight: 800 !important;
-        letter-spacing: 0.8px !important;
+        letter-spacing: 0.6px !important;
         border-radius: 8px !important;
-        height: 30px !important;
+        height: 28px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -11968,16 +12304,16 @@
         display: flex !important;
         justify-content: center !important;
         padding-top: 2px !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-top: none !important;
         flex-shrink: 0 !important;
       }
 
       .skin-back-btn {
         width: auto !important;
-        min-width: 140px !important;
-        padding: 3px 12px !important;
+        min-width: 120px !important;
+        padding: 2px 12px !important;
         font-size: 9.5px !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         height: 22px !important;
         line-height: 22px !important;
         display: flex !important;
@@ -13383,6 +13719,36 @@
     #roll-overlay.roll-overlay-show {
       opacity: 1;
       pointer-events: auto;
+    }
+
+    /* Tối ưu hóa Roll cho các mức đồ họa thấp / siêu nhẹ */
+    body.gfx-low #roll-overlay,
+    body.gfx-ultralow #roll-overlay,
+    body.gfx-low .roll-panel,
+    body.gfx-ultralow .roll-panel {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7) !important;
+    }
+
+    body.gfx-low .roll-speed-lines,
+    body.gfx-ultralow .roll-speed-lines,
+    body.gfx-low .roll-god-rays,
+    body.gfx-ultralow .roll-god-rays,
+    body.gfx-low .roll-flash,
+    body.gfx-ultralow .roll-flash {
+      display: none !important;
+      animation: none !important;
+    }
+
+    body.gfx-low .roll-reel-cell,
+    body.gfx-ultralow .roll-reel-cell,
+    body.gfx-low .roll-cell-card,
+    body.gfx-ultralow .roll-cell-card,
+    body.gfx-low .roll-result-card,
+    body.gfx-ultralow .roll-result-card {
+      box-shadow: none !important;
+      text-shadow: none !important;
     }
 
     #roll-particles-canvas {
@@ -16708,6 +17074,27 @@
               </button>
             </div>
 
+            <!-- MỤC KHỞI ĐỘNG LẠI / RESET GAME KHI GẶP LỖI -->
+            <div class="settings-lux-section settings-emergency-reset-section">
+              <div class="settings-section-badge">
+                <span class="section-badge-icon">⚠️</span>
+                <span class="section-badge-title">KHẮC PHỤC SỰ CỐ &amp; LỖI GAME</span>
+              </div>
+              <button type="button" id="btn-settings-reset-game" class="settings-reset-lux-card" title="Khởi động lại toàn bộ game khi gặp tình trạng lỗi, đơ lag hoặc kẹt màn hình">
+                <div class="settings-reset-left">
+                  <div class="settings-reset-halo-box">🔄</div>
+                  <div class="settings-reset-text">
+                    <div class="settings-reset-title">KHỞI ĐỘNG LẠI GAME (KHI BỊ LỖI)</div>
+                    <div class="settings-reset-desc">Khắc phục kẹt màn hình, lỗi logic hoặc game bị đơ</div>
+                  </div>
+                </div>
+                <div class="settings-reset-cta">
+                  <span>RESET GAME</span>
+                  <span class="cta-arrow">⚡</span>
+                </div>
+              </button>
+            </div>
+
           </div>
 
           <div class="settings-lux-footer">
@@ -16773,6 +17160,30 @@
         </div>
       </div>
     </div>
+    <!-- MODAL XÁC NHẬN RESET GAME KHI GẶP LỖI -->
+    <div id="modal-reset-game-confirm" class="reset-confirm-modal-overlay" style="display: none;">
+      <div class="reset-confirm-dialog">
+        <div class="reset-confirm-header">
+          <div class="reset-confirm-icon-box">⚠️</div>
+          <div class="reset-confirm-title-group">
+            <div class="reset-confirm-title">XÁC NHẬN KHỞI ĐỘNG LẠI GAME</div>
+            <div class="reset-confirm-subtitle">Khôi phục trạng thái hoạt động sạch</div>
+          </div>
+        </div>
+        <div class="reset-confirm-body">
+          <p class="reset-confirm-main-text">Bạn có chắc chắn muốn khởi động lại toàn bộ game không?</p>
+          <div class="reset-confirm-info-box">
+            <span class="info-icon">💡</span>
+            <span>Thao tác này sẽ tải lại sạch toàn bộ game để khắc phục triệt để mọi tình trạng lỗi, đơ lag, kẹt map hoặc treo logic. Dữ liệu skin &amp; kỷ lục đã lưu vẫn được giữ nguyên.</span>
+          </div>
+        </div>
+        <div class="reset-confirm-footer">
+          <button type="button" id="btn-reset-cancel" class="reset-modal-btn btn-cancel">HỦY BỎ</button>
+          <button type="button" id="btn-reset-ok" class="reset-modal-btn btn-confirm">XÁC NHẬN RESET ⚡</button>
+        </div>
+      </div>
+    </div>
+
     <div id="gift-pass-overlay">
       <div id="gift-pass-card">
         <div class="gift-pass-icon">🎁</div>
@@ -17424,15 +17835,27 @@
     function findEatenFoodIndex(headX, headY, prevX, prevY) {
       for (let i = 0; i < foods.length; i++) {
         const f = foods[i];
-        if (headX >= f.x && headX < f.x + f.size && headY >= f.y && headY < f.y + f.size) return i;
+        if (!f) continue;
+        const fSize = (typeof f.size === "number" && f.size > 0) ? f.size : 2;
+        const minX = Math.floor(f.x);
+        const maxX = Math.ceil(f.x + fSize);
+        const minY = Math.floor(f.y);
+        const maxY = Math.ceil(f.y + fSize);
+        if (headX >= minX && headX < maxX && headY >= minY && headY < maxY) return i;
       }
       const isDiagonalStep = prevX !== headX && prevY !== headY &&
         Math.abs(headX - prevX) === 1 && Math.abs(headY - prevY) === 1;
       if (isDiagonalStep) {
         for (let i = 0; i < foods.length; i++) {
           const f = foods[i];
-          const cornerA = prevX >= f.x && prevX < f.x + f.size && headY >= f.y && headY < f.y + f.size;
-          const cornerB = headX >= f.x && headX < f.x + f.size && prevY >= f.y && prevY < f.y + f.size;
+          if (!f) continue;
+          const fSize = (typeof f.size === "number" && f.size > 0) ? f.size : 2;
+          const minX = Math.floor(f.x);
+          const maxX = Math.ceil(f.x + fSize);
+          const minY = Math.floor(f.y);
+          const maxY = Math.ceil(f.y + fSize);
+          const cornerA = prevX >= minX && prevX < maxX && headY >= minY && headY < maxY;
+          const cornerB = headX >= minX && headX < maxX && prevY >= minY && prevY < maxY;
           if (cornerA || cornerB) return i;
         }
       }
@@ -18717,8 +19140,16 @@
         if (canvas) canvas.style.imageRendering = "auto";
       }
 
-      // TỐI ƯU ĐẶC BIỆT MÀN HÌNH DỌC: Khóa buffer khớp với kích thước vật lý hiển thị thực tế
-      if (isPortrait && window.innerWidth > 0) {
+      // TỐI ƯU ĐẶC BIỆT MÀN HÌNH DỌC VÀ CHẾ ĐỘ 2 NGƯỜI CHƠI (SPLIT VIEW):
+      if (isTwoPlayerFrame && typeof window !== "undefined" && window.innerWidth > 0 && window.innerHeight > 0) {
+        const paneW = isPortrait ? window.innerWidth : (window.innerWidth * 0.5);
+        const paneH = isPortrait ? (window.innerHeight * 0.5) : window.innerHeight;
+        const screenDpr = Math.min(1.5, window.devicePixelRatio || 1);
+        const scaleW = (paneW * screenDpr) / logicalW;
+        const scaleH = (paneH * screenDpr) / logicalH;
+        targetScale = Math.min(scaleW, scaleH);
+        targetScale = Math.max(0.45, Math.min(1.2, targetScale));
+      } else if (isPortrait && window.innerWidth > 0) {
         const screenDpr = Math.min(1.5, window.devicePixelRatio || 1);
         const idealWidth = window.innerWidth * screenDpr;
         const portraitScale = idealWidth / logicalW;
@@ -18734,10 +19165,8 @@
         const factor = Math.min(MAX_CANVAS_W / bufW, MAX_CANVAS_H / bufH);
         bufW = Math.round(bufW * factor);
         bufH = Math.round(bufH * factor);
-        targetScale = bufW / logicalW;
       }
 
-      renderScale = targetScale;
       bufW = Math.max(320, bufW);
       bufH = Math.max(180, bufH);
 
@@ -18745,9 +19174,14 @@
       bufW = Math.round(bufW / 2) * 2;
       bufH = Math.round(bufH / 2) * 2;
 
+      renderScale = bufW / logicalW;
+
       if (canvas.width !== bufW || canvas.height !== bufH) {
         canvas.width = bufW;
         canvas.height = bufH;
+        // Canvas resize gây stall GPU/DOM; reset mốc thời gian để giun không bị vọt nhanh
+        lastLoopTime = 0;
+        moveCounter = 0;
       }
       canvas.style.aspectRatio = `${logicalW} / ${logicalH}`;
     }
@@ -18757,6 +19191,18 @@
       graphicsQuality = quality;
       highPerformanceMode = (quality === "ultralow" || quality === "low");
       specialCompatibilityMode = (quality === "ultralow");
+
+      // Triệt tiêu lỗi thay đổi đồ họa khiến giun tự dưng nhanh hơn:
+      // Đặt lại mốc thời gian khung hình và bước di chuyển để không bị dồn tích lũy bước đi
+      lastLoopTime = 0;
+      moveCounter = 0;
+      try {
+        if (typeof worm !== "undefined" && worm && worm.body && worm.body.length > 0 && typeof resetSpeedForCurrentDifficulty === "function") {
+          if (!worm.isCrazy && (!worm.nitroTimer || worm.nitroTimer <= 0) && (!worm.speedBonus || worm.speedBonus <= 0) && (!worm.speedMultiplier || worm.speedMultiplier === 1)) {
+            resetSpeedForCurrentDifficulty();
+          }
+        }
+      } catch (e) { }
 
       try {
         localStorage.setItem(GRAPHICS_QUALITY_STORAGE_KEY, quality);
@@ -19053,7 +19499,7 @@
 
     const activeKeys = {};
 
-    let isTwoPlayerFrame = false;
+    var isTwoPlayerFrame = false;
 
     let twoPlayerRoomMode = "split"; // "split" (bản đồ riêng, như cũ) | "pvp" (chung bản đồ)
     let isPvpMode = false;
@@ -19336,6 +19782,8 @@
     function setupTwoPlayerFrameUI() {
       document.body.classList.add("lan-match");
       document.body.classList.add("lan-split-view");
+      document.body.classList.toggle("lan-is-p2", twoPlayerId === 2);
+      document.body.classList.toggle("lan-is-p1", twoPlayerId === 1);
       const badge = document.getElementById("p2-player-badge");
       if (badge) {
         badge.style.display = "flex";
@@ -19344,14 +19792,23 @@
         badge.style.borderColor = twoPlayerId === 1 ? "#00ffff" : "#ff0055";
         badge.style.color = twoPlayerId === 1 ? "#00ffff" : "#ff0055";
       }
+      const oppLabel = document.getElementById("lan-opponent-label");
+      if (oppLabel) {
+        oppLabel.textContent = twoPlayerId === 1 ? "⚔️ ĐỐI THỦ (P2)" : "⚔️ ĐỐI THỦ (P1)";
+        oppLabel.style.borderColor = twoPlayerId === 1 ? "#ff0055" : "#00ffff";
+        oppLabel.style.color = twoPlayerId === 1 ? "#ff0055" : "#00ffff";
+      }
       const twopContainerEl = document.getElementById("twop-container");
       if (twopContainerEl) twopContainerEl.classList.add("twop-active");
+      applyCanvasResolution();
       startLanStateSync();
     }
 
     function teardownTwoPlayerFrameUI() {
       document.body.classList.remove("lan-match");
       document.body.classList.remove("lan-split-view");
+      document.body.classList.remove("lan-is-p2");
+      document.body.classList.remove("lan-is-p1");
       const badge = document.getElementById("p2-player-badge");
       if (badge) badge.style.display = "none";
       const twopContainerEl = document.getElementById("twop-container");
@@ -19359,6 +19816,7 @@
       document.getElementById("twop-exit-confirm").classList.remove("twop-exit-confirm-show");
       stopLanStateSync();
       resetLanOpponentView();
+      applyCanvasResolution();
     }
 
     const LAN_STATE_INTERVAL_MS = 60;
@@ -19470,6 +19928,10 @@
           size: p[3] || 1
         })) : []
       };
+      const oppCanvas = document.getElementById("lan-opponent-canvas");
+      if (oppCanvas) {
+        oppCanvas.style.aspectRatio = `${lanOpponentMap.cols} / ${lanOpponentMap.rows}`;
+      }
     }
 
     function getInterpolatedOpponentSnapshot() {
@@ -19593,15 +20055,29 @@
       };
     }
 
+    let lanOpponentDisplayBody = [];
+
     function renderLanOpponentCanvas() {
       if (!document.body.classList.contains("lan-split-view")) return;
       const oppCanvas = document.getElementById("lan-opponent-canvas");
       if (!oppCanvas || !lanOpponentMap || lanOpponentSnapshots.length === 0) return;
       if (!lanOppCanvasCtx) lanOppCanvasCtx = oppCanvas.getContext("2d");
       const ctx2 = lanOppCanvasCtx;
-      const dispW = oppCanvas.clientWidth || 400, dispH = oppCanvas.clientHeight || 300;
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const pxW = Math.max(1, Math.round(dispW * dpr)), pxH = Math.max(1, Math.round(dispH * dpr));
+
+      const oppCols = lanOpponentMap.cols || 48;
+      const oppRows = lanOpponentMap.rows || 27;
+      const mapPxW = oppCols * gridSize;
+      const mapPxH = oppRows * gridSize;
+
+      // Đặt chính xác tỉ lệ khung hình cho canvas đối thủ theo đúng kích thước bản đồ đối thủ
+      oppCanvas.style.aspectRatio = `${oppCols} / ${oppRows}`;
+
+      const dispW = oppCanvas.clientWidth || 400;
+      const dispH = oppCanvas.clientHeight || 300;
+      const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      const pxW = Math.max(1, Math.round(dispW * dpr));
+      const pxH = Math.max(1, Math.round(dispH * dpr));
+
       if (oppCanvas.width !== pxW || oppCanvas.height !== pxH) {
         oppCanvas.width = pxW;
         oppCanvas.height = pxH;
@@ -19610,9 +20086,11 @@
       if (!snap) return;
       ctx2.setTransform(1, 0, 0, 1, 0, 0);
       ctx2.clearRect(0, 0, pxW, pxH);
-      const mapPxW = lanOpponentMap.cols * gridSize, mapPxH = lanOpponentMap.rows * gridSize;
+
       const fitScale = Math.min(pxW / mapPxW, pxH / mapPxH) || 1;
-      const offX = (pxW - mapPxW * fitScale) / 2, offY = (pxH - mapPxH * fitScale) / 2;
+      const offX = (pxW - mapPxW * fitScale) / 2;
+      const offY = (pxH - mapPxH * fitScale) / 2;
+
       ctx2.fillStyle = "#000";
       ctx2.fillRect(0, 0, pxW, pxH);
       ctx2.save();
@@ -19624,13 +20102,13 @@
       ctx2.strokeStyle = mapColors.stroke;
       ctx2.lineWidth = 1;
       if (gridLinesEnabled) {
-        for (let i = 0; i <= lanOpponentMap.cols; i++) {
+        for (let i = 0; i <= oppCols; i++) {
           ctx2.beginPath();
           ctx2.moveTo(i * gridSize, 0);
           ctx2.lineTo(i * gridSize, mapPxH);
           ctx2.stroke();
         }
-        for (let j = 0; j <= lanOpponentMap.rows; j++) {
+        for (let j = 0; j <= oppRows; j++) {
           ctx2.beginPath();
           ctx2.moveTo(0, j * gridSize);
           ctx2.lineTo(mapPxW, j * gridSize);
@@ -19640,7 +20118,7 @@
       drawObstacleList(ctx2, lanOpponentMap.obstacles, 0, 0, 1);
       drawFoodList(ctx2, lanOpponentMap.foods, 0, 0, 1);
       if (snap.body.length) {
-        drawWormBody(ctx2, snap.body, snap.skin || "default", snap.shield, snap.crazy, snap.scale, false);
+        drawWormBody(ctx2, snap.body, snap.skin || "default", snap.shield, snap.crazy, snap.scale, false, null, 1, false, lanOpponentDisplayBody);
       }
       ctx2.restore();
       drawOpponentStatsPanel(ctx2, pxW, snap, lanOpponentMap.obstacles.length);
@@ -19899,6 +20377,8 @@
       isTwoPlayerFrame = true;
       setupTwoPlayerFrameUI();
       currentMapSizeSetting = ["small", "medium", "large", "huge"].includes(mapSize) ? mapSize : "small";
+      setMapSizeConfig(currentMapSizeSetting);
+      applyCanvasResolution();
       startGameWithDiff(twoPlayerDiff);
       updateTwoPlayerReviveButtonState();
       showLanToast(player === 1 ? "🎮 Đã ghép phòng! Bạn là P1." : "🎮 Đã ghép phòng! Bạn là P2.");
@@ -20067,6 +20547,7 @@
     }
 
     function pvpPerformDash(isHostPlayer) {
+      if (isHostPlayer) addLifetimeDashIfEligible();
       const body = isHostPlayer ? pvpHost_hostBody : pvpHost_guestBody;
       const dir = isHostPlayer ? pvpHost_hostDir : pvpHost_guestDir;
       if (!body || body.length <= 1 || (dir.x === 0 && dir.y === 0)) return;
@@ -21601,7 +22082,6 @@
       gameOver = false;
       gameWin = false;
       isPaused = false;
-      raceDifficulty = "normal";
       isRaceMode = false;
       isInfiniteMapMode = false;
       isTsunamiMode = false;
@@ -21739,6 +22219,51 @@
       const overlay = document.getElementById("gift-pass-overlay");
       const input = document.getElementById("gift-pass-input");
       const errorEl = document.getElementById("gift-pass-error");
+      // === XỬ LÝ KHỞI ĐỘNG LẠI / RESET GAME KHI GẶP LỖI ===
+      const resetGameBtn = document.getElementById("btn-settings-reset-game");
+      const resetModal = document.getElementById("modal-reset-game-confirm");
+      const resetCancelBtn = document.getElementById("btn-reset-cancel");
+      const resetOkBtn = document.getElementById("btn-reset-ok");
+
+      if (resetGameBtn && resetModal) {
+        resetGameBtn.addEventListener("click", () => {
+          initAudio();
+          playSound("click");
+          resetModal.style.display = "flex";
+        });
+      }
+
+      if (resetCancelBtn && resetModal) {
+        resetCancelBtn.addEventListener("click", () => {
+          initAudio();
+          playSound("click");
+          resetModal.style.display = "none";
+        });
+      }
+
+      if (resetModal) {
+        resetModal.addEventListener("click", (e) => {
+          if (e.target === resetModal) {
+            resetModal.style.display = "none";
+          }
+        });
+      }
+
+      if (resetOkBtn) {
+        resetOkBtn.addEventListener("click", () => {
+          initAudio();
+          playSound("click");
+          try {
+            // Dọn dẹp trạng thái runtime trước khi reload
+            if (typeof isPaused !== "undefined") isPaused = false;
+            if (typeof gameOver !== "undefined") gameOver = false;
+            sessionStorage.clear();
+          } catch (e) { }
+          // Khởi động lại trang để làm mới toàn bộ bộ nhớ và logic game
+          window.location.reload();
+        });
+      }
+
       const openBtn = document.getElementById("btn-gift-pass");
       const cancelBtn = document.getElementById("gift-pass-cancel");
       const submitBtn = document.getElementById("gift-pass-submit");
@@ -22140,6 +22665,7 @@
       }, 500);
       resetAllStats();
       resetGame(false);
+      applyCanvasResolution();
       applyControlUI();
       showMobileActionBtns(true);
       playTrack("game");
@@ -22181,7 +22707,9 @@
     });
 
     function startRaceMode() {
+      const chosenDiff = raceDifficulty || "normal";
       resetAllGameModeFlags();
+      raceDifficulty = chosenDiff;
       speedSlipstreamParticles = [];
       enterImmersiveMode();
       showOnlyPanel(panelRoot);
@@ -22215,7 +22743,11 @@
       const bBtn = document.getElementById("m-btn-boss-attack");
       if (bBtn) bBtn.style.display = "flex";
       updateBossAmmoUI();
-      if (raceDifficulty === "hard") {
+      if (raceDifficulty === "easy") {
+        showBossRushBanner("🌱 CHẾ ĐỘ DỄ (1000 HP): TẬP SỰ THÁCH ĐẤU VOID LEVIATHAN!", "#00e676");
+      } else if (raceDifficulty === "normal") {
+        showBossRushBanner("⚔️ CHẾ ĐỘ TRUNG BÌNH (2000 HP): ĐẠI CHIẾN LEVIATHAN CỔ ĐẠI!", "#00e5ff");
+      } else if (raceDifficulty === "hard") {
         showBossRushBanner("🔥 CHẾ ĐỘ HARD (3000 HP): BOSS MỞ KHÓA 5 TUYỆT CHIÊU BÓNG ĐẠN JSAB & SÁT THƯƠNG DIỆN RỘNG! ⚡", "#ff7700");
       } else if (raceDifficulty === "insane") {
         showBossRushBanner("⚠️ CHẾ ĐỘ INSANE (5000 HP): 1-HIT KILL • TOÀN BỘ 5 CHIÊU ĐẠN JSAB DIỆN RỘNG CỰC HẠN!", "#ff0055");
@@ -22237,6 +22769,7 @@
       navRaceEl.addEventListener("click", () => {
         initAudio();
         playSound("click");
+        selectRaceDifficulty(raceDifficulty || "normal");
         showOnlyPanel(panelRace);
       });
     }
@@ -25161,6 +25694,36 @@
       }
 
       if (isInsane) {
+        // Trong Insane Boss Rush: dính đạn boss chỉ nhận x2 sát thương (mất 2 đốt thân giun) thay vì chết luôn!
+        if (isRaceMode || currentDifficulty === "race") {
+          if (worm.tailBiteCooldown > 0) return false;
+          if (worm.body.length > 3) {
+            worm.body.pop();
+            worm.body.pop();
+            worm.tailBiteCooldown = 0.65; // Miễn nhiễm 0.65s tránh đạn cùng lúc
+            playSound("explode");
+            screenShake = 38;
+            if (hitX !== undefined && hitY !== undefined) {
+              spawnBossShockwave(hitX, hitY, 190, "rgba(255, 23, 68, 0.9)");
+              spawnBossSparks(hitX, hitY, 24, skillColor || "#ff1744");
+              spawnBossFloatingText("💥 TRÚNG ĐẠN (x2 ST: -2 ĐỐT)!", hitX, hitY - 24, "#ff1744", 22);
+            }
+            showBossRushBanner(`⚠️ DÍNH [${skillName}]! NHẬN X2 SÁT THƯƠNG (-2 ĐỐT THÂN)! CÒN ${worm.body.length} ĐỐT!`, "#ff1744");
+            updateBossAmmoUI();
+            return false;
+          } else {
+            playSound("gameover");
+            screenShake = 65;
+            if (hitX !== undefined && hitY !== undefined) {
+              spawnBossShockwave(hitX, hitY, 260, "rgba(255, 0, 85, 0.95)");
+              spawnBossSparks(hitX, hitY, 36, "#ff0055");
+              spawnBossFloatingText("💀 HẾT ĐỐT THÂN GIUN (INSANE)!", hitX, hitY - 30, "#ff0055", 26);
+            }
+            showBossRushBanner(`💀 HẾT ĐỐT THÂN GIUN KHI DÍNH [${skillName}] (X2 SÁT THƯƠNG)! `, "#ff0055");
+            triggerGameOver();
+            return true;
+          }
+        }
         playSound("gameover");
         screenShake = 65;
         if (hitX !== undefined && hitY !== undefined) {
@@ -26835,10 +27398,8 @@
               worm.shieldTimer = 0;
               showBossRushBanner("🛡️ KHIÊN ĐÃ CHẶN NỔ PHÁO CỐI!", "#00e5ff");
             } else {
-              screenShake = 30;
-              playSound("gameover");
-              triggerGameOver();
-              return;
+              const died = applyBossHitToPlayer("PHÁO CỐI NHAM THẠCH", "#ff6d00", (hazCol + 0.5) * gridSize, (hazRow + 0.5) * gridSize);
+              if (died) return;
             }
           }
           bossProjectiles.splice(i, 1);
@@ -31116,7 +31677,7 @@
     }, {
       id: "glitterking",
       name: "Royal Gold 👑✨",
-      condition: "Roll 100 times on Medium difficulty or higher."
+      condition: "Sử dụng kỹ năng Lướt (Dash) 1367 lần."
     }, {
       id: "wildTide",
       name: "Feral Tide 🌊🔥💗",
@@ -31521,6 +32082,31 @@
       if (lifetimeReverseCount >= 100) unlockSkin("cyberQuantum");
     }
 
+    const SKIN_STORAGE_DASH_COUNT = "lumbricidLifetimeDashCount";
+
+    function loadLifetimeDashCount() {
+      try {
+        return parseInt(localStorage.getItem(SKIN_STORAGE_DASH_COUNT) || "0", 10) || 0;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function saveLifetimeDashCount(n) {
+      try {
+        localStorage.setItem(SKIN_STORAGE_DASH_COUNT, String(n));
+      } catch (e) { }
+    }
+
+    let lifetimeDashCount = loadLifetimeDashCount();
+
+    function addLifetimeDashIfEligible() {
+      if (isMenuMode) return;
+      lifetimeDashCount++;
+      saveLifetimeDashCount(lifetimeDashCount);
+      if (lifetimeDashCount >= 1367) unlockSkin("glitterking");
+    }
+
     const SKIN_STORAGE_BLIND_COUNT = "lumbricidBlindCount";
 
     function loadLifetimeBlindCount() {
@@ -31771,7 +32357,6 @@
       if (currentDifficulty === "easy") return;
       rollCountMediumPlus++;
       saveRollCountMediumPlus(rollCountMediumPlus);
-      if (rollCountMediumPlus >= 100) unlockSkin("glitterking");
     }
 
     function addLifetimeCrazyIfEligible() {
@@ -32768,11 +33353,12 @@
         return `hsla(${hue}, 95%, 58%, ${alpha})`;
       }
       if (skinId === "glitterking") {
-        if (isHead) return `rgba(255, 250, 230, ${alpha})`;
-        const shimmer = (Math.sin(index * 1.3 + timeMs * .0028) + 1) / 2;
-        const r = Math.round(255 + (225 - 255) * shimmer);
-        const g = Math.round(205 + (225 - 205) * shimmer);
-        const b = Math.round(70 + (240 - 70) * shimmer);
+        if (isHead) return `rgba(255, 252, 235, ${alpha})`;
+        // Sóng ánh kim vàng ròng 24K nguyên chất chảy mượt mà dọc theo các đốt thân giun
+        const goldWave = Math.sin(index * 0.42 - timeMs * 0.0048);
+        const r = 255;
+        const g = Math.round(208 + goldWave * 32);
+        const b = Math.round(42 + goldWave * 68);
         return `rgba(${r}, ${g}, ${b}, ${alpha})`;
       }
       if (skinId === "wildTide") {
@@ -32988,6 +33574,237 @@
           ctx.stroke();
         }
         ctx.restore();
+      }
+    }
+
+    // --- HIỆU ỨNG ĐẶC QUYỀN MYTHIC: ROYAL GOLD (HOÀNG KIM ĐẾ VƯƠNG 👑✨) ---
+    function drawRoyalGoldSkinEffect(ctx, pxX, pxY, segSize, index, timeMs, isHead) {
+      ctx.save();
+      const isLowGfx = (typeof graphicsQuality !== "undefined" && (graphicsQuality === "low" || graphicsQuality === "ultralow"));
+
+      // 1. Vầng hào quang vàng ròng 24K phát sáng quanh từng đốt thân (Golden Imperial Glow)
+      const pulse = Math.sin(timeMs * 0.0055 + index * 0.45);
+      const glowBlur = isLowGfx ? 0 : (12 + pulse * 6);
+      if (!isLowGfx) {
+        ctx.shadowBlur = glowBlur;
+        ctx.shadowColor = "#ffb300";
+      }
+      ctx.strokeStyle = `rgba(255, 245, 170, ${0.88 + pulse * 0.12})`;
+      ctx.lineWidth = 1.6;
+      ctx.strokeRect(pxX - 1, pxY - 1, segSize + 2, segSize + 2);
+
+      // 2. Viền filigree chạm khắc hoàng gia 2 lớp tinh xảo (Royal Filigree Inset)
+      if (segSize >= 10) {
+        ctx.strokeStyle = "rgba(255, 215, 0, 0.65)";
+        ctx.lineWidth = 0.9;
+        ctx.strokeRect(pxX + 1.5, pxY + 1.5, segSize - 3, segSize - 3);
+        if (segSize >= 22 && !isLowGfx) {
+          ctx.strokeStyle = "rgba(255, 248, 220, 0.4)";
+          ctx.lineWidth = 0.6;
+          ctx.strokeRect(pxX + 3.5, pxY + 3.5, segSize - 7, segSize - 7);
+        }
+      }
+
+      // 3. Sóng ánh sáng vàng ròng cuộn chảy dọc theo thân giun (Traveling Molten Gold Wave)
+      const wormLen = (typeof worm !== "undefined" && worm && worm.body && worm.body.length) ? worm.body.length : 12;
+      const wavePos = (timeMs * 0.016) % (Math.max(wormLen, 6) + 12);
+      const dist = Math.abs(index - wavePos);
+      if (dist < 2.4) {
+        const tWave = 1 - dist / 2.4;
+        const surgeAlpha = tWave * tWave;
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        if (!isLowGfx) {
+          ctx.shadowBlur = 18 * surgeAlpha;
+          ctx.shadowColor = "#fff8e1";
+        }
+        ctx.fillStyle = `rgba(255, 255, 240, ${0.65 * surgeAlpha})`;
+        ctx.fillRect(pxX - 1, pxY - 1, segSize + 2, segSize + 2);
+        ctx.restore();
+      }
+
+      // 4. Vệt sáng gương kim loại phản chiếu quét chéo (Metallic Specular Gleam Sweep)
+      const sweepPhase = (timeMs * 0.003 - index * 0.16) % 1.0;
+      const normSweep = sweepPhase < 0 ? sweepPhase + 1 : sweepPhase;
+      const gleamX = pxX + normSweep * (segSize * 1.7) - segSize * 0.35;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(pxX, pxY, segSize, segSize);
+      ctx.clip();
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
+      if (!isLowGfx) {
+        ctx.shadowColor = "#fff9c4";
+        ctx.shadowBlur = 9;
+      }
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(gleamX - 4, pxY + segSize + 3);
+      ctx.lineTo(gleamX + segSize * 0.5 + 4, pxY - 3);
+      ctx.stroke();
+      ctx.restore();
+
+      // 5. Ngôi sao kim cương 4 cánh lấp lánh ánh kim tỏa rực (Diamond Star Sparkles)
+      const bucket = Math.floor(timeMs / 130);
+      const seed = pseudoRandom01(index * 83.17 + bucket * 19.3);
+      if (seed > 0.58) {
+        const sx = pxX + pseudoRandom01(index * 7.3 + bucket * 1.5) * segSize;
+        const sy = pxY + pseudoRandom01(index * 4.9 + bucket * 2.3) * segSize;
+        const starSize = 2.4 + pseudoRandom01(index + bucket) * 3.0;
+        const starAlpha = 0.6 + pseudoRandom01(index * 3.1 + bucket) * 0.4;
+        
+        ctx.save();
+        ctx.fillStyle = `rgba(255, 255, 255, ${starAlpha})`;
+        if (!isLowGfx) {
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = seed > 0.8 ? "#ffffff" : "#ffd700";
+        }
+        
+        // Hoa văn sao kim cương 4 cánh
+        ctx.beginPath();
+        ctx.moveTo(sx, sy - starSize * 2.4);
+        ctx.quadraticCurveTo(sx, sy, sx + starSize * 2.4, sy);
+        ctx.quadraticCurveTo(sx, sy, sx, sy + starSize * 2.4);
+        ctx.quadraticCurveTo(sx, sy, sx - starSize * 2.4, sy);
+        ctx.quadraticCurveTo(sx, sy, sx, sy - starSize * 2.4);
+        ctx.fill();
+
+        // Tâm nhụy sao trắng tinh khôi
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(sx, sy, starSize * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 6. Vầng thái dương & Vương miện Mặt Trời Đế Vương tỏa sáng 360 độ trên đầu giun (Sovereign Sunburst Mandala & Crown)
+      if (isHead) {
+        const hCx = pxX + segSize / 2;
+        const hCy = pxY + segSize / 2;
+
+        ctx.save();
+        ctx.translate(hCx, hCy);
+
+        // Vòng hào quang mặt trời 360 độ xoay chậm quanh tâm đầu giun
+        ctx.save();
+        ctx.rotate(timeMs * 0.0015);
+        const rayCount = 8;
+        const rayLen = segSize * 0.85 + Math.sin(timeMs * 0.006) * 3;
+        for (let r = 0; r < rayCount; r++) {
+          const rAng = (r * Math.PI * 2) / rayCount;
+          ctx.strokeStyle = r % 2 === 0 ? "rgba(255, 215, 0, 0.75)" : "rgba(255, 248, 220, 0.55)";
+          ctx.lineWidth = r % 2 === 0 ? 1.8 : 1.1;
+          if (!isLowGfx) {
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#ffb300";
+          }
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(rAng) * (segSize * 0.52), Math.sin(rAng) * (segSize * 0.52));
+          ctx.lineTo(Math.cos(rAng) * (segSize * 0.52 + rayLen), Math.sin(rAng) * (segSize * 0.52 + rayLen));
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // Vương miện Hoàng Đế 3 đỉnh nạm ngọc quý đặt trang trọng
+        const crownW = segSize * 0.9;
+        const crownH = segSize * 0.55;
+        const crownTop = -segSize * 0.5 - crownH * 0.65 + Math.sin(timeMs * 0.006) * 2;
+
+        ctx.save();
+        if (!isLowGfx) {
+          ctx.shadowBlur = 18;
+          ctx.shadowColor = "#ffd700";
+        }
+        
+        // Thân vương miện vàng ròng 3 đỉnh
+        ctx.fillStyle = "rgba(255, 215, 0, 0.98)";
+        ctx.beginPath();
+        ctx.moveTo(-crownW * 0.5, crownTop + crownH);
+        ctx.lineTo(-crownW * 0.5, crownTop + crownH * 0.15);
+        ctx.lineTo(-crownW * 0.22, crownTop + crownH * 0.55);
+        ctx.lineTo(0, crownTop); // đỉnh giữa nhô cao nhất
+        ctx.lineTo(crownW * 0.22, crownTop + crownH * 0.55);
+        ctx.lineTo(crownW * 0.5, crownTop + crownH * 0.15);
+        ctx.lineTo(crownW * 0.5, crownTop + crownH);
+        ctx.closePath();
+        ctx.fill();
+
+        // Đế vương miện hoàng gia
+        ctx.fillStyle = "rgba(255, 245, 157, 0.95)";
+        ctx.fillRect(-crownW * 0.5, crownTop + crownH * 0.72, crownW, crownH * 0.28);
+
+        // 3 viên kim cương ngọc quý đính trên 3 đỉnh vương miện
+        ctx.fillStyle = "#ffffff";
+        if (!isLowGfx) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = "#ffffff";
+        }
+        ctx.beginPath();
+        ctx.arc(-crownW * 0.5, crownTop + crownH * 0.15, 2.0, 0, Math.PI * 2);
+        ctx.arc(0, crownTop, 2.8, 0, Math.PI * 2);
+        ctx.arc(crownW * 0.5, crownTop + crownH * 0.15, 2.0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    function spawnRoyalGoldTailTrail(tailCell) {
+      if (!tailCell) return;
+      const cx = tailCell.x * gridSize + gridSize / 2;
+      const cy = tailCell.y * gridSize + gridSize / 2;
+      const dropCount = 2 + Math.floor(Math.random() * 2);
+      for (let k = 0; k < dropCount; k++) {
+        const roll = Math.random();
+        if (roll < 0.52) {
+          // Bụi sao vàng 24K & kim cương hoàng gia lấp lánh
+          const isWhiteStar = Math.random() < 0.38;
+          particles.push({
+            star: true,
+            x: cx + (Math.random() - 0.5) * gridSize * 0.8,
+            y: cy + (Math.random() - 0.5) * gridSize * 0.8,
+            vx: (Math.random() - 0.5) * 18,
+            vy: (Math.random() - 0.5) * 18 - 8,
+            size: 2.8 + Math.random() * 3.6,
+            color: isWhiteStar ? "#ffffff" : (Math.random() < 0.5 ? "#ffd700" : "#ffea00"),
+            glow: 14,
+            glowColor: "#ffc107",
+            life: 0.85 + Math.random() * 0.5,
+            maxLife: 1.35
+          });
+        } else if (roll < 0.82) {
+          // Dải tơ hoàng kim óng ánh bay lượn
+          const angle = Math.random() * Math.PI * 2;
+          particles.push({
+            streak: true,
+            x: cx + (Math.random() - 0.5) * gridSize * 0.55,
+            y: cy + (Math.random() - 0.5) * gridSize * 0.55,
+            angle: angle,
+            length: 14 + Math.random() * 18,
+            thickness: 2.0,
+            color: "rgba(255, 215, 0, 0.9)",
+            glow: 12,
+            glowColor: "#ffa000",
+            life: 0.45 + Math.random() * 0.25,
+            maxLife: 0.70
+          });
+        } else {
+          // Hạt bụi kim cương hoàng gia phát sáng
+          particles.push({
+            x: cx + (Math.random() - 0.5) * gridSize * 0.85,
+            y: cy + (Math.random() - 0.5) * gridSize * 0.85,
+            vx: (Math.random() - 0.5) * 15,
+            vy: (Math.random() - 0.5) * 15,
+            size: 2.2 + Math.random() * 2.2,
+            color: "#fffde7",
+            glowColor: "#ffd54f",
+            glow: 9,
+            life: 0.75 + Math.random() * 0.45,
+            maxLife: 1.2
+          });
+        }
       }
     }
 
@@ -34164,7 +34981,7 @@
         rarity: "HOÀNG GIA 👑🪙",
         rarityClass: "rarity-mythic",
         theme: "Hoàng Kim Đế Vương 👑",
-        desc: "Đạt 100 lần quay Vòng Quay May Mắn ở độ khó Trung Bình trở lên để bước lên ngai vàng! Vảy vàng ròng nguyên chất lấp lánh bụi kim cương xa hoa.",
+        desc: "Thực hiện kỹ năng Lướt (Dash) 1367 lần để bước lên ngai vàng! Vảy vàng ròng 24K nguyên chất tỏa ánh kim lấp lánh, vương miện mặt trời và vệt bụi sao hoàng kim rực rỡ.",
         perks: "Pure 24K imperial sovereign gold leaf plating, rotating sunburst crown mandala, and cascading 3D golden coins."
       },
       wildTide: {
@@ -34369,12 +35186,12 @@
           };
         }
         if (skinId === "glitterking") {
-          const cur = typeof rollCountMediumPlus !== "undefined" ? rollCountMediumPlus : 0;
+          const cur = typeof lifetimeDashCount !== "undefined" ? lifetimeDashCount : 0;
           return {
             current: cur,
-            target: 100,
-            label: "lượt quay Vòng Quay (Trung Bình trở lên)",
-            remainingText: `Quay thêm ${Math.max(0, 100 - cur)} lượt nữa là lên ngôi vua (Đã quay: ${cur}/100)`
+            target: 1367,
+            label: "lần sử dụng kỹ năng Lướt (Dash)",
+            remainingText: `Lướt thêm ${Math.max(0, 1367 - cur)} lần nữa là lên ngôi Hoàng Kim (Đã lướt: ${cur}/1367)`
           };
         }
         if (skinId === "wildTide") {
@@ -34739,6 +35556,7 @@
         if (skin.id === "pastelGalaxy") stageEl.classList.add("stage-pastelgalaxy");
         if (skin.id === "auroraPastel") stageEl.classList.add("stage-aurorapastel");
         if (skin.id === "chromaJewel") stageEl.classList.add("stage-chromajewel");
+        if (isEpicSkin(skin.id)) stageEl.classList.add("stage-epic");
       }
 
       // Equip Button State
@@ -35849,6 +36667,414 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   ctx.restore();
 }
 
+function isEpicSkin(skinId) {
+  const epicSkinIds = [
+    "ultraviolet",
+    "rainbow",
+    "tencolor",
+    "wildTide",
+    "solarLed",
+    "sunsetPrism",
+    "cottonSky",
+    "yinyang",
+    "velvetEclipse",
+    "duskGildedTrail",
+    "oceanTide",
+    "flashBolt",
+    "survivalGreen",
+    "crimsonTeal"
+  ];
+  if (epicSkinIds.includes(skinId)) return true;
+  const meta = (typeof SKIN_METADATA !== "undefined" && SKIN_METADATA[skinId]);
+  return Boolean(meta && meta.rarityClass === "rarity-epic" && !isMythicSkin(skinId));
+}
+
+function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
+  ctx.save();
+
+  const isUltraLowGfx = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+  const isLowGfx = isUltraLowGfx || (typeof graphicsQuality !== "undefined" && graphicsQuality === "low") || (typeof isHighPerf === "function" && isHighPerf());
+  const useShadow = !isLowGfx;
+  const dashSpeedMult = isDashing ? 2.2 : 1.0;
+  const cx = w * 0.5;
+  const cy = h * 0.48;
+
+  if (isUltraLowGfx) {
+    ctx.shadowBlur = 0;
+  }
+
+  // 1. ULTRAVIOLET: TIA CỰC TÍM (NEON VIOLET LASER PULSE)
+  if (skinId === "ultraviolet") {
+    const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, w * 0.65);
+    bgGrad.addColorStop(0, "rgba(140, 20, 255, 0.38)");
+    bgGrad.addColorStop(0.45, "rgba(70, 0, 140, 0.28)");
+    bgGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      const beamY = cy + Math.sin(t * 0.002 * dashSpeedMult) * 12;
+      const beamGrad = ctx.createLinearGradient(0, beamY - 6, 0, beamY + 6);
+      beamGrad.addColorStop(0, "transparent");
+      beamGrad.addColorStop(0.5, "rgba(210, 80, 255, 0.45)");
+      beamGrad.addColorStop(1, "transparent");
+      ctx.fillStyle = beamGrad;
+      ctx.fillRect(0, beamY - 6, w, 12);
+    }
+
+    const ptCount = isUltraLowGfx ? 3 : (isLowGfx ? 5 : 8);
+    for (let i = 0; i < ptCount; i++) {
+      const px = ((i * 67 + t * 0.03 * dashSpeedMult) % (w + 20)) - 10;
+      const py = (cy + Math.sin(t * 0.0025 + i * 2) * (h * 0.32) + (i % 2 === 0 ? 8 : -8));
+      const pAlpha = 0.35 + 0.5 * Math.sin(t * 0.003 + i);
+      if (useShadow) {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#d500f9";
+      }
+      ctx.fillStyle = `rgba(225, 120, 255, ${pAlpha})`;
+      ctx.beginPath();
+      ctx.arc(px, py, 1.8 + (i % 2) * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // 2. RAINBOW: CẦU VỒNG LỤC SẮC (PRISMATIC AURA)
+  } else if (skinId === "rainbow") {
+    const bgGrad = ctx.createLinearGradient(0, 0, w, 0);
+    bgGrad.addColorStop(0, "rgba(255, 60, 60, 0.22)");
+    bgGrad.addColorStop(0.25, "rgba(255, 200, 40, 0.22)");
+    bgGrad.addColorStop(0.5, "rgba(50, 230, 100, 0.22)");
+    bgGrad.addColorStop(0.75, "rgba(40, 180, 255, 0.22)");
+    bgGrad.addColorStop(1, "rgba(180, 50, 255, 0.22)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(1, 0.46);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(0, 0, w * 0.32, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const dotCount = isUltraLowGfx ? 3 : (isLowGfx ? 6 : 10);
+    for (let i = 0; i < dotCount; i++) {
+      const hue = (i * 36 + t * 0.04 * dashSpeedMult) % 360;
+      const dx = ((i * 55 + t * 0.02 * dashSpeedMult) % (w + 16)) - 8;
+      const dy = (cy + Math.sin(t * 0.002 + i) * (h * 0.3));
+      ctx.fillStyle = `hsla(${hue}, 85%, 70%, 0.6)`;
+      ctx.beginPath();
+      ctx.arc(dx, dy, 2 + (i % 3) * 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // 3. TENCOLOR: THẬP SẮC KỲ ẢO (DECA CHROMA)
+  } else if (skinId === "tencolor") {
+    const hueBase = (t * 0.035) % 360;
+    const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, w * 0.6);
+    bgGrad.addColorStop(0, `hsla(${hueBase}, 80%, 45%, 0.32)`);
+    bgGrad.addColorStop(0.5, `hsla(${(hueBase + 120) % 360}, 75%, 35%, 0.2)`);
+    bgGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      const rayNum = 10;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(t * 0.0003 * dashSpeedMult);
+      for (let r = 0; r < rayNum; r++) {
+        const ang = (r * Math.PI * 2) / rayNum;
+        const rHue = (hueBase + r * 36) % 360;
+        ctx.strokeStyle = `hsla(${rHue}, 80%, 65%, 0.25)`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(ang) * w * 0.35, Math.sin(ang) * h * 0.45);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+  // 4. WILDTIDE: SỬ THI HẢI LƯU HOANG DÃ (FERAL TIDE)
+  } else if (skinId === "wildTide") {
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, "rgba(255, 23, 68, 0.28)");
+    grad.addColorStop(0.5, "rgba(180, 0, 120, 0.22)");
+    grad.addColorStop(1, "rgba(0, 229, 255, 0.3)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(0, 240, 255, 0.35)";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 10) {
+        const y = cy + Math.sin(x * 0.02 + t * 0.003 * dashSpeedMult) * 14;
+        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const ptCount = isLowGfx ? 4 : 7;
+    for (let i = 0; i < ptCount; i++) {
+      const px = ((i * 75 + t * 0.025 * dashSpeedMult) % (w + 16)) - 8;
+      const py = cy + Math.cos(t * 0.002 + i) * 22;
+      ctx.fillStyle = i % 2 === 0 ? "rgba(255, 80, 100, 0.65)" : "rgba(80, 235, 255, 0.7)";
+      ctx.beginPath();
+      ctx.arc(px, py, 2 + (i % 2), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // 5. SOLARLED: THÁI DƯƠNG QUANG ĐIỆN (SOLAR LED)
+  } else if (skinId === "solarLed") {
+    const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, w * 0.62);
+    bgGrad.addColorStop(0, "rgba(255, 140, 0, 0.38)");
+    bgGrad.addColorStop(0.4, "rgba(255, 60, 0, 0.25)");
+    bgGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(1, 0.42);
+      ctx.strokeStyle = "rgba(255, 200, 40, 0.4)";
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath();
+      ctx.arc(0, 0, w * 0.3, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const ledCount = isLowGfx ? 4 : 8;
+    for (let i = 0; i < ledCount; i++) {
+      const lx = ((i * 68 + t * 0.035 * dashSpeedMult) % (w + 16)) - 8;
+      const ly = cy + Math.sin(t * 0.003 + i * 1.5) * 18;
+      const colors = ["#ff3d00", "#ffd600", "#00e5ff"];
+      ctx.fillStyle = colors[i % 3];
+      ctx.beginPath();
+      ctx.arc(lx, ly, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // 6. SUNSETPRISM: HOÀNG HÔN LĂNG KÍNH (SUNSET PRISM)
+  } else if (skinId === "sunsetPrism") {
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+    bgGrad.addColorStop(0, "rgba(120, 20, 90, 0.35)");
+    bgGrad.addColorStop(0.55, "rgba(255, 90, 20, 0.3)");
+    bgGrad.addColorStop(1, "rgba(255, 190, 40, 0.22)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      for (let r = 0; r < (isLowGfx ? 2 : 4); r++) {
+        const rx = w * (0.2 + r * 0.25) + Math.sin(t * 0.001 + r) * 15;
+        const rGrad = ctx.createLinearGradient(rx, 0, rx + 30, h);
+        rGrad.addColorStop(0, "rgba(255, 230, 140, 0.22)");
+        rGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = rGrad;
+        ctx.beginPath();
+        ctx.moveTo(rx - 15, 0); ctx.lineTo(rx + 15, 0);
+        ctx.lineTo(rx + 45, h); ctx.lineTo(rx + 15, h);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+  // 7. COTTONSKY: KẸO BÔNG BẠCH VÂN (COTTON SKY)
+  } else if (skinId === "cottonSky") {
+    const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, "rgba(255, 180, 210, 0.28)");
+    bgGrad.addColorStop(0.5, "rgba(200, 215, 255, 0.25)");
+    bgGrad.addColorStop(1, "rgba(160, 230, 255, 0.28)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      const puffCount = isLowGfx ? 3 : 5;
+      for (let p = 0; p < puffCount; p++) {
+        const px = ((p * 110 + t * 0.012 * dashSpeedMult) % (w + 40)) - 20;
+        const py = cy + Math.sin(t * 0.0015 + p * 2) * 15 + (p % 2 === 0 ? 10 : -10);
+        ctx.fillStyle = p % 2 === 0 ? "rgba(255, 200, 225, 0.28)" : "rgba(190, 225, 255, 0.28)";
+        ctx.beginPath();
+        ctx.arc(px, py, 14 + (p % 3) * 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+  // 8. YINYANG: ÂM DƯƠNG LƯỠNG NGHI (THE ETERNAL CYCLE)
+  } else if (skinId === "yinyang") {
+    const bgGrad = ctx.createLinearGradient(0, 0, w, 0);
+    bgGrad.addColorStop(0, "rgba(255, 255, 255, 0.22)");
+    bgGrad.addColorStop(0.5, "rgba(40, 40, 50, 0.45)");
+    bgGrad.addColorStop(1, "rgba(10, 10, 15, 0.55)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      const ang = t * 0.0018 * dashSpeedMult;
+      const rx = w * 0.28, ry = h * 0.35;
+      const x1 = cx + Math.cos(ang) * rx, y1 = cy + Math.sin(ang) * ry * 0.6;
+      const x2 = cx + Math.cos(ang + Math.PI) * rx, y2 = cy + Math.sin(ang + Math.PI) * ry * 0.6;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath(); ctx.arc(x1, y1, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "rgba(20, 20, 30, 0.9)";
+      ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(x2, y2, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    }
+
+  // 9. VELVETECLIPSE: NHẬT THỰC NHUNG ĐỎ (VELVET ECLIPSE)
+  } else if (skinId === "velvetEclipse") {
+    const bgGrad = ctx.createRadialGradient(cx, cy, 8, cx, cy, w * 0.6);
+    bgGrad.addColorStop(0, "rgba(160, 10, 40, 0.4)");
+    bgGrad.addColorStop(0.45, "rgba(50, 4, 15, 0.38)");
+    bgGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    const ptCount = isLowGfx ? 4 : 7;
+    for (let i = 0; i < ptCount; i++) {
+      const px = ((i * 70 + t * 0.02 * dashSpeedMult) % (w + 16)) - 8;
+      const py = (cy + Math.sin(t * 0.002 + i) * (h * 0.32));
+      ctx.fillStyle = i % 2 === 0 ? "rgba(255, 30, 80, 0.7)" : "rgba(180, 0, 40, 0.6)";
+      ctx.beginPath();
+      ctx.arc(px, py, 2.2 + (i % 2), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // 10. DUSKGILDEDTRAIL: HOÀNG KIM CHIỀU TÀ (DUSK GILDED TRAIL)
+  } else if (skinId === "duskGildedTrail") {
+    const bgGrad = ctx.createLinearGradient(0, 0, w, 0);
+    bgGrad.addColorStop(0, "rgba(255, 140, 0, 0.3)");
+    bgGrad.addColorStop(0.5, "rgba(255, 215, 0, 0.28)");
+    bgGrad.addColorStop(1, "rgba(0, 230, 140, 0.25)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    const ptCount = isLowGfx ? 4 : 8;
+    for (let i = 0; i < ptCount; i++) {
+      const px = ((i * 65 + t * 0.03 * dashSpeedMult) % (w + 16)) - 8;
+      const py = cy + Math.sin(t * 0.0025 + i * 1.5) * 20;
+      ctx.fillStyle = i % 2 === 0 ? "rgba(255, 220, 90, 0.8)" : "rgba(255, 170, 50, 0.75)";
+      ctx.beginPath();
+      ctx.arc(px, py, 2.2 + (i % 2) * 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // 11. OCEANTIDE: THỦY TRIỀU SÓNG THẦN (OCEAN TIDE)
+  } else if (skinId === "oceanTide") {
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+    bgGrad.addColorStop(0, "rgba(0, 180, 240, 0.32)");
+    bgGrad.addColorStop(0.6, "rgba(0, 90, 180, 0.35)");
+    bgGrad.addColorStop(1, "rgba(2, 25, 70, 0.5)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    const bubbleCount = isLowGfx ? 4 : 8;
+    for (let b = 0; b < bubbleCount; b++) {
+      const bx = ((b * 62 + t * 0.015 * dashSpeedMult) % (w + 16)) - 8;
+      const by = h - ((t * 0.03 + b * 25) % (h + 16));
+      ctx.strokeStyle = "rgba(180, 245, 255, 0.65)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(bx, by, 2.5 + (b % 3), 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+  // 12. FLASHBOLT: TIA CHỚP LÔI ĐÌNH (FLASH BOLT)
+  } else if (skinId === "flashBolt") {
+    const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, w * 0.62);
+    bgGrad.addColorStop(0, "rgba(255, 230, 0, 0.35)");
+    bgGrad.addColorStop(0.4, "rgba(255, 140, 0, 0.22)");
+    bgGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    if (!isUltraLowGfx) {
+      const sparkCount = isLowGfx ? 3 : 5;
+      for (let s = 0; s < sparkCount; s++) {
+        const sx = ((s * 95 + t * 0.045 * dashSpeedMult) % (w + 20)) - 10;
+        const sy = cy + Math.sin(t * 0.004 + s * 2) * 22;
+        ctx.strokeStyle = "#fff59d";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(sx + 8, sy - 6);
+        ctx.lineTo(sx + 5, sy);
+        ctx.lineTo(sx + 14, sy - 8);
+        ctx.stroke();
+      }
+    }
+
+  // 13. SURVIVALGREEN: SINH TỒN CỔ THỤ (SURVIVAL GREEN)
+  } else if (skinId === "survivalGreen") {
+    const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, w * 0.6);
+    bgGrad.addColorStop(0, "rgba(0, 230, 118, 0.32)");
+    bgGrad.addColorStop(0.45, "rgba(10, 100, 50, 0.25)");
+    bgGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    const leafCount = isLowGfx ? 3 : 6;
+    for (let l = 0; l < leafCount; l++) {
+      const lx = ((l * 80 + t * 0.02 * dashSpeedMult) % (w + 20)) - 10;
+      const ly = cy + Math.sin(t * 0.002 + l) * 20;
+      ctx.fillStyle = "rgba(76, 217, 100, 0.7)";
+      ctx.beginPath();
+      ctx.ellipse(lx, ly, 4.5, 2.2, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // 14. CRIMSONTEAL: HỎA BĂNG SONG SINH (CRIMSON TEAL)
+  } else if (skinId === "crimsonTeal") {
+    const bgGrad = ctx.createLinearGradient(0, 0, w, 0);
+    bgGrad.addColorStop(0, "rgba(255, 30, 60, 0.32)");
+    bgGrad.addColorStop(0.5, "rgba(30, 15, 30, 0.2)");
+    bgGrad.addColorStop(1, "rgba(0, 229, 255, 0.32)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    const ptCount = isLowGfx ? 4 : 7;
+    for (let i = 0; i < ptCount; i++) {
+      const px = ((i * 72 + t * 0.025 * dashSpeedMult) % (w + 16)) - 8;
+      const py = cy + Math.sin(t * 0.0025 + i) * 18;
+      ctx.fillStyle = px < cx ? "rgba(255, 75, 95, 0.75)" : "rgba(80, 240, 255, 0.75)";
+      ctx.beginPath();
+      ctx.arc(px, py, 2.2 + (i % 2), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  // Fallback: Default Epic Background
+  } else {
+    const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, w * 0.6);
+    bgGrad.addColorStop(0, "rgba(170, 0, 255, 0.32)");
+    bgGrad.addColorStop(0.45, "rgba(100, 0, 180, 0.22)");
+    bgGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    const ptCount = isLowGfx ? 3 : 6;
+    for (let i = 0; i < ptCount; i++) {
+      const px = ((i * 70 + t * 0.025 * dashSpeedMult) % (w + 16)) - 8;
+      const py = cy + Math.sin(t * 0.002 + i) * 18;
+      ctx.fillStyle = "rgba(220, 120, 255, 0.65)";
+      ctx.beginPath();
+      ctx.arc(px, py, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
     // --- HỆ THỐNG BIẾN TOÀN CỤC CHO DASH PREVIEW (LƯỚT THỬ CHUẨN IN-GAME) ---
 // --- HỆ THỐNG BIẾN TOÀN CỤC CHO DASH PREVIEW (LƯỚT THỬ CHUẨN IN-GAME) ---
     const PREVIEW_DASH_DURATION = 920;
@@ -36309,11 +37535,24 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (isDashing) {
         skinPreviewCtx.translate(dashPunchX, dashPunchY);
       }
+      if (previewCrazyActive) {
+        // Ánh lửa cuồng nộ và màn đỏ bao phủ canvas preview giống hiệu ứng trong trận
+        const ragePulse = 0.22 + Math.sin(t * 0.012) * 0.10;
+        const rageGrad = skinPreviewCtx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w * 0.65);
+        rageGrad.addColorStop(0, `rgba(255, 30, 0, ${ragePulse * 0.65})`);
+        rageGrad.addColorStop(0.55, `rgba(220, 0, 50, ${ragePulse * 0.35})`);
+        rageGrad.addColorStop(1, "transparent");
+        skinPreviewCtx.fillStyle = rageGrad;
+        skinPreviewCtx.fillRect(0, 0, w, h);
+      }
 
       // --- VẼ NỀN CANVAS PHÍA SAU CON RẮN ---
       if (isMythicSkin(previewSkinId)) {
-        // NỀN ĐẶC BIỆT RIÊNG BIỆT CHO 9 SKIN TINH TÚ (MYTHIC)
+        // NỀN ĐẶC BIỆT RIÊNG BIỆT CHO CÁC SKIN TINH TÚ (MYTHIC)
         drawMythicSkinBackground(skinPreviewCtx, previewSkinId, w, h, t, isDashing, dashFrac);
+      } else if (isEpicSkin(previewSkinId)) {
+        // NỀN ĐẶC BIỆT CHO CÁC SKIN EPIC (HIỆU ỨNG ĐƠN GIẢN HƠN SKIN TINH HOA 1 TÍ)
+        drawEpicSkinBackground(skinPreviewCtx, previewSkinId, w, h, t, isDashing, dashFrac);
       } else {
         // NỀN MẶC ĐỊNH CHO CÁC SKIN KHÁC
         if (!isHighPerf()) {
@@ -36426,12 +37665,18 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const segRadius = isLandscape ? 3.5 : (isMobileDevice ? 4 : 5);
 
       const segPoints = [];
+      const isPreviewCrazy = !!previewCrazyActive;
       for (let i = 0; i < segCount; i++) {
-        const ampY = isLandscape ? 8 : 13;
-        const wiggleY = Math.sin(t * 0.0032 - i * 0.48) * ampY + Math.cos(t * 0.0016 + i * 0.24) * (ampY * 0.35);
-        const wiggleX = Math.sin(t * 0.0022 + i * 0.35) * (isLandscape ? 3 : 5);
-        const x = startX + i * (segSize + gap - 8) + wiggleX + dashLunge;
-        const y = baseY + wiggleY;
+        const ampY = isLandscape ? (isPreviewCrazy ? 12 : 8) : (isPreviewCrazy ? 18 : 13);
+        // Khi điên loạn: tốc độ uốn lượn tăng gấp hơn 4.5 lần cực kỳ dồn dập & cuồng bạo như trong trận (crazySpeed 160 vs 25)
+        const wiggleFreq = isPreviewCrazy ? 0.015 : 0.0032;
+        const wiggleY = Math.sin(t * wiggleFreq - i * (isPreviewCrazy ? 0.72 : 0.48)) * ampY + Math.cos(t * (wiggleFreq * 0.5) + i * 0.3) * (ampY * (isPreviewCrazy ? 0.55 : 0.35));
+        const wiggleX = Math.sin(t * (wiggleFreq * 0.75) + i * 0.45) * (isLandscape ? (isPreviewCrazy ? 6 : 3) : (isPreviewCrazy ? 9 : 5));
+        // Độ rung chấn điên loạn mô phỏng rung màn hình / adrenaline trong trận
+        const crazyJitterX = isPreviewCrazy ? (Math.sin(t * 0.08 + i * 3) * 2.2) : 0;
+        const crazyJitterY = isPreviewCrazy ? (Math.cos(t * 0.09 + i * 2) * 2.2) : 0;
+        const x = startX + i * (segSize + gap - 8) + wiggleX + dashLunge + crazyJitterX;
+        const y = baseY + wiggleY + crazyJitterY;
         segPoints.push({ x, y });
       }
 
@@ -36604,7 +37849,16 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
 
         if (previewCrazyActive) {
-          drawCrazyAuraBorder(skinPreviewCtx, x, y, segSize, segSize, i, t, currentDifficulty === "insane");
+          drawCrazyAuraBorder(skinPreviewCtx, x, y, segSize, segSize, i, t, true);
+          // Vẽ thêm vầng hào quang lửa rực cháy quanh từng đốt thân giống trong trận
+          skinPreviewCtx.save();
+          const flameHue = (t * 0.2 + i * 25) % 45; // 0 (đỏ) -> 45 (vàng cam rực rỡ)
+          skinPreviewCtx.strokeStyle = `hsla(${flameHue}, 100%, 65%, 0.95)`;
+          skinPreviewCtx.shadowColor = flameHue < 20 ? "#ff0033" : "#ff9900";
+          skinPreviewCtx.shadowBlur = 14 + Math.sin(t * 0.02 + i) * 6;
+          skinPreviewCtx.lineWidth = 2.4;
+          skinPreviewCtx.strokeRect(x - 2, y - 2, segSize + 4, segSize + 4);
+          skinPreviewCtx.restore();
         }
 
         if (isHead) {
@@ -36641,7 +37895,7 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             drawSkinShimmerBorder(skinPreviewCtx, x, y, segSize, i, t, uHue);
             drawCelestialGlitter(skinPreviewCtx, x, y, segSize, i, t, uHue);
           }
-          if (previewSkinId === "glitterking") drawGlitterSparkle(skinPreviewCtx, x, y, segSize, i, t);
+          if (previewSkinId === "glitterking") drawRoyalGoldSkinEffect(skinPreviewCtx, x, y, segSize, i, t, i === 0);
           if (previewSkinId === "tencolor") drawDecaChromaSparkle(skinPreviewCtx, x, y, segSize, i, t);
           if (previewSkinId === "ultraviolet") drawUltravioletSparkle(skinPreviewCtx, x, y, segSize, i, t);
           if (previewSkinId === "auroraPastel") {
@@ -36936,6 +38190,9 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             playSound("click");
             previewCrazyActive = !previewCrazyActive;
             crazyBtn.classList.toggle("active", previewCrazyActive);
+            if (previewCrazyActive) {
+              playSound("crazy");
+            }
           });
         }
 
@@ -37105,6 +38362,7 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         goOverlay.style.display = "none";
         resetAllStats();
         resetGame(true);
+        applyCanvasResolution();
         showMobileActionBtns(true);
         playTrack("game");
         twoPlayerSelfDead = false;
@@ -37368,6 +38626,8 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     function closePauseSettings() {
       if (!isSettingsOpenedFromPause) return;
       isSettingsOpenedFromPause = false;
+      lastLoopTime = 0;
+      moveCounter = 0;
       showOnlyPanel(null);
       mainMenu.style.display = "none";
       mainMenu.style.zIndex = "";
@@ -37404,6 +38664,8 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       } else {
         btnPause.textContent = "⏸";
         pauseOverlay.style.display = "none";
+        lastLoopTime = 0;
+        moveCounter = 0;
         applyControlUI();
         showMobileActionBtns(true);
         bgMusic.play().catch(() => { });
@@ -37622,6 +38884,17 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     const maxRadius = 40;
 
     function getOwnPaneRect() {
+      const isPortrait = typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait();
+      if (isPortrait) {
+        return {
+          left: 0,
+          top: 0,
+          right: window.innerWidth,
+          bottom: window.innerHeight,
+          width: window.innerWidth,
+          height: window.innerHeight
+        };
+      }
       const pane = document.getElementById("lan-left-pane");
       if (pane) {
         const r = pane.getBoundingClientRect();
@@ -37650,7 +38923,8 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (controlMode === "dpad") return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         const touch = e.changedTouches[i];
-        if (touch.target.closest("#mobile-action-buttons, #roll-btn-fab, #dpad-container, #control-panel, #p2-player-badge, #twop-exit-btn, #lan-opponent-pane, #pvp-hud, #pvp-exit-btn, #pvp-exit-confirm, #pvp-round-over-overlay")) continue;
+        const skipOpponentPane = !(typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait());
+        if (touch.target.closest("#mobile-action-buttons, #roll-btn-fab, #dpad-container, #control-panel, #p2-player-badge, #twop-exit-btn, #pvp-hud, #pvp-exit-btn, #pvp-exit-confirm, #pvp-round-over-overlay") || (skipOpponentPane && touch.target.closest("#lan-opponent-pane"))) continue;
         const paneRect = getOwnPaneRect();
         if (touch.clientX < paneRect.left || touch.clientX > paneRect.right || touch.clientY < paneRect.top || touch.clientY > paneRect.bottom) continue;
         const isLeftHalf = touch.clientX < paneRect.left + paneRect.width / 2;
@@ -37772,6 +39046,7 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       dashUsedThisRun = true;
       playSound("crazy");
       screenShake = 30;
+      addLifetimeDashIfEligible();
       const dashStartHead = { x: worm.body[0].x, y: worm.body[0].y };
       const dashDir = { x: worm.dir.x, y: worm.dir.y };
       let steps = Math.max(1, 4 + (worm.dashExtraSteps || 0));
@@ -37959,13 +39234,18 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             growWormBy(1);
             spawnFoodEatFx(eatenFood.x, eatenFood.y, eatenFood.size, "normal", 15);
           }
-          if (eatenFood.type !== "orb") {
-            foods.splice(ateIndex, 1);
-            if (!isInfiniteMapMode && !isDarkNightMode && foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb" && f.type !== "speed" && f.type !== "shop" && f.type !== "bomb" && f.type !== "nitro" && f.type !== "frost" && f.type !== "orange" && f.type !== "rainbow").length === 0) {
-              spawnAllFoods();
-            }
-            sendLanMapState();
+          // Đảm bảo khi Lướt (Dash) thức ăn cũng biến mất 100% không còn sót lại
+          foods.splice(ateIndex, 1);
+          if (typeof prevMapFoods !== "undefined" && Array.isArray(prevMapFoods) && prevMapFoods.length > 0) {
+            prevMapFoods = prevMapFoods.filter(pf => !(newHead.x >= pf.x && newHead.x < pf.x + (pf.size || 2) && newHead.y >= pf.y && newHead.y < pf.y + (pf.size || 2)));
           }
+          if (!isMenuMode && typeof saveScreenState === "function" && !isInfiniteMapMode && !isDarkNightMode) {
+            saveScreenState(gameHeight, horizontalOffset);
+          }
+          if (!isInfiniteMapMode && !isDarkNightMode && foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb" && f.type !== "speed" && f.type !== "shop" && f.type !== "bomb" && f.type !== "nitro" && f.type !== "frost" && f.type !== "orange" && f.type !== "rainbow").length === 0) {
+            spawnAllFoods();
+          }
+          sendLanMapState();
         } else {
           worm.body.pop();
         }
@@ -38828,22 +40108,23 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         });
       }
 
-      const heartCount = 54;
+      // Tỏa chùm hạt trái tim lộng lẫy (72 hạt trái tim bay lượn ngập tràn màn hình)
+      const heartCount = 72;
       for (let i = 0; i < heartCount; i++) {
         const angle = (i / heartCount) * Math.PI * 2 + Math.random() * 0.25;
-        const speed = 70 + Math.random() * 240;
+        const speed = 75 + Math.random() * 260;
         particles.push({
           heart: true,
           x: centerX,
           y: centerY,
           vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 50,
-          size: 5 + Math.random() * 9,
+          vy: Math.sin(angle) * speed - 60,
+          size: 6 + Math.random() * 10,
           color: i % 4 === 0 ? "#ffffff" : (i % 3 === 0 ? "#ffd1dc" : (i % 2 === 0 ? "#ff2a8d" : "#fc6767")),
-          glow: 16,
+          glow: 18,
           glowColor: "rgba(255, 120, 190, 0.95)",
-          life: 1.0 + Math.random() * 0.8,
-          maxLife: 1.8,
+          life: 1.2 + Math.random() * 0.9,
+          maxLife: 2.1,
           rot: Math.random() * Math.PI * 2,
           spin: (Math.random() - 0.5) * 6
         });
@@ -38947,7 +40228,9 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       gameOver = true;
       screenShake = 55;
       bgMusic.pause();
-      playSound("gameover");
+      if (selectedSkin !== "dimigo") {
+        playSound("gameover");
+      }
       clearActiveBuffsHud();
       lifetimeDeathCount += 1;
       saveLifetimeDeathCount(lifetimeDeathCount);
@@ -38966,43 +40249,45 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const centerY = head ? (head.y * gridSize + gridSize / 2) : (canvas.height / 2);
       const isCelestialDeath = isCelestialFxSkin(selectedSkin);
       const isUniqueDeath = isUniqueChromaSkin(selectedSkin);
-      if (isCelestialDeath) {
-        triggerCelestialDeathBurst(centerX, centerY, isUniqueDeath);
-      }
       if (selectedSkin === "dimigo") {
+        // Skin Dimigo: Hiệu ứng tỏa trái tim lộng lẫy khi chết và xóa hoàn toàn hiệu ứng chết thông thường
         triggerDimigoDeathBurst(centerX, centerY);
-      }
-      const deathHues = isUniqueDeath ? pickDistinctChromaHues(45) : null;
-      for (let i = 0; i < 45; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 120 + Math.random() * 250;
-        const particleColor = isUniqueDeath ? chromaHsla(deathHues[i], 1, 100, 65) : isCelestialDeath ? `hsl(${Math.random() * 360}, 100%, 65%)` : `hsl(${Math.random() * 40}, 100%, 60%)`;
-        particles.push({
-          x: centerX,
-          y: centerY,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: 3 + Math.random() * 6,
-          color: particleColor,
-          life: .6 + Math.random() * .5,
-          maxLife: 1.1
-        });
-      }
-      worm.body.forEach((cell, idx) => {
-        for (let k = 0; k < 3; k++) {
-          const trailColor = isUniqueDeath ? chromaHsla(cell.chromaHue != null ? cell.chromaHue : idx * 24 % 360, 1 - idx / worm.body.length, 100, 65) : isCelestialDeath ? `hsla(${idx * 24 % 360}, 100%, 65%, ${1 - idx / worm.body.length})` : `rgba(0, 150, 255, ${1 - idx / worm.body.length})`;
+      } else {
+        if (isCelestialDeath) {
+          triggerCelestialDeathBurst(centerX, centerY, isUniqueDeath);
+        }
+        const deathHues = isUniqueDeath ? pickDistinctChromaHues(45) : null;
+        for (let i = 0; i < 45; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 120 + Math.random() * 250;
+          const particleColor = isUniqueDeath ? chromaHsla(deathHues[i], 1, 100, 65) : isCelestialDeath ? `hsl(${Math.random() * 360}, 100%, 65%)` : `hsl(${Math.random() * 40}, 100%, 60%)`;
           particles.push({
-            x: cell.x * gridSize + gridSize / 2,
-            y: cell.y * gridSize + gridSize / 2,
-            vx: (Math.random() - .5) * 80,
-            vy: (Math.random() - .5) * 80,
-            size: 4,
-            color: trailColor,
-            life: .4 + Math.random() * .4,
-            maxLife: .8
+            x: centerX,
+            y: centerY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            size: 3 + Math.random() * 6,
+            color: particleColor,
+            life: .6 + Math.random() * .5,
+            maxLife: 1.1
           });
         }
-      });
+        worm.body.forEach((cell, idx) => {
+          for (let k = 0; k < 3; k++) {
+            const trailColor = isUniqueDeath ? chromaHsla(cell.chromaHue != null ? cell.chromaHue : idx * 24 % 360, 1 - idx / worm.body.length, 100, 65) : isCelestialDeath ? `hsla(${idx * 24 % 360}, 100%, 65%, ${1 - idx / worm.body.length})` : `rgba(0, 150, 255, ${1 - idx / worm.body.length})`;
+            particles.push({
+              x: cell.x * gridSize + gridSize / 2,
+              y: cell.y * gridSize + gridSize / 2,
+              vx: (Math.random() - .5) * 80,
+              vy: (Math.random() - .5) * 80,
+              size: 4,
+              color: trailColor,
+              life: .4 + Math.random() * .4,
+              maxLife: .8
+            });
+          }
+        });
+      }
       worm.body = [];
       const reviveBtn = document.getElementById("btn-revive");
       if (reviveBtn) {
@@ -39981,6 +41266,75 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           });
         }
       }
+      if (selectedSkin === "glitterking" && !isMenuMode) {
+        // Vòng hào quang Hoàng Kim Mặt Trời bùng nở khi ăn thức ăn
+        particles.push({
+          ring: true,
+          x: cx,
+          y: cy,
+          startRadius: 6,
+          maxRadius: gridSize * (grand ? 3.4 : 2.5),
+          thickness: grand ? 4.0 : 3.0,
+          color: "rgba(255, 215, 0, 0.95)",
+          glow: grand ? 22 : 16,
+          glowColor: "#ffd700",
+          life: 0.38,
+          maxLife: 0.38
+        });
+        particles.push({
+          ring: true,
+          x: cx,
+          y: cy,
+          startRadius: 3,
+          maxRadius: gridSize * (grand ? 2.2 : 1.6),
+          thickness: 2.2,
+          color: "rgba(255, 250, 220, 0.95)",
+          glow: 14,
+          glowColor: "#fff8e1",
+          life: 0.25,
+          maxLife: 0.25
+        });
+
+        // Chùm sao kim cương & bụi vàng hoàng gia bắn bung tỏa 360 độ
+        const goldBurstCount = grand ? 10 : 7;
+        for (let g = 0; g < goldBurstCount; g++) {
+          const gAngle = (g / goldBurstCount) * Math.PI * 2 + Math.random() * 0.4;
+          const gSpd = 35 + Math.random() * 70;
+          particles.push({
+            star: true,
+            x: cx,
+            y: cy,
+            vx: Math.cos(gAngle) * gSpd,
+            vy: Math.sin(gAngle) * gSpd - 16,
+            size: 3.5 + Math.random() * 4.5,
+            color: g % 3 === 0 ? "#ffffff" : (g % 2 === 0 ? "#ffd700" : "#ffea00"),
+            glow: 14,
+            glowColor: "#ffd700",
+            life: 0.5 + Math.random() * 0.3,
+            maxLife: 0.8
+          });
+        }
+
+        // Tia hào quang mặt trời hoàng đế tỏa sáng
+        const rays = grand ? 8 : 6;
+        for (let r = 0; r < rays; r++) {
+          const rAngle = (r / rays) * Math.PI * 2;
+          particles.push({
+            streak: true,
+            x: cx,
+            y: cy,
+            angle: rAngle,
+            length: 16 + Math.random() * 18,
+            thickness: 2.4,
+            color: "rgba(255, 225, 120, 0.9)",
+            glow: 12,
+            glowColor: "#ffc107",
+            life: 0.28,
+            maxLife: 0.28
+          });
+        }
+      }
+
       if (selectedSkin === "vintageAntique" && !isMenuMode) {
         const antiqueCount = grand ? 6 : 4;
         for (let a = 0; a < antiqueCount; a++) {
@@ -40312,6 +41666,99 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             glowColor: "rgba(224, 169, 109, 0.9)",
             life: 0.5 + Math.random() * 0.3,
             maxLife: 0.8
+          });
+        }
+      }
+
+      if (selectedSkin === "glitterking" && !isMenuMode) {
+        // Vòng sóng xung kích Hoàng Kim Mặt Trời (2 expanding golden rings)
+        particles.push({
+          ring: true,
+          x: fromPx.x,
+          y: fromPx.y,
+          startRadius: 8,
+          maxRadius: gridSize * 4.0,
+          thickness: 4.8,
+          color: "rgba(255, 215, 0, 0.98)",
+          glow: 26,
+          glowColor: "#ffd700",
+          life: 0.44,
+          maxLife: 0.44
+        });
+        particles.push({
+          ring: true,
+          x: fromPx.x,
+          y: fromPx.y,
+          startRadius: 4,
+          maxRadius: gridSize * 2.5,
+          thickness: 3.2,
+          color: "rgba(255, 250, 220, 0.95)",
+          glow: 20,
+          glowColor: "#fff8e1",
+          life: 0.30,
+          maxLife: 0.30
+        });
+
+        // 16 tia hào quang mặt trời tỏa sáng 360 độ (Sovereign Sunburst Beams)
+        const sunBeams = 16;
+        for (let b = 0; b < sunBeams; b++) {
+          const beamAngle = (b / sunBeams) * Math.PI * 2;
+          particles.push({
+            streak: true,
+            x: fromPx.x,
+            y: fromPx.y,
+            angle: beamAngle,
+            length: 32 + Math.random() * 30,
+            thickness: 3.4,
+            opacity: 0.98,
+            color: b % 2 === 0 ? "rgba(255, 215, 0, 0.98)" : "rgba(255, 245, 180, 0.98)",
+            glow: 18,
+            glowColor: "#ffc107",
+            life: 0.35,
+            maxLife: 0.35
+          });
+        }
+
+        // Chùm sao vàng & kim cương bắn ngược về sau dọc theo đường lướt (Gold Comet Trail)
+        const goldDashCount = 14;
+        for (let g = 0; g < goldDashCount; g++) {
+          const t = g / (goldDashCount - 1);
+          const gx = fromPx.x + (toPx.x - fromPx.x) * t;
+          const gy = fromPx.y + (toPx.y - fromPx.y) * t;
+          const spreadAngle = backAngle + (Math.random() - 0.5) * 1.6;
+          const spd = 70 + Math.random() * 110;
+          particles.push({
+            star: true,
+            x: gx + (Math.random() - 0.5) * 14,
+            y: gy + (Math.random() - 0.5) * 14,
+            vx: Math.cos(spreadAngle) * spd,
+            vy: Math.sin(spreadAngle) * spd,
+            size: 4.5 + Math.random() * 6.0,
+            color: g % 3 === 0 ? "#ffffff" : (g % 2 === 0 ? "#ffd700" : "#ffea00"),
+            glow: 20,
+            glowColor: "rgba(255, 215, 0, 0.95)",
+            life: 0.55 + Math.random() * 0.35,
+            maxLife: 0.9
+          });
+        }
+
+        // Dải lụa hoàng kim kéo dài (Golden Streamers)
+        for (let s = 0; s < 7; s++) {
+          const t = s / 6;
+          const sx = fromPx.x + (toPx.x - fromPx.x) * t;
+          const sy = fromPx.y + (toPx.y - fromPx.y) * t;
+          particles.push({
+            streak: true,
+            x: sx,
+            y: sy,
+            angle: backAngle + (Math.random() - 0.5) * 0.3,
+            length: 32 + Math.random() * 30,
+            thickness: 4.6 - s * 0.4,
+            color: "rgba(255, 215, 0, 0.95)",
+            glow: 20,
+            glowColor: "#ffa000",
+            life: 0.38 + Math.random() * 0.16,
+            maxLife: 0.54
           });
         }
       }
@@ -41028,6 +42475,9 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         if (!isMenuMode && selectedSkin === "vintageAntique" && worm.body.length > 0) {
           spawnVintageAntiqueTrail(worm.body[worm.body.length - 1]);
         }
+        if (!isMenuMode && selectedSkin === "glitterking" && worm.body.length > 0) {
+          spawnRoyalGoldTailTrail(worm.body[worm.body.length - 1]);
+        }
         worm.body.unshift(head);
         const prevHeadCell = worm.body[1] || head;
         let ateIndex = findEatenFoodIndex(head.x, head.y, prevHeadCell.x, prevHeadCell.y);
@@ -41140,13 +42590,18 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             const menuDemoMaxLen = Math.max(3, Math.min(40, Math.floor(cols * rows * .1)));
             while (worm.body.length > menuDemoMaxLen) worm.body.pop();
           }
-          if (isMenuMode || eatenFood.type !== "orb") {
-            foods.splice(ateIndex, 1);
-            if (!isInfiniteMapMode && !isDarkNightMode && foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb" && f.type !== "speed" && f.type !== "shop" && f.type !== "bomb" && f.type !== "nitro" && f.type !== "frost" && f.type !== "orange" && f.type !== "rainbow").length === 0) {
-              spawnAllFoods();
-            }
-            if (!isMenuMode) sendLanMapState();
+          // Đảm bảo 100% thức ăn luôn luôn bị xóa biến mất khỏi mảng foods sau khi ăn xong (kể cả orb)
+          foods.splice(ateIndex, 1);
+          if (typeof prevMapFoods !== "undefined" && Array.isArray(prevMapFoods) && prevMapFoods.length > 0) {
+            prevMapFoods = prevMapFoods.filter(pf => !(head.x >= pf.x && head.x < pf.x + (pf.size || 2) && head.y >= pf.y && head.y < pf.y + (pf.size || 2)));
           }
+          if (!isMenuMode && typeof saveScreenState === "function" && !isInfiniteMapMode && !isDarkNightMode) {
+            saveScreenState(gameHeight, horizontalOffset);
+          }
+          if (!isInfiniteMapMode && !isDarkNightMode && foods.filter(f => f.type !== "shield" && f.type !== "gem" && f.type !== "orb" && f.type !== "speed" && f.type !== "shop" && f.type !== "bomb" && f.type !== "nitro" && f.type !== "frost" && f.type !== "orange" && f.type !== "rainbow").length === 0) {
+            spawnAllFoods();
+          }
+          if (!isMenuMode) sendLanMapState();
         } else {
           worm.body.pop();
         }
@@ -42505,7 +43960,7 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const wormDisplayBodyForThisCall = displayCache || wormDisplayBody;
       const prevWormShieldFlag = wormIsShieldedFlag;
       wormIsShieldedFlag = isShielded;
-      const isGhostActive = !menuModeFlag && typeof worm !== "undefined" && worm && worm.isGhost;
+      const isGhostActive = !menuModeFlag && bodyList === (typeof worm !== "undefined" && worm ? worm.body : null) && worm && worm.isGhost;
       if (isGhostActive) {
         targetCtx.save();
         targetCtx.globalAlpha = 0.45;
@@ -42650,7 +44105,7 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             if (uHue != null) drawUniqueChromaStarBurst(targetCtx, segPxX, segPxY, segSize, index, nowMs, uHue);
           }
           if (!isShielded && !isCrazy && skinId === "glitterking") {
-            drawGlitterSparkle(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+            drawRoyalGoldSkinEffect(targetCtx, segPxX, segPxY, segSize, index, nowMs, index === 0);
           }
           if (!isShielded && !isCrazy && skinId === "tencolor") {
             drawDecaChromaSparkle(targetCtx, segPxX, segPxY, segSize, index, nowMs);
@@ -47183,7 +48638,9 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const cy = canvas.height / 2;
 
       rollParticles = [];
-      const count = isMobileDevice ? 22 : (tier === 5 ? 85 : tier === 4 ? 60 : 42);
+      const isLowGfx = (typeof graphicsQuality !== "undefined" && (graphicsQuality === "low" || graphicsQuality === "ultralow"));
+      // Tối ưu trên đồ họa thấp: chỉ sinh 8-10 hạt nhẹ, tắt shadowBlur để chống drop FPS
+      const count = isLowGfx ? 10 : (isMobileDevice ? 22 : (tier === 5 ? 85 : tier === 4 ? 60 : 42));
       const palette = [
         themeColor || "#ffd700",
         "#ffffff",
@@ -47212,7 +48669,7 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         });
       }
 
-      if (!isMobileDevice) {
+      if (!isMobileDevice && !isLowGfx) {
         rollParticles.push({
           type: "ring",
           x: cx,
@@ -47410,7 +48867,9 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       rollReelStrip.innerHTML = "";
       const rollBuffs = getRollBuffs();
       const winnerBuff = rollBuffs[winnerIndex];
-      const totalCells = isMobileDevice ? 18 : 26;
+      const isLowGfx = (typeof graphicsQuality !== "undefined" && (graphicsQuality === "low" || graphicsQuality === "ultralow"));
+      // Tối ưu sâu cho máy yếu ở đồ họa thấp: giảm số ô dải quay xuống còn 10 ô để giảm giật lag và tải DOM
+      const totalCells = isLowGfx ? 10 : (isMobileDevice ? 18 : 26);
       const fragment = document.createDocumentFragment();
       for (let i = 0; i < totalCells; i++) {
         const isWinner = (i === totalCells - 1);
