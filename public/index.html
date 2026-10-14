@@ -864,6 +864,11 @@
       gap: 10px;
     }
 
+    body:not(.in-game) #control-panel,
+    body:has(#panel-skin[style*="flex"]) #control-panel {
+      display: none !important;
+    }
+
     /* Tối ưu hóa Fullscreen PC & nút bấm toàn màn hình cho Boss Rush và Màn Đêm Tối */
     body.race-mode #control-panel,
     body.darknight-active #control-panel {
@@ -1546,7 +1551,7 @@
         border-radius: 999px !important;
       }
 
-      #panel-root {
+      #panel-root:not([style*="display: none"]) {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: wrap !important;
@@ -1554,6 +1559,12 @@
         align-items: center !important;
         gap: 5px 8px !important;
         max-width: 540px !important;
+      }
+
+      #panel-root[style*="display: none"],
+      #main-menu.subpanel-active #panel-root,
+      #main-menu.skin-active #panel-root {
+        display: none !important;
       }
 
       #panel-root #nav-difficulty,
@@ -11935,10 +11946,10 @@
         height: 3.5px !important;
       }
 
-      /* BỐ CỤC CHỌN SKIN RỘNG RÃI TRÊN MÀN HÌNH NGANG: DÀNH 62% KHÔNG GIAN CHO MỤC CHỌN SKIN */
+      /* BỐ CỤC ƯU TIÊN GÓC XEM TRƯỚC SKIN TO & RÕ NÉT TRÊN MÀN HÌNH NGANG */
       .skin-two-col-layout {
         display: grid !important;
-        grid-template-columns: 1.6fr 1fr !important;
+        grid-template-columns: 1fr 1.28fr !important;
         gap: 8px !important;
         flex: 1 1 0% !important;
         height: auto !important;
@@ -12007,7 +12018,7 @@
         padding: 0.5px 4px !important;
       }
 
-      /* KHU VỰC DANH SÁCH SKIN RỘNG RÃI, THOÁNG ĐÃNG, DỄ NHÌN */
+      /* KHU VỰC DANH SÁCH SKIN */
       .skin-scroll-viewport {
         flex: 1 1 0% !important;
         min-height: 0 !important;
@@ -12030,8 +12041,8 @@
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
-        padding: 4px 8px !important;
-        gap: 6px !important;
+        padding: 4px 6px !important;
+        gap: 5px !important;
         border-radius: 9px !important;
         min-width: 0 !important;
         box-sizing: border-box !important;
@@ -12052,22 +12063,36 @@
         box-shadow: 0 0 12px rgba(0, 240, 255, 0.3) !important;
       }
 
+      .skin-card .skin-preview,
       .card-thumb-wrap {
         flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 1.5px !important;
+        height: auto !important;
         padding: 2px 4px !important;
-        gap: 2.5px !important;
-        border-radius: 7px !important;
-        background: rgba(0, 0, 0, 0.4) !important;
+        border-radius: 6px !important;
+        background: rgba(0, 0, 0, 0.45) !important;
       }
 
+      .skin-card .skin-seg,
       .card-thumb-dot {
+        width: 5px !important;
+        height: 5px !important;
+        min-width: 5px !important;
+        border-radius: 1.5px !important;
+      }
+
+      .skin-card .skin-seg:first-child,
+      .card-thumb-dot.is-head {
         width: 8px !important;
         height: 8px !important;
+        min-width: 8px !important;
+        border-radius: 2.5px !important;
       }
 
-      .card-thumb-dot.is-head {
-        width: 11px !important;
-        height: 11px !important;
+      .skin-card .skin-seg:nth-child(n+5) {
+        display: none !important;
       }
 
       .card-info-wrap {
@@ -12109,7 +12134,7 @@
         white-space: nowrap !important;
       }
 
-      /* CỘT CHI TIẾT & XEM TRƯỚC BÊN PHẢI GỌN GÀNG, KHÔNG LẤN CHIẾM */
+      /* CỘT CHI TIẾT & GÓC XEM TRƯỚC SKIN ƯU TIÊN TO, RÕ, ĐẸP MẮT */
       .skin-right-col {
         height: 100% !important;
         display: flex !important;
@@ -12123,70 +12148,84 @@
         height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
-        padding: 4px 7px !important;
-        gap: 3px !important;
+        padding: 5px 8px !important;
+        gap: 4px !important;
         border-radius: 12px !important;
         box-sizing: border-box !important;
-        background: rgba(12, 10, 20, 0.92) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(12, 10, 20, 0.94) !important;
+        border: 1px solid rgba(0, 240, 255, 0.22) !important;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 240, 255, 0.03) !important;
         overflow: hidden !important;
       }
 
+      /* KHU VỰC SÂN KHẤU PREVIEW SKIN TO VÀ RÕ NÉT VƯỢT TRỘI */
       .skin-preview-stage {
-        height: 80px !important;
-        min-height: 80px !important;
-        border-radius: 10px !important;
+        height: 155px !important;
+        min-height: 145px !important;
+        max-height: 165px !important;
+        border-radius: 12px !important;
         position: relative !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         flex-shrink: 0 !important;
         overflow: hidden !important;
-        background: radial-gradient(ellipse at 50% 65%, rgba(32, 22, 54, 0.85) 0%, rgba(6, 4, 12, 0.98) 100%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background: radial-gradient(ellipse at 50% 65%, rgba(32, 22, 54, 0.9) 0%, rgba(6, 4, 12, 0.98) 100%) !important;
+        border: 1.5px solid rgba(0, 240, 255, 0.28) !important;
+        box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.7), 0 4px 14px rgba(0, 0, 0, 0.5) !important;
       }
 
       #skin-preview-canvas {
-        height: 70px !important;
+        height: 142px !important;
         width: 100% !important;
+        max-width: 480px !important;
         object-fit: contain !important;
+        filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75)) !important;
       }
 
       .stage-overlay-tags {
-        top: 3px !important;
-        left: 6px !important;
-        right: 6px !important;
+        top: 5px !important;
+        left: 8px !important;
+        right: 8px !important;
         z-index: 4 !important;
       }
 
       .stage-tag-rarity {
-        font-size: 7.5px !important;
-        padding: 1.5px 5px !important;
-        border-radius: 4px !important;
+        font-size: 8.5px !important;
+        padding: 2px 7px !important;
+        border-radius: 6px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
       }
 
       .stage-tag-equipped {
-        font-size: 7.5px !important;
-        padding: 1.5px 5px !important;
-        border-radius: 4px !important;
+        font-size: 8.5px !important;
+        padding: 2px 7px !important;
+        border-radius: 6px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
       }
 
       .stage-interactive-bar {
-        bottom: 2px !important;
-        left: 4px !important;
-        right: 4px !important;
-        gap: 4px !important;
+        bottom: 5px !important;
+        left: 6px !important;
+        right: 6px !important;
+        gap: 6px !important;
         z-index: 6 !important;
+        justify-content: center !important;
       }
 
       .stage-action-pill {
-        padding: 1.5px 5px !important;
-        font-size: 7.5px !important;
-        border-radius: 10px !important;
+        padding: 2.5px 8px !important;
+        font-size: 8.5px !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.4px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
       }
 
       .action-pill-icon {
-        font-size: 8px !important;
+        font-size: 9.5px !important;
       }
 
       .skin-detail-info-body {
@@ -12195,22 +12234,23 @@
         flex-direction: column !important;
         justify-content: space-between !important;
         min-height: 0 !important;
-        gap: 2.5px !important;
+        gap: 3px !important;
         overflow: hidden !important;
+        padding-top: 1px !important;
       }
 
       .skin-detail-title-row {
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        gap: 4px !important;
+        gap: 6px !important;
         flex-shrink: 0 !important;
       }
 
       .skin-preview-label {
-        font-size: 11.5px !important;
+        font-size: 12.5px !important;
         font-weight: 800 !important;
-        letter-spacing: 0.3px !important;
+        letter-spacing: 0.4px !important;
         color: #ffffff !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -12218,9 +12258,10 @@
       }
 
       .skin-detail-id-tag {
-        font-size: 7.5px !important;
-        padding: 1px 4px !important;
-        border-radius: 4px !important;
+        font-size: 8px !important;
+        padding: 1.5px 6px !important;
+        border-radius: 5px !important;
+        white-space: nowrap !important;
       }
 
       .skin-detail-desc {
@@ -12233,11 +12274,12 @@
 
       .skin-mission-box {
         display: flex !important;
-        padding: 2.5px 6px !important;
-        gap: 1.5px !important;
-        border-radius: 6px !important;
+        flex-direction: column !important;
+        padding: 3px 8px !important;
+        gap: 2px !important;
+        border-radius: 7px !important;
         background: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid rgba(255, 255, 255, 0.07) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
         flex-shrink: 0 !important;
       }
 
@@ -12246,21 +12288,25 @@
       }
 
       .mission-header {
-        font-size: 7.5px !important;
+        font-size: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
       }
 
       .mission-title {
-        font-size: 7.5px !important;
+        font-size: 8px !important;
       }
 
       .mission-status-pill {
-        font-size: 7px !important;
-        padding: 0.5px 3.5px !important;
+        font-size: 7.5px !important;
+        padding: 1px 4px !important;
+        margin-left: auto !important;
       }
 
       .mission-desc {
-        font-size: 8px !important;
-        line-height: 1.15 !important;
+        font-size: 8.5px !important;
+        line-height: 1.2 !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -12268,15 +12314,15 @@
 
       .skin-progress-wrap {
         margin-top: 1px !important;
-        gap: 1px !important;
+        gap: 1.5px !important;
       }
 
       .skin-progress-track {
-        height: 3px !important;
+        height: 3.5px !important;
       }
 
       .skin-progress-text {
-        font-size: 7px !important;
+        font-size: 7.5px !important;
         line-height: 1.1 !important;
       }
 
@@ -12287,16 +12333,16 @@
 
       .btn-equip-lux {
         width: 100% !important;
-        padding: 4px 10px !important;
-        font-size: 10px !important;
+        padding: 4px 12px !important;
+        font-size: 11px !important;
         font-weight: 800 !important;
-        letter-spacing: 0.6px !important;
+        letter-spacing: 0.8px !important;
         border-radius: 8px !important;
-        height: 28px !important;
+        height: 29px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 5px !important;
+        gap: 6px !important;
         box-shadow: 0 2px 10px rgba(0, 240, 255, 0.25) !important;
       }
 
@@ -37095,8 +37141,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const h = (skinPreviewCanvas && skinPreviewCanvas.height) || 160;
       const isLandscape = typeof window !== "undefined" && window.innerHeight < 560 && window.innerWidth > window.innerHeight;
       const segCount = isLandscape ? 8 : (isMobileDevice ? 8 : 10);
-      const segSize = isLandscape ? 28 : (isMobileDevice ? 32 : 38);
-      const gap = isLandscape ? 4 : (isMobileDevice ? 5 : 6);
+      const segSize = isLandscape ? 36 : (isMobileDevice ? 32 : 38);
+      const gap = isLandscape ? 5 : (isMobileDevice ? 5 : 6);
       const totalWormLen = segCount * (segSize + gap - 8);
       const startX = Math.max(16, (w - totalWormLen) / 2);
       const headX = startX + segSize * 0.5;
@@ -37503,7 +37549,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       let dashLunge = 0;
       let dashPunchX = 0;
       let dashPunchY = 0;
-      const maxLunge = isLandscape ? 58 : 88;
+      const maxLunge = isLandscape ? 66 : 88;
 
       if (isDashing) {
         const elapsed = t - previewDashStartTime;
@@ -37657,21 +37703,21 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
 
       const segCount = isLandscape ? 8 : (isMobileDevice ? 8 : 10);
-      const segSize = isLandscape ? 28 : (isMobileDevice ? 32 : 38);
-      const gap = isLandscape ? 4 : (isMobileDevice ? 5 : 6);
+      const segSize = isLandscape ? 36 : (isMobileDevice ? 32 : 38);
+      const gap = isLandscape ? 5 : (isMobileDevice ? 5 : 6);
       const totalWormLen = segCount * (segSize + gap - 8);
       const startX = Math.max(16, (w - totalWormLen) / 2);
       const baseY = h / 2 - segSize / 2;
-      const segRadius = isLandscape ? 3.5 : (isMobileDevice ? 4 : 5);
+      const segRadius = isLandscape ? 4.5 : (isMobileDevice ? 4 : 5);
 
       const segPoints = [];
       const isPreviewCrazy = !!previewCrazyActive;
       for (let i = 0; i < segCount; i++) {
-        const ampY = isLandscape ? (isPreviewCrazy ? 12 : 8) : (isPreviewCrazy ? 18 : 13);
+        const ampY = isLandscape ? (isPreviewCrazy ? 14 : 9) : (isPreviewCrazy ? 18 : 13);
         // Khi điên loạn: tốc độ uốn lượn tăng gấp hơn 4.5 lần cực kỳ dồn dập & cuồng bạo như trong trận (crazySpeed 160 vs 25)
         const wiggleFreq = isPreviewCrazy ? 0.015 : 0.0032;
         const wiggleY = Math.sin(t * wiggleFreq - i * (isPreviewCrazy ? 0.72 : 0.48)) * ampY + Math.cos(t * (wiggleFreq * 0.5) + i * 0.3) * (ampY * (isPreviewCrazy ? 0.55 : 0.35));
-        const wiggleX = Math.sin(t * (wiggleFreq * 0.75) + i * 0.45) * (isLandscape ? (isPreviewCrazy ? 6 : 3) : (isPreviewCrazy ? 9 : 5));
+        const wiggleX = Math.sin(t * (wiggleFreq * 0.75) + i * 0.45) * (isLandscape ? (isPreviewCrazy ? 7 : 3.5) : (isPreviewCrazy ? 9 : 5));
         // Độ rung chấn điên loạn mô phỏng rung màn hình / adrenaline trong trận
         const crazyJitterX = isPreviewCrazy ? (Math.sin(t * 0.08 + i * 3) * 2.2) : 0;
         const crazyJitterY = isPreviewCrazy ? (Math.cos(t * 0.09 + i * 2) * 2.2) : 0;
