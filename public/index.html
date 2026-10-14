@@ -13020,6 +13020,62 @@
       visibility: visible;
     }
 
+    /* === CHẾ ĐỘ MÀN HÌNH DỌC ĐIỆN THOẠI (FORCE PORTRAIT MODE CHO NGƯỜI CHƠI MOBILE) === */
+    body.force-portrait-mode {
+      touch-action: none !important;
+      overflow: hidden !important;
+    }
+
+    body.force-portrait-mode:not(.lan-split-view) #game-container {
+      position: fixed;
+      inset: 0;
+      height: 100vh !important;
+      height: 100dvh !important;
+      width: 100vw !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      align-items: center !important;
+      padding-top: max(42px, env(safe-area-inset-top)) !important;
+      margin-top: 0 !important;
+      touch-action: none !important;
+      overscroll-behavior: none !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+
+    body.force-portrait-mode:not(.lan-split-view) canvas#game {
+      max-height: 52vh !important;
+      max-height: 52dvh !important;
+      max-width: 100vw !important;
+      width: 100vw !important;
+      height: auto !important;
+      aspect-ratio: 16 / 9;
+      box-shadow: none !important;
+      border-width: 2px !important;
+      touch-action: none !important;
+    }
+
+    body.force-portrait-mode #mobile-action-buttons {
+      bottom: max(22px, calc(env(safe-area-inset-bottom) + 14px)) !important;
+      right: max(16px, calc(env(safe-area-inset-right) + 12px)) !important;
+      gap: 14px !important;
+    }
+
+    body.force-portrait-mode.dpad-mode #mobile-action-buttons {
+      bottom: max(22px, calc(env(safe-area-inset-bottom) + 14px)) !important;
+      right: max(16px, calc(env(safe-area-inset-right) + 12px)) !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+
+    body.force-portrait-mode #dpad-container {
+      bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px)) !important;
+      left: max(14px, calc(env(safe-area-inset-left) + 10px)) !important;
+      transform: scale(1.12) !important;
+      transform-origin: bottom left !important;
+    }
+
     /* Ẩn con trỏ chuột mặc định trên PC khi tính năng chuột tùy chỉnh con giun được BẬT (cả trong game lẫn sảnh chính) */
     @media (hover: hover) and (pointer: fine) {
       body.custom-worm-cursor-enabled,
@@ -17289,6 +17345,25 @@
                     </button>
                   </div>
                 </div>
+                <!-- TÙY CHỌN CHUYỂN MÀN HÌNH DỌC CHO ĐIỆN THOẠI -->
+                <div class="toggle-lux-card" id="card-toggle-mobile-portrait">
+                  <div class="toggle-card-left">
+                    <div class="toggle-card-icon-halo">📱</div>
+                    <div class="toggle-card-text">
+                      <div class="toggle-card-title">Chế Độ Màn Hình Dọc (Điện Thoại)</div>
+                      <div class="toggle-card-desc">Chuyển game sang màn hình dọc &amp; cho phép tự do xoay dọc điện thoại (tối ưu chơi 1 tay, bố cục dọc trực quan)</div>
+                    </div>
+                  </div>
+                  <div class="toggle-card-right">
+                    <span class="toggle-state-label state-off" id="toggle-state-mobile-portrait">TẮT</span>
+                    <button type="button" id="btn-toggle-mobile-portrait" class="toggle-switch" role="switch"
+                      aria-checked="false" aria-label="Bật tắt chế độ màn hình dọc điện thoại">
+                      <span class="toggle-track">
+                        <span class="toggle-knob"></span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
                 <div class="toggle-lux-card active-row" id="card-toggle-objective-guide">
                   <div class="toggle-card-left">
                     <div class="toggle-card-icon-halo">🎯</div>
@@ -19025,6 +19100,9 @@
     }
 
     function isUserOnMobilePortrait() {
+      if (typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled) {
+        return true;
+      }
       const isMobile = isMobileDevice ||
         (typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent)) ||
         (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && Math.max(window.innerWidth, window.innerHeight) <= 1366);
@@ -19037,7 +19115,7 @@
     }
 
     function showOrientationPrompt() {
-      if (!orientationOverlay || wasOrientationPromptDismissed()) return;
+      if (!orientationOverlay || wasOrientationPromptDismissed() || (typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled)) return;
       orientationOverlay.style.display = "flex";
       requestAnimationFrame(() => {
         orientationOverlay.classList.add("active");
@@ -19081,13 +19159,13 @@
 
       try {
         if (screen.orientation && typeof screen.orientation.lock === "function") {
-          await screen.orientation.lock("landscape").catch(() => { });
-        } else if (typeof screen.lockOrientation === "function") {
-          screen.lockOrientation("landscape");
-        } else if (typeof screen.mozLockOrientation === "function") {
-          screen.mozLockOrientation("landscape");
-        } else if (typeof screen.msLockOrientation === "function") {
-          screen.msLockOrientation("landscape");
+          if (typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled) {
+            await screen.orientation.lock("portrait").catch(() => {
+              if (screen.orientation.unlock) screen.orientation.unlock();
+            });
+          } else {
+            await screen.orientation.lock("landscape").catch(() => { });
+          }
         }
       } catch (oriErr) {
         console.warn("Orientation lock error:", oriErr);
@@ -19100,6 +19178,9 @@
       try { playSound("click"); } catch (e) { }
       markOrientationPromptDismissed();
       hideOrientationPrompt();
+      if (typeof setMobilePortraitModeEnabled === "function") {
+        setMobilePortraitModeEnabled(true);
+      }
     }
 
     if (btnOrientationAgree) {
@@ -19379,6 +19460,71 @@
     setCustomWormCursorEnabled(customWormCursorEnabled);
 
     // ==========================================
+    // CÀI ĐẶT BẬT / TẮT MÀN HÌNH DỌC (ĐIỆN THOẠI)
+    // ==========================================
+    const MOBILE_PORTRAIT_STORAGE_KEY = "lumbricid_mobile_portrait";
+    let mobilePortraitModeEnabled = false;
+
+    (function loadMobilePortraitSetting() {
+      const raw = localStorage.getItem(MOBILE_PORTRAIT_STORAGE_KEY);
+      if (raw !== null) {
+        mobilePortraitModeEnabled = raw === "1";
+      }
+    })();
+
+    function setMobilePortraitModeEnabled(enabled) {
+      mobilePortraitModeEnabled = enabled;
+      try {
+        localStorage.setItem(MOBILE_PORTRAIT_STORAGE_KEY, enabled ? "1" : "0");
+      } catch (e) { }
+
+      const btn = document.getElementById("btn-toggle-mobile-portrait");
+      const card = document.getElementById("card-toggle-mobile-portrait");
+      const stateLabel = document.getElementById("toggle-state-mobile-portrait");
+      if (btn) {
+        btn.setAttribute("aria-checked", enabled ? "true" : "false");
+        btn.classList.toggle("active-setting", enabled);
+      }
+      if (card) card.classList.toggle("active-row", enabled);
+      if (stateLabel) {
+        stateLabel.textContent = enabled ? "BẬT" : "TẮT";
+        stateLabel.className = "toggle-state-label " + (enabled ? "state-on" : "state-off");
+      }
+
+      document.body.classList.toggle("force-portrait-mode", enabled);
+
+      if (enabled) {
+        markOrientationPromptDismissed();
+        hideOrientationPrompt();
+        try {
+          if (screen.orientation && typeof screen.orientation.lock === "function") {
+            screen.orientation.lock("portrait").catch(() => {
+              if (screen.orientation.unlock) screen.orientation.unlock();
+            });
+          }
+        } catch (e) { }
+      } else {
+        try {
+          if (screen.orientation && typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
+          }
+        } catch (e) { }
+      }
+
+      setTimeout(() => {
+        if (typeof applyCanvasResolution === "function") applyCanvasResolution();
+        if (typeof refreshDpadRect === "function") refreshDpadRect();
+        if (typeof window.resizeWormCursorCanvas === "function") {
+          window.resizeWormCursorCanvas();
+        } else {
+          try { window.dispatchEvent(new Event("resize")); } catch (_) { }
+        }
+      }, 60);
+    }
+
+    setMobilePortraitModeEnabled(mobilePortraitModeEnabled);
+
+    // ==========================================
     // CÀI ĐẶT BẬT / TẮT HƯỚNG DẪN MỤC TIÊU ĐẦU GAME
     // ==========================================
     const OBJECTIVE_GUIDE_STORAGE_KEY = "wormObjectiveGuideEnabled";
@@ -19549,6 +19695,8 @@
         document.body.classList.toggle("perf-mode", quality === "ultralow" || quality === "low");
         document.body.classList.toggle("special-compat-active", quality === "ultralow");
       }
+      if (typeof window.resizeWormCursorCanvas === "function") window.resizeWormCursorCanvas();
+      if (typeof window.resizeWormCursorCanvas === "function") window.resizeWormCursorCanvas();
 
       if (quality === "ultralow") {
         setSmoothMovementEnabled(true); // Luôn giữ di chuyển mượt mà chống giật nhảy ô
@@ -38990,13 +39138,22 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         try {
           if (screen.orientation && typeof screen.orientation.lock === "function") {
-            screen.orientation.lock("landscape").catch(() => { });
-          } else if (typeof screen.lockOrientation === "function") {
-            screen.lockOrientation("landscape");
-          } else if (typeof screen.mozLockOrientation === "function") {
-            screen.mozLockOrientation("landscape");
-          } else if (typeof screen.msLockOrientation === "function") {
-            screen.msLockOrientation("landscape");
+            if (typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled) {
+              screen.orientation.lock("portrait").catch(() => {
+                if (screen.orientation.unlock) screen.orientation.unlock();
+              });
+            } else {
+              // Cho phép xoay tự do nếu không ép ngang, hoặc khóa theo hướng hiện tại
+              if (window.innerHeight > window.innerWidth) {
+                if (screen.orientation.unlock) screen.orientation.unlock();
+                else screen.orientation.lock("portrait").catch(() => {});
+              } else {
+                if (screen.orientation.unlock) screen.orientation.unlock();
+                else screen.orientation.lock("landscape").catch(() => {});
+              }
+            }
+          } else if (screen.orientation && typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
           }
         } catch (e) { }
       } else {
@@ -39401,7 +39558,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           joystickTouchId = touch.identifier;
           joystickStartX = touch.clientX;
           joystickStartY = touch.clientY;
-          const isLandscape = (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(orientation: landscape)").matches);
+          const isLandscape = (!mobilePortraitModeEnabled && typeof window !== "undefined" && window.matchMedia && window.matchMedia("(orientation: landscape)").matches);
           const defaultZoneSize = isLandscape ? 90 : 110;
           const zoneHalf = (joystickZone.offsetWidth > 0 ? joystickZone.offsetWidth : defaultZoneSize) / 2;
           joystickZone.style.left = `${joystickStartX - zoneHalf}px`;
@@ -39419,7 +39576,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     let joystickCurrentDir = { dx: 0, dy: 0 };
 
     function resolveJoystickAngle(angle, curDx, curDy) {
-      const isLandscape = (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(orientation: landscape)").matches);
+      const isLandscape = (!mobilePortraitModeEnabled && typeof window !== "undefined" && window.matchMedia && window.matchMedia("(orientation: landscape)").matches);
       const HYST = isLandscape ? 0.20 : 0.14;
 
       if (curDx !== 0 || curDy !== 0) {
@@ -39993,6 +40150,23 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         initAudio();
         playSound("click");
         setCustomWormCursorEnabled(!customWormCursorEnabled);
+      });
+    }
+
+    document.getElementById("btn-toggle-mobile-portrait")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      initAudio();
+      playSound("click");
+      setMobilePortraitModeEnabled(!mobilePortraitModeEnabled);
+    });
+
+    const cardMobilePortrait = document.getElementById("card-toggle-mobile-portrait");
+    if (cardMobilePortrait) {
+      cardMobilePortrait.addEventListener("click", (e) => {
+        if (e.target.closest("#btn-toggle-mobile-portrait")) return;
+        initAudio();
+        playSound("click");
+        setMobilePortraitModeEnabled(!mobilePortraitModeEnabled);
       });
     }
 
@@ -51348,8 +51522,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       });
     }
 
+// ==============================================================
+    // 2. CON CHUỘT MÁY TÍNH HÌNH ICON GIUN TINH XẢO (HỖ TRỢ PC & ĐIỆN THOẠI ĐA CẢM ỨNG & SKIN MYTHIC ĐẶC BIỆT)
     // ==============================================================
-    // 2. CON CHUỘT MÁY TÍNH HÌNH ICON GIUN TINH XẢO (HỖ TRỢ PC & ĐIỆN THOẠI ĐA CẢM ỨNG)
+    // 2. CON CHUỘT MÁY TÍNH HÌNH ICON GIUN TINH XẢO (HỖ TRỢ PC & ĐIỆN THOẠI ĐA CẢM ỨNG & SKIN MYTHIC ĐẶC BIỆT)
+    // ==============================================================
+    // 2. CON CHUỘT MÁY TÍNH HÌNH ICON GIUN TINH XẢO (HỖ TRỢ PC & ĐIỆN THOẠI ĐA CẢM ỨNG & SKIN MYTHIC ĐẶC BIỆT)
     // ==============================================================
     function initLobbyWormCursor() {
       let cursorCanvas = document.getElementById("worm-mouse-cursor");
@@ -51366,14 +51544,28 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         cursorCanvas.style.setProperty("margin", "0", "important");
         cursorCanvas.style.setProperty("padding", "0", "important");
         cursorCanvas.style.setProperty("transform", "none", "important");
+        cursorCanvas.style.setProperty("pointer-events", "none", "important");
         document.body.appendChild(cursorCanvas);
+      } else {
+        cursorCanvas.style.setProperty("pointer-events", "none", "important");
       }
 
       const ctx = cursorCanvas.getContext("2d");
 
-      let dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      // Tối ưu hóa theo cấu hình đồ họa người chơi (Graphics Quality Adaptor)
+      function isUltraLowGraphics() {
+        return (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      }
+      function isLowGraphics() {
+        return isUltraLowGraphics() || (typeof graphicsQuality !== "undefined" && graphicsQuality === "low") || (typeof isHighPerf === "function" && isHighPerf());
+      }
+
+      let dpr = 1;
       function resizeCanvas() {
-        dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        const isUltra = isUltraLowGraphics();
+        const isLow = isLowGraphics();
+        const maxDprLimit = isUltra ? 1.0 : (isLow ? 1.5 : 2.0);
+        dpr = Math.max(1, Math.min(maxDprLimit, window.devicePixelRatio || 1));
         const w = window.innerWidth;
         const h = window.innerHeight;
         cursorCanvas.width = Math.round(w * dpr);
@@ -51382,13 +51574,44 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         cursorCanvas.style.height = "100vh";
       }
       resizeCanvas();
+      window.resizeWormCursorCanvas = resizeCanvas;
       window.addEventListener("resize", resizeCanvas, { passive: true });
       window.addEventListener("orientationchange", resizeCanvas, { passive: true });
 
-      // Nhận diện phần tử tương tác (Interactive element detector)
+      // Nhận diện phần tử tương tác (Interactive element detector - An toàn chống lỗi Text Node)
       function isInteractiveElement(target) {
-        if (!target || typeof target.closest !== "function") return false;
-        return !!target.closest("button, a, input, select, textarea, [role='button'], [role='switch'], [onclick], .arc-btn, .menu-btn, .skin-card, .map-size-btn, .diff-choice-btn, .back-btn, .tab-btn, .settings-quick-back-btn, .panel-tab-btn, .clickable, label, .lobby-fullscreen-fab, .nav-btn, .ctrl-lux-card, .gfx-tier-card, .fps-pill, .vol-preset-btn, .vol-lux-mute-btn, .stats-pos-pill, .btn-action-touch, #btn-pause, #btn-fullscreen, #btn-dash, #btn-m-dash, .skill-btn, #m-btn-dash, .toggle-switch, .toggle-lux-card, .game-btn, .close-btn");
+        const el = (target && target.nodeType === 3) ? target.parentElement : target;
+        if (!el || typeof el.closest !== "function") return false;
+        return !!el.closest("button, a, input, select, textarea, [role='button'], [role='switch'], [onclick], .arc-btn, .menu-btn, .skin-card, .map-size-btn, .diff-choice-btn, .back-btn, .tab-btn, .settings-quick-back-btn, .panel-tab-btn, .clickable, label, .lobby-fullscreen-fab, .nav-btn, .ctrl-lux-card, .gfx-tier-card, .fps-pill, .vol-preset-btn, .vol-lux-mute-btn, .stats-pos-pill, .btn-action-touch, #btn-pause, #btn-fullscreen, #btn-dash, #btn-m-dash, .skill-btn, #m-btn-dash, .toggle-switch, .toggle-lux-card, .game-btn, .close-btn");
+      }
+
+      // Kiểm tra vùng nửa màn hình nút bấm di chuyển trong game (In-game movement control area)
+      function isMovementControlArea(x, y, target) {
+        if (typeof isMenuMode !== "undefined" && isMenuMode) return false;
+        if (typeof isPaused !== "undefined" && isPaused) return false;
+        if (typeof gameOver !== "undefined" && gameOver) return false;
+
+        const el = (target && target.nodeType === 3) ? target.parentElement : target;
+        if (el && typeof el.closest === "function") {
+          if (el.closest("#dpad-container, #joystick-zone, #joystick-stick, .dpad-btn, #dpad-center")) {
+            return true;
+          }
+          if (el.closest("#control-panel, #pause-overlay, #pause-settings-panel, .dialog-backdrop, .menu-panel")) {
+            return false;
+          }
+        }
+
+        // Nửa màn hình bên trái dành cho điều khiển di chuyển trong game (hoặc nửa pane trong màn hình LAN)
+        const paneRect = (typeof getOwnPaneRect === "function") ? getOwnPaneRect() : { left: 0, width: window.innerWidth, top: 0, height: window.innerHeight };
+        const midX = paneRect.left + (paneRect.width > 0 ? paneRect.width : window.innerWidth) / 2;
+        if (x < midX) {
+          // Bỏ qua thanh header điều khiển trên cùng (nút tạm dừng, fullscreen)
+          if (y > 65) {
+            return true;
+          }
+        }
+
+        return false;
       }
 
       function getElementAtCoords(x, y, fallbackTarget) {
@@ -51401,11 +51624,130 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         return fallbackTarget || null;
       }
 
-      // Kích thước các khối pixel vuông (Pixel block sizes) mô phỏng chính xác đốt vuông trong game
-      const numSegments = 5;
-      const basePixelSizes = [13.0, 11.2, 9.5, 7.8, 6.2]; // Đốt đầu 13px, thuôn dần về đuôi
+      // Lấy Skin ID đang hoạt động
+      function getActiveCursorSkinId() {
+        try {
+          if (typeof isMenuMode !== "undefined" && !isMenuMode) {
+            return (typeof selectedSkin === "string" && selectedSkin) ? selectedSkin : "default";
+          }
+          const panelSkin = document.getElementById("panel-skin");
+          const isSkinPanelOpen = panelSkin && panelSkin.style.display === "flex" && panelSkin.offsetParent !== null;
+          if (isSkinPanelOpen && typeof previewSkinId === "string" && previewSkinId) {
+            return previewSkinId;
+          }
+          if (typeof selectedSkin === "string" && selectedSkin) {
+            return selectedSkin;
+          }
+        } catch (err) { }
+        return "default";
+      }
 
-      // Cấu trúc đối tượng con giun (cho chuột và từng điểm chạm đa cảm ứng trên điện thoại)
+      // Kiểm tra skin Mythic được hỗ trợ thiết kế cursor đặc biệt
+      // LOẠI TRỪ theo yêu cầu người dùng: "glitterking" (Royal Gold) & "pastelGalaxy" (Pastel Galaxy Sparkle)
+      function getMythicCursorType(skinId) {
+        if (!skinId || skinId === "glitterking" || skinId === "pastelGalaxy") return null;
+        const supported = [
+          "chromaUnique",    // Top 1: Crown of Unique Chromas 👑🌈✨
+          "dimigo",          // Top 1: DIMIGO (Himico) • For That Girl 💖🌸✨
+          "ultra20",         // Crown of Celestial Star 👑✨
+          "oceanTideGrand",  // Ocean Tide Majestic Abyss 🌊👑✨
+          "galacticCore",    // Galactic Core Stardust 🌌✨
+          "cosmicVoid",      // Blackhole Voidmaw 🕳️🌌
+          "cyberQuantum",    // Cyber Quantum Neon ⚡🛸🌐
+          "vintageAntique",  // Vintage Antique Imperial ⚜️🏺📜
+          "auroraPastel",    // Aurora Pastel 💫🌈
+          "chromaJewel"      // Chroma Jewel Prism 💛💚💙💜✨
+        ];
+        return supported.includes(skinId) ? skinId : null;
+      }
+
+      // Helper vẽ hình vector chuyên dụng (Chuẩn xác tâm đối xứng & tỷ lệ vàng)
+      function drawMiniVectorHeart(targetCtx, cx, cy, size, fillCol, strokeCol, strokeW) {
+        targetCtx.save();
+        targetCtx.translate(cx, cy - size * 0.5);
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, size * 0.3);
+        targetCtx.bezierCurveTo(0, 0, -size * 0.5, 0, -size * 0.5, size * 0.3);
+        targetCtx.bezierCurveTo(-size * 0.5, size * 0.6, 0, size * 0.8, 0, size);
+        targetCtx.bezierCurveTo(0, size * 0.8, size * 0.5, size * 0.6, size * 0.5, size * 0.3);
+        targetCtx.bezierCurveTo(size * 0.5, 0, 0, 0, 0, size * 0.3);
+        targetCtx.closePath();
+        if (fillCol) {
+          targetCtx.fillStyle = fillCol;
+          targetCtx.fill();
+        }
+        if (strokeCol) {
+          targetCtx.strokeStyle = strokeCol;
+          targetCtx.lineWidth = strokeW || 1;
+          targetCtx.stroke();
+        }
+        targetCtx.restore();
+      }
+
+      function drawMiniDiamondGem(targetCtx, cx, cy, w, h, fillCol, strokeCol, strokeW) {
+        targetCtx.save();
+        targetCtx.translate(cx, cy);
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -h / 2);
+        targetCtx.lineTo(w / 2, 0);
+        targetCtx.lineTo(0, h / 2);
+        targetCtx.lineTo(-w / 2, 0);
+        targetCtx.closePath();
+        if (fillCol) {
+          targetCtx.fillStyle = fillCol;
+          targetCtx.fill();
+        }
+        if (strokeCol) {
+          targetCtx.strokeStyle = strokeCol;
+          targetCtx.lineWidth = strokeW || 1;
+          targetCtx.stroke();
+        }
+        targetCtx.restore();
+      }
+
+      function drawMiniStar4(targetCtx, cx, cy, r, innerR, fillCol) {
+        targetCtx.save();
+        targetCtx.translate(cx, cy);
+        targetCtx.beginPath();
+        for (let k = 0; k < 8; k++) {
+          const rad = (k % 2 === 0) ? r : innerR;
+          const a = (k * Math.PI) / 4;
+          const px = Math.cos(a) * rad;
+          const py = Math.sin(a) * rad;
+          if (k === 0) targetCtx.moveTo(px, py);
+          else targetCtx.lineTo(px, py);
+        }
+        targetCtx.closePath();
+        if (fillCol) {
+          targetCtx.fillStyle = fillCol;
+          targetCtx.fill();
+        }
+        targetCtx.restore();
+      }
+
+      function drawMiniSakuraPetal(targetCtx, cx, cy, size, rot, fillCol, strokeCol) {
+        targetCtx.save();
+        targetCtx.translate(cx, cy);
+        targetCtx.rotate(rot);
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -size);
+        targetCtx.bezierCurveTo(size * 0.85, -size * 0.45, size * 0.65, size * 0.8, 0, size);
+        targetCtx.bezierCurveTo(-size * 0.65, size * 0.8, -size * 0.85, -size * 0.45, 0, -size);
+        if (fillCol) {
+          targetCtx.fillStyle = fillCol;
+          targetCtx.fill();
+        }
+        if (strokeCol) {
+          targetCtx.strokeStyle = strokeCol;
+          targetCtx.lineWidth = 0.8;
+          targetCtx.stroke();
+        }
+        targetCtx.restore();
+      }
+
+      const numSegments = 5;
+      const basePixelSizes = [13.0, 11.2, 9.5, 7.8, 6.2];
+
       function createWormCursorInstance(id, x, y, isTouch) {
         const now = (typeof performance !== "undefined" ? performance.now() : Date.now());
         return {
@@ -51416,7 +51758,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           prevX: x,
           prevY: y,
           speed: 0,
-          currentAngle: -Math.PI / 4, // Góc chéo tự nhiên hướng lên trên-trái như mũi tên chuột hệ thống
+          currentAngle: -Math.PI / 4,
           targetAngle: -Math.PI / 4,
           crawlCycle: Math.random() * Math.PI * 2,
           idleWigglePhase: Math.random() * Math.PI * 2,
@@ -51434,18 +51776,128 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           trailPoints: [{ x: x, y: y, time: now }],
           dustParticles: [],
           releasing: false,
+          releaseStartTime: 0,
+          lastActiveTime: now,
           opacity: 1.0
         };
       }
 
-      function spawnTactileSparkles(worm, x, y) {
+      function spawnTactileSparkles(worm, x, y, mythicType) {
         worm.rippleRadius = 4.0;
         worm.rippleAlpha = 1.0;
         worm.rippleX = x;
         worm.rippleY = y;
         worm.clickSparkles = [];
-        for (let k = 0; k < 8; k++) {
-          const spkAngle = (k / 8) * Math.PI * 2 + (Math.random() - 0.5) * 0.45;
+
+        const isLow = isLowGraphics();
+        const count = isLow ? 7 : 12;
+
+        // ĐẶC BIỆT CHO CHROMAUNIQUE: Bùng nổ kim cương lăng kính quang phổ rực rỡ
+        if (mythicType === "chromaUnique") {
+          for (let k = 0; k < count; k++) {
+            const spkAngle = (k / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+            const spkSpeed = 2.4 + Math.random() * 3.6;
+            const hue = (k * 30 + Math.random() * 20) % 360;
+            worm.clickSparkles.push({
+              x: x,
+              y: y,
+              vx: Math.cos(spkAngle) * spkSpeed,
+              vy: Math.sin(spkAngle) * spkSpeed,
+              life: 1.0,
+              type: Math.random() < 0.5 ? "diamond" : "prism",
+              color: "hsla(" + hue + ", 100%, 75%, 1)",
+              size: 2.2 + Math.random() * 2.4,
+              rot: Math.random() * Math.PI,
+              vRot: (Math.random() - 0.5) * 0.25
+            });
+          }
+          return;
+        }
+
+        // ĐẶC BIỆT CHO DIMIGO: Bùng nổ trái tim tình yêu và cánh hoa anh đào nở rộ
+        if (mythicType === "dimigo") {
+          const dimigoPalette = ["#ff1493", "#ff69b4", "#ffb6c1", "#ff4081", "#ffffff", "#ffd1dc"];
+          for (let k = 0; k < count; k++) {
+            const spkAngle = (k / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+            const spkSpeed = 2.2 + Math.random() * 3.2;
+            const pickCol = dimigoPalette[k % dimigoPalette.length];
+            worm.clickSparkles.push({
+              x: x,
+              y: y,
+              vx: Math.cos(spkAngle) * spkSpeed,
+              vy: Math.sin(spkAngle) * spkSpeed,
+              life: 1.0,
+              type: Math.random() < 0.6 ? "heart" : "petal",
+              color: pickCol,
+              size: 2.6 + Math.random() * 2.6,
+              rot: Math.random() * Math.PI * 2,
+              vRot: (Math.random() - 0.5) * 0.2
+            });
+          }
+          return;
+        }
+
+        // CÁC SKIN MYTHIC KHÁC
+        if (mythicType === "ultra20") {
+          const uCount = isLow ? 6 : 9;
+          for (let k = 0; k < uCount; k++) {
+            const spkAngle = (k / uCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+            const spkSpeed = 2.5 + Math.random() * 3.0;
+            worm.clickSparkles.push({
+              x: x, y: y,
+              vx: Math.cos(spkAngle) * spkSpeed, vy: Math.sin(spkAngle) * spkSpeed,
+              life: 1.0, type: "star", color: k % 2 === 0 ? "#ffd700" : "#ffffff", size: 2.4 + Math.random() * 2.0
+            });
+          }
+          return;
+        }
+
+        if (mythicType === "oceanTideGrand") {
+          const oCount = isLow ? 5 : 8;
+          for (let k = 0; k < oCount; k++) {
+            const spkAngle = (k / oCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+            const spkSpeed = 2.0 + Math.random() * 2.8;
+            worm.clickSparkles.push({
+              x: x, y: y,
+              vx: Math.cos(spkAngle) * spkSpeed, vy: Math.sin(spkAngle) * spkSpeed,
+              life: 1.0, type: "bubble", color: k % 2 === 0 ? "#00e5ff" : "#b3f0ff", size: 2.0 + Math.random() * 2.5
+            });
+          }
+          return;
+        }
+
+        if (mythicType === "cyberQuantum") {
+          const cCount = isLow ? 5 : 8;
+          for (let k = 0; k < cCount; k++) {
+            const spkAngle = (k / cCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+            const spkSpeed = 2.8 + Math.random() * 2.6;
+            worm.clickSparkles.push({
+              x: x, y: y,
+              vx: Math.cos(spkAngle) * spkSpeed, vy: Math.sin(spkAngle) * spkSpeed,
+              life: 1.0, type: "cyber", color: k % 3 === 0 ? "#00f0ff" : (k % 3 === 1 ? "#ff008c" : "#00ffbe"), size: 2.2 + Math.random() * 1.8
+            });
+          }
+          return;
+        }
+
+        if (mythicType === "vintageAntique") {
+          const vCount = isLow ? 5 : 8;
+          for (let k = 0; k < vCount; k++) {
+            const spkAngle = (k / vCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+            const spkSpeed = 1.8 + Math.random() * 2.5;
+            worm.clickSparkles.push({
+              x: x, y: y,
+              vx: Math.cos(spkAngle) * spkSpeed, vy: Math.sin(spkAngle) * spkSpeed,
+              life: 1.0, type: "ember", color: k % 2 === 0 ? "#ffb300" : "#ffe082", size: 2.0 + Math.random() * 2.0
+            });
+          }
+          return;
+        }
+
+        // MẶC ĐỊNH (DEFAULT / NON-MYTHIC)
+        const dCount = isLow ? 5 : 8;
+        for (let k = 0; k < dCount; k++) {
+          const spkAngle = (k / dCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.45;
           const spkSpeed = 2.0 + Math.random() * 2.8;
           worm.clickSparkles.push({
             x: x,
@@ -51453,22 +51905,30 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             vx: Math.cos(spkAngle) * spkSpeed,
             vy: Math.sin(spkAngle) * spkSpeed,
             life: 1.0,
+            type: "dot",
             color: Math.random() < 0.5 ? "#ff1744" : "#ffea00",
             size: 1.6 + Math.random() * 1.8
           });
         }
       }
 
-      // Quản lý chuột (Mouse cursor) & Đa điểm chạm điện thoại (Multi-touch cursors)
       let mouseCursor = null;
       let isMouseVisible = false;
-      const touchCursors = new Map(); // id -> WormCursorInstance
+      let lastMouseMoveTime = 0;
+      let lastTouchInteractionTime = 0;
+      const touchCursors = new Map();
+
+      const hasFinePointer = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
       // --------------------------------------------------------------
       // 1. SỰ KIỆN CHUỘT CHO MÁY TÍNH (PC / LAPTOP MOUSE EVENTS)
       // --------------------------------------------------------------
       function updateMousePosition(e) {
-        if (e.pointerType === "touch") return; // Bỏ qua nếu từ touch trên hybrid device
+        if (e.pointerType === "touch" || (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents)) return;
+        if (performance.now() - lastTouchInteractionTime < 1500) return;
+        if (typeof isMobileDevice !== "undefined" && isMobileDevice && !hasFinePointer) return;
+
+        lastMouseMoveTime = performance.now();
         if (!mouseCursor) {
           mouseCursor = createWormCursorInstance("mouse", e.clientX, e.clientY, false);
           mouseCursor.clickSquashTimer = 0;
@@ -51488,7 +51948,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           Math.hypot(mouseCursor.x - mouseCursor.trailPoints[mouseCursor.trailPoints.length - 1].x, mouseCursor.y - mouseCursor.trailPoints[mouseCursor.trailPoints.length - 1].y) : 999;
         if (distFromLast > 2.5) {
           mouseCursor.trailPoints.push({ x: mouseCursor.x, y: mouseCursor.y, time: now });
-          if (mouseCursor.trailPoints.length > 28) mouseCursor.trailPoints.shift();
+          if (mouseCursor.trailPoints.length > 30) mouseCursor.trailPoints.shift();
         }
 
         const target = e.target;
@@ -51503,7 +51963,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }, { passive: true });
 
       window.addEventListener("mousedown", (e) => {
-        if (e.button !== 0) return; // Chỉ chuột trái
+        if (e.button !== 0) return;
+        if (e.pointerType === "touch" || (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents)) return;
+        if (performance.now() - lastTouchInteractionTime < 1500) return;
+        if (typeof isMobileDevice !== "undefined" && isMobileDevice && !hasFinePointer) return;
+
+        lastMouseMoveTime = performance.now();
         if (!mouseCursor) {
           mouseCursor = createWormCursorInstance("mouse", e.clientX, e.clientY, false);
         }
@@ -51513,17 +51978,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         mouseCursor.isPressed = true;
         mouseCursor.clickSquashTimer = 1.0;
         mouseCursor.clickRecoilTimer = 0;
-        spawnTactileSparkles(mouseCursor, mouseCursor.x, mouseCursor.y);
 
-        const target = e.target;
-        if (isInteractiveElement(target)) {
-          try {
-            if (typeof playSound === "function") playSound("click");
-          } catch (err) { }
-        }
+        const activeSkinId = getActiveCursorSkinId();
+        const mythicType = getMythicCursorType(activeSkinId);
+        spawnTactileSparkles(mouseCursor, mouseCursor.x, mouseCursor.y, mythicType);
       });
 
-      window.addEventListener("mouseup", () => {
+      window.addEventListener("mouseup", (e) => {
+        if (e.pointerType === "touch" || (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents)) return;
+        if (performance.now() - lastTouchInteractionTime < 1500) return;
         if (mouseCursor) {
           mouseCursor.isPressed = false;
           mouseCursor.clickRecoilTimer = 1.0;
@@ -51544,11 +52007,27 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       // 2. SỰ KIỆN CẢM ỨNG CHO ĐIỆN THOẠI (MOBILE TOUCH & MULTI-TOUCH)
       // --------------------------------------------------------------
       function onTouchStart(e) {
+        lastTouchInteractionTime = performance.now();
         if (typeof customWormCursorEnabled !== "undefined" && !customWormCursorEnabled) return;
         const now = performance.now();
+        const activeSkinId = getActiveCursorSkinId();
+        const mythicType = getMythicCursorType(activeSkinId);
+
         for (let i = 0; i < e.changedTouches.length; i++) {
           const t = e.changedTouches[i];
           const touchTarget = getElementAtCoords(t.clientX, t.clientY, t.target);
+
+          // Ở trong game: nửa màn hình đoạn nút bấm di chuyển sẽ không có icon bấm nút!
+          if (isMovementControlArea(t.clientX, t.clientY, touchTarget)) {
+            continue;
+          }
+
+          // Giới hạn an toàn tối đa 10 điểm chạm (ngăn chặn leak bộ nhớ)
+          if (touchCursors.size >= 10 && !touchCursors.has(t.identifier)) {
+            const oldestKey = touchCursors.keys().next().value;
+            if (oldestKey !== undefined) touchCursors.delete(oldestKey);
+          }
+
           const isInteractive = isInteractiveElement(touchTarget);
 
           let worm = touchCursors.get(t.identifier);
@@ -51561,60 +52040,74 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             worm.prevX = t.clientX;
             worm.prevY = t.clientY;
             worm.releasing = false;
+            worm.releaseStartTime = 0;
             worm.opacity = 1.0;
           }
+          worm.lastActiveTime = now;
           worm.isPressed = true;
           worm.clickSquashTimer = 1.0;
           worm.clickRecoilTimer = 0;
           worm.isHoveringInteractive = isInteractive;
-          spawnTactileSparkles(worm, t.clientX, t.clientY);
-
-          if (isInteractive) {
-            try {
-              if (typeof playSound === "function") playSound("click");
-            } catch (err) { }
-          }
+          spawnTactileSparkles(worm, t.clientX, t.clientY, mythicType);
         }
       }
 
       function onTouchMove(e) {
+        lastTouchInteractionTime = performance.now();
         if (typeof customWormCursorEnabled !== "undefined" && !customWormCursorEnabled) return;
         const now = performance.now();
         for (let i = 0; i < e.changedTouches.length; i++) {
           const t = e.changedTouches[i];
+          const target = getElementAtCoords(t.clientX, t.clientY, t.target);
+
+          if (isMovementControlArea(t.clientX, t.clientY, target)) {
+            if (touchCursors.has(t.identifier)) {
+              touchCursors.delete(t.identifier);
+            }
+            continue;
+          }
+
           const worm = touchCursors.get(t.identifier);
           if (worm) {
             worm.x = t.clientX;
             worm.y = t.clientY;
+            worm.lastActiveTime = now;
             worm.releasing = false;
+            worm.releaseStartTime = 0;
             worm.opacity = 1.0;
 
             const distFromLast = worm.trailPoints.length > 0 ?
               Math.hypot(worm.x - worm.trailPoints[worm.trailPoints.length - 1].x, worm.y - worm.trailPoints[worm.trailPoints.length - 1].y) : 999;
             if (distFromLast > 2.5) {
               worm.trailPoints.push({ x: worm.x, y: worm.y, time: now });
-              if (worm.trailPoints.length > 28) worm.trailPoints.shift();
+              if (worm.trailPoints.length > 30) worm.trailPoints.shift();
             }
 
-            const target = getElementAtCoords(t.clientX, t.clientY, t.target);
-            worm.isHoveringInteractive = isInteractiveElement(target);
+            const targetEl = getElementAtCoords(t.clientX, t.clientY, t.target);
+            worm.isHoveringInteractive = isInteractiveElement(targetEl);
           }
         }
       }
 
       function onTouchEnd(e) {
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          const t = e.changedTouches[i];
-          const worm = touchCursors.get(t.identifier);
-          if (worm) {
-            worm.releasing = true;
-            worm.isPressed = false;
-            worm.clickRecoilTimer = 1.0;
+        lastTouchInteractionTime = performance.now();
+        const now = performance.now();
+        if (e.changedTouches) {
+          for (let i = 0; i < e.changedTouches.length; i++) {
+            const t = e.changedTouches[i];
+            const worm = touchCursors.get(t.identifier);
+            if (worm) {
+              worm.releasing = true;
+              if (!worm.releaseStartTime) worm.releaseStartTime = now;
+              worm.isPressed = false;
+              worm.clickRecoilTimer = 1.0;
+            }
           }
         }
-        if (e.touches && e.touches.length === 0) {
+        if (!e.touches || e.touches.length === 0) {
           touchCursors.forEach(w => {
             w.releasing = true;
+            if (!w.releaseStartTime) w.releaseStartTime = now;
             w.isPressed = false;
           });
         }
@@ -51625,39 +52118,132 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       window.addEventListener("touchend", onTouchEnd, { passive: true, capture: true });
       window.addEventListener("touchcancel", onTouchEnd, { passive: true, capture: true });
 
+      // GIẢI PHÓNG TRIỆT ĐỂ KHI CLICK NÚT / NHẤC TAY / THOÁT APP: Chống kẹt icon vĩnh viễn trên mọi thiết bị!
+      function clearAllTouchCursors() {
+        touchCursors.clear();
+        isMouseVisible = false;
+        if (mouseCursor) {
+          mouseCursor.isPressed = false;
+          mouseCursor.releasing = true;
+        }
+      }
+
+      window.addEventListener("click", () => {
+        const now = performance.now();
+        touchCursors.forEach((worm) => {
+          worm.releasing = true;
+          if (!worm.releaseStartTime) worm.releaseStartTime = now;
+          worm.isPressed = false;
+          if (worm.clickRecoilTimer === 0) worm.clickRecoilTimer = 1.0;
+        });
+      }, { capture: true, passive: true });
+
+      window.addEventListener("pointerup", (e) => {
+        if (e.pointerType === "touch") {
+          lastTouchInteractionTime = performance.now();
+          const now = performance.now();
+          touchCursors.forEach(w => {
+            w.releasing = true;
+            if (!w.releaseStartTime) w.releaseStartTime = now;
+            w.isPressed = false;
+          });
+        }
+      }, { capture: true, passive: true });
+
+      window.addEventListener("blur", clearAllTouchCursors, { passive: true });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) clearAllTouchCursors();
+      }, { passive: true });
+
       // --------------------------------------------------------------
-      // 3. VẬT LÝ DI CHUYỂN & HOẠT HỌA CỦA 1 CON GIUN (PHYSICS & ANIMATION)
+      // 3. VẬT LÝ DI CHUYỂN & HOẠT HỌA CỦA CON GIUN (PHYSICS & ANIMATION)
       // --------------------------------------------------------------
-      function updateWormPhysics(worm, nowMs) {
+      function updateWormPhysics(worm, nowMs, mythicType) {
         const dx = worm.x - worm.prevX;
         const dy = worm.y - worm.prevY;
         worm.speed = Math.hypot(dx, dy);
         worm.prevX = worm.x;
         worm.prevY = worm.y;
 
+        const isUltra = isUltraLowGraphics();
+        const isLow = isLowGraphics();
+        const maxParticles = isUltra ? 10 : (isLow ? 20 : 36);
+
         // Vệt sáng vuốt chuột / ngón tay (Motion Trail)
         if (worm.speed > 1.2) {
           worm.trailPoints.push({ x: worm.x, y: worm.y, time: nowMs });
-          if (worm.trailPoints.length > 28) worm.trailPoints.shift();
+          if (worm.trailPoints.length > 30) worm.trailPoints.shift();
 
-          // Sinh hạt bụi sao lấp lánh (Stardust) dọc đường vuốt
-          if (worm.speed > 2.5 && Math.random() < 0.65) {
+          // Sinh hạt bụi sao lấp lánh (Stardust) mang phong cách của từng skin (giảm tỷ lệ khi ở mức đồ họa thấp)
+          const spawnChance = isUltra ? 0.3 : (isLow ? 0.5 : 0.7);
+          if (worm.speed > 2.2 && Math.random() < spawnChance) {
             const dustAngle = Math.random() * Math.PI * 2;
-            const dustDist = Math.random() * 5.0;
-            worm.dustParticles.push({
-              x: worm.x + Math.cos(dustAngle) * dustDist,
-              y: worm.y + Math.sin(dustAngle) * dustDist,
-              vx: (Math.random() - 0.5) * 0.8,
-              vy: (Math.random() - 0.5) * 0.8,
-              life: 1.0,
-              size: 1.0 + Math.random() * 1.6
-            });
-            if (worm.dustParticles.length > 30) worm.dustParticles.shift();
+            const dustDist = Math.random() * 6.0;
+            const px = worm.x + Math.cos(dustAngle) * dustDist;
+            const py = worm.y + Math.sin(dustAngle) * dustDist;
+
+            if (mythicType === "chromaUnique") {
+              worm.dustParticles.push({
+                x: px, y: py,
+                vx: (Math.random() - 0.5) * 1.0,
+                vy: (Math.random() - 0.5) * 1.0,
+                life: 1.0,
+                type: Math.random() < 0.5 ? "diamond" : "prism",
+                color: "hsla(" + ((nowMs * 0.2 + px) % 360) + ", 100%, 75%, 1)",
+                size: 1.4 + Math.random() * 1.8,
+                rot: Math.random() * Math.PI,
+                vRot: (Math.random() - 0.5) * 0.2
+              });
+            } else if (mythicType === "dimigo") {
+              const isHeart = Math.random() < 0.5;
+              worm.dustParticles.push({
+                x: px, y: py,
+                vx: (Math.random() - 0.5) * 1.1 + 0.2,
+                vy: (Math.random() - 0.5) * 1.1 - 0.3,
+                life: 1.0,
+                type: isHeart ? "heart" : "petal",
+                color: isHeart ? (Math.random() < 0.5 ? "#ff4081" : "#ff80ab") : (Math.random() < 0.5 ? "#ffb6c1" : "#ffffff"),
+                size: 1.8 + Math.random() * 2.2,
+                rot: Math.random() * Math.PI * 2,
+                vRot: (Math.random() - 0.5) * 0.18
+              });
+            } else if (mythicType === "ultra20") {
+              worm.dustParticles.push({
+                x: px, y: py,
+                vx: (Math.random() - 0.5) * 0.9, vy: (Math.random() - 0.5) * 0.9,
+                life: 1.0, type: "star", color: Math.random() < 0.6 ? "#ffd700" : "#ffffff", size: 1.4 + Math.random() * 1.6
+              });
+            } else if (mythicType === "oceanTideGrand") {
+              worm.dustParticles.push({
+                x: px, y: py,
+                vx: (Math.random() - 0.5) * 0.8, vy: -0.6 - Math.random() * 0.8,
+                life: 1.0, type: "bubble", color: Math.random() < 0.6 ? "#00e5ff" : "#e0f7fa", size: 1.3 + Math.random() * 1.8
+              });
+            } else if (mythicType === "cyberQuantum") {
+              worm.dustParticles.push({
+                x: px, y: py,
+                vx: (Math.random() - 0.5) * 1.2, vy: (Math.random() - 0.5) * 1.2,
+                life: 1.0, type: "cyber", color: Math.random() < 0.5 ? "#00f0ff" : "#ff008c", size: 1.3 + Math.random() * 1.6
+              });
+            } else if (mythicType === "vintageAntique") {
+              worm.dustParticles.push({
+                x: px, y: py,
+                vx: (Math.random() - 0.5) * 0.8, vy: -0.4 - Math.random() * 0.6,
+                life: 1.0, type: "ember", color: Math.random() < 0.5 ? "#ffb300" : "#ffe082", size: 1.2 + Math.random() * 1.5
+              });
+            } else {
+              worm.dustParticles.push({
+                x: px, y: py,
+                vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8,
+                life: 1.0, type: "dot", color: "#80d8ff", size: 1.0 + Math.random() * 1.6
+              });
+            }
+
+            if (worm.dustParticles.length > maxParticles) worm.dustParticles.shift();
           }
         }
 
-        // Lọc bỏ các điểm vệt sáng cũ hơn 260ms
-        while (worm.trailPoints.length > 0 && nowMs - worm.trailPoints[0].time > 260) {
+        while (worm.trailPoints.length > 0 && nowMs - worm.trailPoints[0].time > 280) {
           worm.trailPoints.shift();
         }
 
@@ -51669,13 +52255,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           worm.currentAngle += diff * 0.38;
           worm.crawlCycle += worm.speed * 0.22;
         } else {
-          // Khi dừng lại: giun nhúc nhích tò mò, uốn lượn thở nhẹ
           worm.idleWigglePhase += 0.045;
           worm.crawlCycle += 0.055;
           worm.currentAngle += Math.sin(worm.idleWigglePhase * 0.8) * 0.02;
         }
 
-        // Nhấp nháy mắt định kỳ khi không ấn click
         worm.blinkTimer += 0.016;
         if (worm.blinkTimer > 3.2) {
           worm.isBlinking = true;
@@ -51686,27 +52270,29 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
 
         if (worm.clickSquashTimer > 0) {
-          worm.clickSquashTimer = Math.max(0, worm.clickSquashTimer - 0.065);
+          worm.clickSquashTimer = Math.max(0, worm.clickSquashTimer - 0.075);
         }
         if (worm.clickRecoilTimer > 0) {
           worm.clickRecoilTimer = Math.max(0, worm.clickRecoilTimer - 0.08);
         }
 
         if (worm.releasing) {
-          worm.opacity = Math.max(0, worm.opacity - 0.075);
+          worm.opacity = Math.max(0, worm.opacity - 0.09);
         }
       }
 
       // --------------------------------------------------------------
-      // 4. VẼ CON GIUN TINH XẢO (CHẤT LƯỢNG CAO, HIỆU ỨNG RỰC RỠ)
+      // 4. VẼ CON GIUN TINH XẢO (CHẤT LƯỢNG CAO, ĐẬM NÉT SKIN MYTHIC)
       // --------------------------------------------------------------
       function renderSingleWorm(worm, nowMs, rainbowBaseHue) {
         const scale = worm.isTouch ? 1.25 : 1.0;
+        const activeSkinId = getActiveCursorSkinId();
+        const mythicType = getMythicCursorType(activeSkinId);
 
-        // Trạng thái màu sắc:
-        // isClicking: khi mới click / chạm xuống (Squash nén vui tươi, lửa đỏ)
-        // isHovering: khi đang rê chuột / ngón tay trên nút tương tác (Cầu vồng 7 màu)
-        // default: xanh ngọc băng sáng sang lam cobalt đặc trưng
+        const isUltra = isUltraLowGraphics();
+        const isLow = isLowGraphics();
+        const getShadow = (b) => isUltra ? 0 : (isLow ? Math.min(b * 0.45, 4 * scale) : b * scale);
+
         const isClicking = worm.isTouch ? (worm.clickSquashTimer > 0.1) : (worm.isPressed || worm.clickSquashTimer > 0.1);
         const isHovering = worm.isHoveringInteractive && !isClicking;
 
@@ -51715,26 +52301,69 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           ctx.globalAlpha = Math.max(0, Math.min(1, worm.opacity));
         }
 
-        // --- PHẦN A: VỆT SÁNG VUỐT (LIGHT TRAIL / COMET SWEEP) ---
+        // ==============================================================
+        // PHẦN A: VỆT SÁNG VUỐT CHUỘT / NGÓN TAY (MOTION TRAIL SWEEP)
+        // ==============================================================
         if (worm.trailPoints.length >= 2) {
           ctx.save();
           const trailLen = worm.trailPoints.length;
           for (let i = 0; i < trailLen - 1; i++) {
             const p1 = worm.trailPoints[i];
             const p2 = worm.trailPoints[i + 1];
-            const age = (nowMs - p1.time) / 260;
+            const age = (nowMs - p1.time) / 280;
             if (age >= 1) continue;
-            const alpha = Math.max(0, 1 - age) * 0.85;
-            const width = ((1 - age) * 7.5 + 1.0) * scale;
+            const alpha = Math.max(0, 1 - age) * 0.9;
+            const width = ((1 - age) * 8.0 + 1.2) * scale;
 
-            let trailColor;
-            if (isClicking) {
-              trailColor = "rgba(255, 45, 0, " + alpha + ")";
-            } else if (isHovering) {
-              const ptHue = (rainbowBaseHue + (1 - age) * 120) % 360;
-              trailColor = "hsla(" + ptHue + ", 95%, 60%, " + alpha + ")";
+            let trailColor, coreColor;
+
+            if (mythicType === "chromaUnique") {
+              const ptHue = (rainbowBaseHue + (1 - age) * 160 + i * 15) % 360;
+              trailColor = "hsla(" + ptHue + ", 100%, 65%, " + alpha + ")";
+              coreColor = "rgba(255, 255, 255, " + (alpha * 0.95) + ")";
+            } else if (mythicType === "dimigo") {
+              const pinkAlpha = alpha * 0.88;
+              trailColor = i % 2 === 0 ? "rgba(255, 64, 129, " + pinkAlpha + ")" : "rgba(255, 182, 193, " + pinkAlpha + ")";
+              coreColor = "rgba(255, 245, 250, " + (alpha * 0.95) + ")";
+            } else if (mythicType === "ultra20") {
+              trailColor = "rgba(255, 215, 0, " + (alpha * 0.85) + ")";
+              coreColor = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+            } else if (mythicType === "oceanTideGrand") {
+              trailColor = "rgba(0, 229, 255, " + (alpha * 0.85) + ")";
+              coreColor = "rgba(224, 247, 250, " + (alpha * 0.9) + ")";
+            } else if (mythicType === "galacticCore") {
+              const galHue = (280 + (1 - age) * 60) % 360;
+              trailColor = "hsla(" + galHue + ", 95%, 65%, " + alpha + ")";
+              coreColor = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+            } else if (mythicType === "cosmicVoid") {
+              trailColor = "rgba(213, 0, 0, " + (alpha * 0.85) + ")";
+              coreColor = "rgba(26, 0, 48, " + (alpha * 0.95) + ")";
+            } else if (mythicType === "cyberQuantum") {
+              trailColor = i % 2 === 0 ? "rgba(0, 240, 255, " + alpha + ")" : "rgba(255, 0, 140, " + alpha + ")";
+              coreColor = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+            } else if (mythicType === "vintageAntique") {
+              trailColor = "rgba(255, 179, 0, " + (alpha * 0.85) + ")";
+              coreColor = "rgba(255, 248, 225, " + (alpha * 0.9) + ")";
+            } else if (mythicType === "auroraPastel") {
+              const aurHue = (150 + (1 - age) * 140) % 360;
+              trailColor = "hsla(" + aurHue + ", 90%, 75%, " + alpha + ")";
+              coreColor = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+            } else if (mythicType === "chromaJewel") {
+              const jwHue = (45 + (1 - age) * 260) % 360;
+              trailColor = "hsla(" + jwHue + ", 95%, 70%, " + alpha + ")";
+              coreColor = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
             } else {
-              trailColor = "rgba(0, 229, 255, " + alpha + ")";
+              if (isClicking) {
+                trailColor = "rgba(255, 45, 0, " + alpha + ")";
+                coreColor = "rgba(255, 235, 59, " + (alpha * 0.9) + ")";
+              } else if (isHovering) {
+                const ptHue = (rainbowBaseHue + (1 - age) * 120) % 360;
+                trailColor = "hsla(" + ptHue + ", 95%, 60%, " + alpha + ")";
+                coreColor = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+              } else {
+                trailColor = "rgba(0, 229, 255, " + alpha + ")";
+                coreColor = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+              }
             }
 
             // Hào quang ngoài phát sáng mềm
@@ -51742,7 +52371,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             ctx.lineWidth = width;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
-            ctx.shadowBlur = 8 * scale;
+            ctx.shadowBlur = getShadow(9);
             ctx.shadowColor = trailColor;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
@@ -51750,7 +52379,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             ctx.stroke();
 
             // Lõi tia sáng trắng phản quang neon
-            ctx.strokeStyle = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+            ctx.strokeStyle = coreColor;
             ctx.lineWidth = Math.max(1.0, width * 0.35);
             ctx.shadowBlur = 0;
             ctx.beginPath();
@@ -51761,58 +52390,176 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           ctx.restore();
         }
 
-        // --- PHẦN B: HẠT BỤI SAO LẤP LÁNH (STARDUST) ---
+        // ==============================================================
+        // PHẦN B: HẠT BỤI SAO & PHỤ KIỆN LƠ LỬNG (STARDUST / PETALS / HEARTS)
+        // ==============================================================
         if (worm.dustParticles.length > 0) {
           ctx.save();
           for (let p of worm.dustParticles) {
             p.x += p.vx;
             p.y += p.vy;
-            p.life -= 0.055;
+            if (p.vRot) p.rot = (p.rot || 0) + p.vRot;
+            p.life -= 0.052;
             if (p.life > 0) {
               ctx.globalAlpha = (worm.opacity || 1) * p.life;
-              let dustCol = "#80d8ff";
-              if (isClicking) dustCol = "#ffeb3b";
-              else if (isHovering) dustCol = "hsla(" + ((rainbowBaseHue + p.x) % 360) + ", 100%, 75%, 1)";
-              ctx.fillStyle = dustCol;
-              ctx.shadowBlur = 4 * scale;
-              ctx.shadowColor = dustCol;
-              ctx.beginPath();
-              ctx.arc(p.x, p.y, p.size * p.life * scale, 0, Math.PI * 2);
-              ctx.fill();
+
+              if (p.type === "diamond") {
+                ctx.shadowBlur = getShadow(6);
+                ctx.shadowColor = p.color;
+                drawMiniDiamondGem(ctx, p.x, p.y, p.size * 2 * p.life * scale, p.size * 2.8 * p.life * scale, p.color, "#ffffff", 0.6);
+              } else if (p.type === "heart") {
+                ctx.shadowBlur = getShadow(6);
+                ctx.shadowColor = p.color;
+                drawMiniVectorHeart(ctx, p.x, p.y, p.size * 2.0 * p.life * scale, p.color, "rgba(255, 255, 255, 0.85)", 0.6);
+              } else if (p.type === "petal") {
+                ctx.shadowBlur = getShadow(4);
+                ctx.shadowColor = "rgba(255, 105, 180, 0.8)";
+                drawMiniSakuraPetal(ctx, p.x, p.y, p.size * 1.8 * p.life * scale, p.rot || 0, p.color, "rgba(255, 182, 193, 0.8)");
+              } else if (p.type === "star" || p.type === "prism") {
+                ctx.shadowBlur = getShadow(5);
+                ctx.shadowColor = p.color;
+                drawMiniStar4(ctx, p.x, p.y, p.size * 2.2 * p.life * scale, p.size * 0.8 * p.life * scale, p.color);
+              } else if (p.type === "bubble") {
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 0.9 * scale;
+                ctx.fillStyle = "rgba(224, 247, 250, 0.25)";
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * p.life * scale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+              } else if (p.type === "cyber") {
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = getShadow(5);
+                ctx.shadowColor = p.color;
+                const sz = p.size * p.life * scale;
+                ctx.fillRect(p.x - sz / 2, p.y - sz / 2, sz, sz);
+              } else if (p.type === "ember") {
+                ctx.fillStyle = p.color || "#ffb300";
+                ctx.shadowBlur = getShadow(6);
+                ctx.shadowColor = "#ff8f00";
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * p.life * scale, 0, Math.PI * 2);
+                ctx.fill();
+              } else {
+                ctx.fillStyle = p.color || "#80d8ff";
+                ctx.shadowBlur = getShadow(4);
+                ctx.shadowColor = p.color || "#80d8ff";
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * p.life * scale, 0, Math.PI * 2);
+                ctx.fill();
+              }
             }
           }
           ctx.restore();
           worm.dustParticles = worm.dustParticles.filter(p => p.life > 0);
         }
 
-        // --- PHẦN C: VÒNG SÓNG TACTILE RIPPLE & TIA LỬA BÙNG NỞ ---
+        // ==============================================================
+        // PHẦN C: VÒNG SÓNG RIPPLE & TIA SÁNG BÙNG NỔ KHI BẤM (SHOCKWAVE RIPPLES)
+        // ==============================================================
         if (worm.rippleAlpha > 0.02) {
           ctx.save();
           const rAlpha = (worm.opacity || 1) * worm.rippleAlpha;
-          ctx.strokeStyle = "rgba(255, 60, 0, " + rAlpha + ")";
-          ctx.lineWidth = 1.6 * scale;
-          ctx.shadowBlur = 8 * scale;
-          ctx.shadowColor = "#ff1744";
-          ctx.beginPath();
-          ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius, 0, Math.PI * 2);
-          ctx.stroke();
 
-          ctx.strokeStyle = "rgba(255, 235, 59, " + (rAlpha * 0.95) + ")";
-          ctx.lineWidth = 1.0 * scale;
-          ctx.beginPath();
-          ctx.arc(worm.rippleX, worm.rippleY, Math.max(1, worm.rippleRadius * 0.65), 0, Math.PI * 2);
-          ctx.stroke();
+          if (mythicType === "chromaUnique") {
+            const h1 = (rainbowBaseHue) % 360;
+            const h2 = (rainbowBaseHue + 120) % 360;
+            const h3 = (rainbowBaseHue + 240) % 360;
 
-          const spkLen = worm.rippleRadius * 0.75;
-          ctx.strokeStyle = "rgba(255, 255, 255, " + rAlpha + ")";
-          ctx.lineWidth = 1.2 * scale;
-          ctx.beginPath();
-          ctx.moveTo(worm.rippleX - spkLen, worm.rippleY); ctx.lineTo(worm.rippleX + spkLen, worm.rippleY);
-          ctx.moveTo(worm.rippleX, worm.rippleY - spkLen); ctx.lineTo(worm.rippleX, worm.rippleY + spkLen);
-          ctx.stroke();
+            ctx.strokeStyle = "hsla(" + h1 + ", 100%, 70%, " + rAlpha + ")";
+            ctx.lineWidth = 2.2 * scale;
+            ctx.shadowBlur = getShadow(10);
+            ctx.shadowColor = "hsla(" + h1 + ", 100%, 65%, 1)";
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius * 1.15, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = "hsla(" + h2 + ", 100%, 75%, " + (rAlpha * 0.9) + ")";
+            ctx.lineWidth = 1.6 * scale;
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius * 0.75, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = "hsla(" + h3 + ", 100%, 80%, " + (rAlpha * 0.8) + ")";
+            ctx.lineWidth = 1.0 * scale;
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius * 0.45, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const starR = worm.rippleRadius * 0.9;
+            drawMiniStar4(ctx, worm.rippleX, worm.rippleY, starR, starR * 0.3, "rgba(255, 255, 255, " + (rAlpha * 0.95) + ")");
+          } else if (mythicType === "dimigo") {
+            const heartSize = worm.rippleRadius * 1.1;
+            drawMiniVectorHeart(ctx, worm.rippleX, worm.rippleY, heartSize, null, "rgba(255, 20, 147, " + rAlpha + ")", 2.2 * scale);
+            drawMiniVectorHeart(ctx, worm.rippleX, worm.rippleY, heartSize * 0.65, null, "rgba(255, 182, 193, " + (rAlpha * 0.9) + ")", 1.4 * scale);
+
+            ctx.strokeStyle = "rgba(255, 240, 245, " + (rAlpha * 0.85) + ")";
+            ctx.lineWidth = 1.2 * scale;
+            ctx.shadowBlur = getShadow(8);
+            ctx.shadowColor = "#ff1493";
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius * 0.85, 0, Math.PI * 2);
+            ctx.stroke();
+          } else if (mythicType === "ultra20") {
+            ctx.strokeStyle = "rgba(255, 215, 0, " + rAlpha + ")";
+            ctx.lineWidth = 2.0 * scale;
+            ctx.shadowBlur = getShadow(10);
+            ctx.shadowColor = "#ffd700";
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            const starR = worm.rippleRadius * 0.75;
+            drawMiniStar4(ctx, worm.rippleX, worm.rippleY, starR, starR * 0.3, "rgba(255, 255, 255, " + rAlpha + ")");
+          } else if (mythicType === "oceanTideGrand") {
+            ctx.strokeStyle = "rgba(0, 229, 255, " + rAlpha + ")";
+            ctx.lineWidth = 2.0 * scale;
+            ctx.shadowBlur = getShadow(8);
+            ctx.shadowColor = "#00e5ff";
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = "rgba(179, 240, 255, " + (rAlpha * 0.8) + ")";
+            ctx.lineWidth = 1.0 * scale;
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius * 0.65, 0, Math.PI * 2);
+            ctx.stroke();
+          } else if (mythicType === "cyberQuantum") {
+            ctx.strokeStyle = "rgba(0, 240, 255, " + rAlpha + ")";
+            ctx.lineWidth = 2.0 * scale;
+            ctx.shadowBlur = getShadow(8);
+            ctx.shadowColor = "#00f0ff";
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = "rgba(255, 0, 140, " + (rAlpha * 0.9) + ")";
+            ctx.lineWidth = 1.2 * scale;
+            ctx.strokeRect(worm.rippleX - worm.rippleRadius * 0.5, worm.rippleY - worm.rippleRadius * 0.5, worm.rippleRadius, worm.rippleRadius);
+          } else {
+            ctx.strokeStyle = "rgba(255, 60, 0, " + rAlpha + ")";
+            ctx.lineWidth = 1.6 * scale;
+            ctx.shadowBlur = getShadow(8);
+            ctx.shadowColor = "#ff1744";
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(255, 235, 59, " + (rAlpha * 0.95) + ")";
+            ctx.lineWidth = 1.0 * scale;
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, Math.max(1, worm.rippleRadius * 0.65), 0, Math.PI * 2);
+            ctx.stroke();
+
+            const spkLen = worm.rippleRadius * 0.75;
+            ctx.strokeStyle = "rgba(255, 255, 255, " + rAlpha + ")";
+            ctx.lineWidth = 1.2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(worm.rippleX - spkLen, worm.rippleY); ctx.lineTo(worm.rippleX + spkLen, worm.rippleY);
+            ctx.moveTo(worm.rippleX, worm.rippleY - spkLen); ctx.lineTo(worm.rippleX, worm.rippleY + spkLen);
+            ctx.stroke();
+          }
+
           ctx.restore();
-
-          worm.rippleRadius += 1.45 * scale;
+          worm.rippleRadius += 1.5 * scale;
           worm.rippleAlpha *= 0.86;
         }
 
@@ -51824,35 +52571,106 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             sp.y += sp.vy;
             sp.vx *= 0.88;
             sp.vy *= 0.88;
-            sp.life -= 0.07;
+            if (sp.vRot) sp.rot = (sp.rot || 0) + sp.vRot;
+            sp.life -= 0.065;
             if (sp.life > 0) {
-              ctx.fillStyle = sp.color;
               ctx.globalAlpha = (worm.opacity || 1) * Math.max(0, sp.life);
-              ctx.shadowBlur = 6 * scale;
+              ctx.shadowBlur = getShadow(6);
               ctx.shadowColor = sp.color;
-              ctx.beginPath();
-              ctx.arc(sp.x, sp.y, sp.size * sp.life * scale, 0, Math.PI * 2);
-              ctx.fill();
+
+              if (sp.type === "diamond") {
+                drawMiniDiamondGem(ctx, sp.x, sp.y, sp.size * 2 * sp.life * scale, sp.size * 3 * sp.life * scale, sp.color, "#ffffff", 0.8);
+              } else if (sp.type === "heart") {
+                drawMiniVectorHeart(ctx, sp.x, sp.y, sp.size * 2.2 * sp.life * scale, sp.color, "rgba(255, 255, 255, 0.9)", 0.8);
+              } else if (sp.type === "petal") {
+                drawMiniSakuraPetal(ctx, sp.x, sp.y, sp.size * 2.2 * sp.life * scale, sp.rot || 0, sp.color, "rgba(255, 182, 193, 0.9)");
+              } else if (sp.type === "star" || sp.type === "prism") {
+                drawMiniStar4(ctx, sp.x, sp.y, sp.size * 2.4 * sp.life * scale, sp.size * 0.8 * sp.life * scale, sp.color);
+              } else if (sp.type === "bubble") {
+                ctx.strokeStyle = sp.color;
+                ctx.lineWidth = 1.0 * scale;
+                ctx.fillStyle = "rgba(224, 247, 250, 0.3)";
+                ctx.beginPath();
+                ctx.arc(sp.x, sp.y, sp.size * sp.life * scale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+              } else if (sp.type === "cyber") {
+                ctx.fillStyle = sp.color;
+                const sz = sp.size * sp.life * scale;
+                ctx.fillRect(sp.x - sz / 2, sp.y - sz / 2, sz, sz);
+              } else if (sp.type === "ember") {
+                ctx.fillStyle = sp.color || "#ffb300";
+                ctx.beginPath();
+                ctx.arc(sp.x, sp.y, sp.size * sp.life * scale, 0, Math.PI * 2);
+                ctx.fill();
+              } else {
+                ctx.fillStyle = sp.color;
+                ctx.beginPath();
+                ctx.arc(sp.x, sp.y, sp.size * sp.life * scale, 0, Math.PI * 2);
+                ctx.fill();
+              }
             }
           }
           ctx.restore();
           worm.clickSparkles = worm.clickSparkles.filter(s => s.life > 0);
         }
 
-        // --- PHẦN D: QUẦNG HÀO QUANG TỎA TRÒN (GLOW AURA) ---
+        // ==============================================================
+        // PHẦN D: QUẦNG HÀO QUANG TỎA TRÒN (GLOW AURA)
+        // ==============================================================
         ctx.save();
-        let auraColor, auraCenter;
-        if (isClicking) {
-          auraColor = "rgba(255, 23, 68, 0.55)";
-          auraCenter = "rgba(255, 235, 59, 0.85)";
-        } else if (isHovering) {
-          auraColor = "hsla(" + rainbowBaseHue + ", 100%, 60%, 0.55)";
+        let auraColor, auraCenter, auraR = 23 * scale;
+
+        if (mythicType === "chromaUnique") {
+          const auraHue = (rainbowBaseHue + 60) % 360;
+          auraCenter = "rgba(255, 255, 255, 0.95)";
+          auraColor = "hsla(" + auraHue + ", 100%, 65%, 0.6)";
+          auraR = 28 * scale;
+        } else if (mythicType === "dimigo") {
+          const beatCycle = (nowMs * 0.0035) % (Math.PI * 2);
+          const beatPulse = Math.pow(Math.max(0, Math.sin(beatCycle)), 4) * 0.35;
+          auraCenter = "rgba(255, 240, 248, 0.95)";
+          auraColor = "rgba(236, 0, 140, " + (0.5 + beatPulse) + ")";
+          auraR = (26 + beatPulse * 8) * scale;
+        } else if (mythicType === "ultra20") {
+          auraCenter = "rgba(255, 255, 255, 0.95)";
+          auraColor = "rgba(255, 215, 0, 0.55)";
+          auraR = 26 * scale;
+        } else if (mythicType === "oceanTideGrand") {
+          auraCenter = "rgba(224, 247, 250, 0.9)";
+          auraColor = "rgba(0, 229, 255, 0.55)";
+        } else if (mythicType === "galacticCore") {
           auraCenter = "rgba(255, 255, 255, 0.9)";
+          auraColor = "rgba(147, 51, 234, 0.6)";
+          auraR = 26 * scale;
+        } else if (mythicType === "cosmicVoid") {
+          auraCenter = "rgba(26, 0, 48, 0.9)";
+          auraColor = "rgba(213, 0, 0, 0.65)";
+        } else if (mythicType === "cyberQuantum") {
+          auraCenter = "rgba(255, 255, 255, 0.9)";
+          auraColor = "rgba(0, 240, 255, 0.6)";
+        } else if (mythicType === "vintageAntique") {
+          auraCenter = "rgba(255, 248, 225, 0.9)";
+          auraColor = "rgba(255, 179, 0, 0.55)";
+        } else if (mythicType === "auroraPastel") {
+          auraCenter = "rgba(255, 255, 255, 0.9)";
+          auraColor = "rgba(129, 199, 132, 0.55)";
+        } else if (mythicType === "chromaJewel") {
+          auraCenter = "rgba(255, 255, 255, 0.95)";
+          auraColor = "rgba(255, 193, 7, 0.6)";
         } else {
-          auraColor = "rgba(0, 229, 255, 0.45)";
-          auraCenter = "rgba(179, 240, 255, 0.85)";
+          if (isClicking) {
+            auraColor = "rgba(255, 23, 68, 0.55)";
+            auraCenter = "rgba(255, 235, 59, 0.85)";
+          } else if (isHovering) {
+            auraColor = "hsla(" + rainbowBaseHue + ", 100%, 60%, 0.55)";
+            auraCenter = "rgba(255, 255, 255, 0.9)";
+          } else {
+            auraColor = "rgba(0, 229, 255, 0.45)";
+            auraCenter = "rgba(179, 240, 255, 0.85)";
+          }
         }
-        const auraR = 22 * scale;
+
         const glowGrad = ctx.createRadialGradient(worm.x, worm.y, 2 * scale, worm.x, worm.y, auraR);
         glowGrad.addColorStop(0, auraCenter);
         glowGrad.addColorStop(0.4, auraColor);
@@ -51863,7 +52681,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         ctx.fill();
         ctx.restore();
 
-        // --- PHẦN E: CÁC ĐỐT PIXEL CON GIUN (SEGMENTED PIXEL WORM) ---
+        // ==============================================================
+        // PHẦN E: CÁC ĐỐT PIXEL THÂN CON GIUN (SEGMENTED PIXEL WORM BODY)
+        // ==============================================================
         const trailAngle = worm.currentAngle + Math.PI;
         const perpAngle = worm.currentAngle + Math.PI / 2;
 
@@ -51872,7 +52692,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const waveAmp = (worm.speed > 0.8 ? 3.6 : 2.0) * (i / (numSegments - 1)) * scale;
           const lateral = Math.sin(worm.crawlCycle - i * 0.92) * waveAmp;
 
-          // Tọa độ tâm đốt giun thứ i (đốt đầu i=0 nằm tại tâm touch/chuột)
           const sx = worm.x + (i === 0 ? 0 : (Math.cos(trailAngle) * segDist + Math.cos(perpAngle) * lateral));
           const sy = worm.y + (i === 0 ? 0 : (Math.sin(trailAngle) * segDist + Math.sin(perpAngle) * lateral));
 
@@ -51895,36 +52714,146 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           ctx.translate(sx, sy);
           ctx.rotate(worm.currentAngle * 0.75);
 
-          // 1. Tô khối ô vuông pixel theo màu sắc của 3 trạng thái
           let blockFill, borderLight, borderDark;
-          if (isClicking) {
-            blockFill = i === 0 ? "#ff1744" : (i === 1 ? "#ff5252" : (i === 2 ? "#ff3d00" : (i === 3 ? "#d50000" : "#b71c1c")));
-            borderLight = "#ffea00";
-            borderDark = "#880e4f";
-          } else if (isHovering) {
-            const segHue = (rainbowBaseHue + i * 48) % 360;
-            blockFill = i === 0 ? "#ffffff" : "hsla(" + segHue + ", 95%, 55%, 1)";
-            borderLight = "hsla(" + ((segHue + 30) % 360) + ", 100%, 85%, 1)";
-            borderDark = "hsla(" + segHue + ", 90%, 30%, 1)";
-          } else {
+
+          if (mythicType === "chromaUnique") {
             if (i === 0) {
-              blockFill = "#b3f0ff";
-              borderLight = "#ffffff";
-              borderDark = "#0077c2";
+              blockFill = "#ffffff";
+              borderLight = "hsla(" + ((nowMs * 0.25) % 360) + ", 100%, 85%, 1)";
+              borderDark = "#ffd700";
             } else {
-              const segGreen = Math.min(255, 110 + i * 14);
-              const segBlue = Math.max(160, 230 - i * 10);
-              blockFill = "rgb(0, " + segGreen + ", " + segBlue + ")";
-              borderLight = "rgb(128, " + Math.min(255, segGreen + 50) + ", 255)";
-              borderDark = "rgb(0, " + Math.max(0, segGreen - 40) + ", " + Math.max(60, segBlue - 50) + ")";
+              const segHue = (nowMs * 0.15 + i * 55) % 360;
+              blockFill = "hsla(" + segHue + ", 95%, 60%, 1)";
+              borderLight = "hsla(" + ((segHue + 30) % 360) + ", 100%, 88%, 1)";
+              borderDark = "hsla(" + ((segHue - 30 + 360) % 360) + ", 95%, 35%, 1)";
+            }
+          } else if (mythicType === "dimigo") {
+            if (i === 0) {
+              blockFill = "#fff5fa";
+              borderLight = "#ffffff";
+              borderDark = "#ff4081";
+            } else {
+              const dimigoColors = ["#ffb6c1", "#ff69b4", "#ec008c", "#ff4081", "#d81b60"];
+              blockFill = dimigoColors[i % dimigoColors.length];
+              borderLight = "#ffe4e1";
+              borderDark = "#c2185b";
+            }
+          } else if (mythicType === "ultra20") {
+            if (i === 0) {
+              blockFill = "#fffdf0";
+              borderLight = "#ffffff";
+              borderDark = "#d4af37";
+            } else {
+              const ultraColors = ["#ffd700", "#9c27b0", "#7b1fa2", "#4a148c", "#ffd700"];
+              blockFill = ultraColors[i % ultraColors.length];
+              borderLight = "#ffe57f";
+              borderDark = "#311b92";
+            }
+          } else if (mythicType === "oceanTideGrand") {
+            if (i === 0) {
+              blockFill = "#e0f7fa";
+              borderLight = "#ffffff";
+              borderDark = "#00b0ff";
+            } else {
+              const oceanColors = ["#00e5ff", "#00b0ff", "#0288d1", "#01579b", "#002171"];
+              blockFill = oceanColors[i % oceanColors.length];
+              borderLight = "#80d8ff";
+              borderDark = "#001064";
+            }
+          } else if (mythicType === "galacticCore") {
+            if (i === 0) {
+              blockFill = "#f3e5f5";
+              borderLight = "#ffffff";
+              borderDark = "#ab47bc";
+            } else {
+              const galColors = ["#e040fb", "#7c4dff", "#651fff", "#311b92", "#1a237e"];
+              blockFill = galColors[i % galColors.length];
+              borderLight = "#ea80fc";
+              borderDark = "#0d47a1";
+            }
+          } else if (mythicType === "cosmicVoid") {
+            if (i === 0) {
+              blockFill = "#120024";
+              borderLight = "#ff1744";
+              borderDark = "#000000";
+            } else {
+              const voidColors = ["#210038", "#d50000", "#1a0026", "#b71c1c", "#0a0012"];
+              blockFill = voidColors[i % voidColors.length];
+              borderLight = "#ff5252";
+              borderDark = "#000000";
+            }
+          } else if (mythicType === "cyberQuantum") {
+            if (i === 0) {
+              blockFill = "#e0ffff";
+              borderLight = "#ffffff";
+              borderDark = "#00e5ff";
+            } else {
+              const cybColors = ["#00f0ff", "#ff007f", "#00ff66", "#7000ff", "#00b4ff"];
+              blockFill = cybColors[i % cybColors.length];
+              borderLight = "#80ffff";
+              borderDark = "#00557f";
+            }
+          } else if (mythicType === "vintageAntique") {
+            if (i === 0) {
+              blockFill = "#fff8e1";
+              borderLight = "#ffffff";
+              borderDark = "#c5a059";
+            } else {
+              const vinColors = ["#ffd54f", "#ffb300", "#ff8f00", "#bf360c", "#8d6e63"];
+              blockFill = vinColors[i % vinColors.length];
+              borderLight = "#ffe082";
+              borderDark = "#5d4037";
+            }
+          } else if (mythicType === "auroraPastel") {
+            if (i === 0) {
+              blockFill = "#f0fff4";
+              borderLight = "#ffffff";
+              borderDark = "#81c784";
+            } else {
+              const aurColors = ["#80cbc4", "#a5d6a7", "#ce93d8", "#90caf9", "#ffab91"];
+              blockFill = aurColors[i % aurColors.length];
+              borderLight = "#b2dfdb";
+              borderDark = "#4db6ac";
+            }
+          } else if (mythicType === "chromaJewel") {
+            if (i === 0) {
+              blockFill = "#ffffff";
+              borderLight = "#ffd700";
+              borderDark = "#00bcd4";
+            } else {
+              const jwColors = ["#ffd700", "#00e676", "#2979ff", "#e040fb", "#ff1744"];
+              blockFill = jwColors[i % jwColors.length];
+              borderLight = "#ffff8d";
+              borderDark = "#0091ea";
+            }
+          } else {
+            if (isClicking) {
+              blockFill = i === 0 ? "#ff1744" : (i === 1 ? "#ff5252" : (i === 2 ? "#ff3d00" : (i === 3 ? "#d50000" : "#b71c1c")));
+              borderLight = "#ffea00";
+              borderDark = "#880e4f";
+            } else if (isHovering) {
+              const segHue = (rainbowBaseHue + i * 48) % 360;
+              blockFill = i === 0 ? "#ffffff" : "hsla(" + segHue + ", 95%, 55%, 1)";
+              borderLight = "hsla(" + ((segHue + 30) % 360) + ", 100%, 85%, 1)";
+              borderDark = "hsla(" + segHue + ", 90%, 30%, 1)";
+            } else {
+              if (i === 0) {
+                blockFill = "#b3f0ff";
+                borderLight = "#ffffff";
+                borderDark = "#0077c2";
+              } else {
+                const segGreen = Math.min(255, 110 + i * 14);
+                const segBlue = Math.max(160, 230 - i * 10);
+                blockFill = "rgb(0, " + segGreen + ", " + segBlue + ")";
+                borderLight = "rgb(128, " + Math.min(255, segGreen + 50) + ", 255)";
+                borderDark = "rgb(0, " + Math.max(0, segGreen - 40) + ", " + Math.max(60, segBlue - 50) + ")";
+              }
             }
           }
 
-          // Vẽ thân khối ô vuông pixel
           ctx.fillStyle = blockFill;
           ctx.fillRect(-half, -half, pSize, pSize);
 
-          // Viền bắt sáng góc cạnh chuẩn game (Top & Left)
           ctx.strokeStyle = borderLight;
           ctx.lineWidth = Math.max(1, 1 * scale);
           ctx.beginPath();
@@ -51933,7 +52862,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           ctx.lineTo(half - 0.5, -half + 0.5);
           ctx.stroke();
 
-          // Viền bóng tối đổ cạnh (Bottom & Right)
           ctx.strokeStyle = borderDark;
           ctx.beginPath();
           ctx.moveTo(-half + 0.5, half - 0.5);
@@ -51941,58 +52869,261 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           ctx.lineTo(half - 0.5, -half + 0.5);
           ctx.stroke();
 
-          // 3. Chi tiết đầu giun: Mắt pixel, Râu pixel bậc thang
+          // ============================================================
+          // ĐẦU GIUN (i === 0): PHỤ KIỆN VƯƠNG MIỆN, VÒNG HÀO QUANG & MẮT
+          // ============================================================
           if (i === 0) {
-            // Râu pixel bậc thang (Antenna)
             const antLag = Math.sin(worm.crawlCycle * 1.3) * 0.25 * scale;
-            let antColor = isClicking ? "#ffea00" : isHovering ? "hsla(" + rainbowBaseHue + ", 95%, 60%, 1)" : "#00e5ff";
-            ctx.fillStyle = antColor;
-            // Râu trái
-            ctx.fillRect(half - 1, -half - 2 * scale + antLag, 2 * scale, 2 * scale);
-            ctx.fillRect(half + 1, -half - 5 * scale + antLag, 2.5 * scale, 2.5 * scale);
-            ctx.fillRect(half + 3.5 * scale, -half - 8 * scale + antLag, 3 * scale, 3 * scale);
 
-            // Râu phải
-            ctx.fillRect(half - 1, half + 0.5 * scale - antLag, 2 * scale, 2 * scale);
-            ctx.fillRect(half + 1, half + 2.5 * scale - antLag, 2.5 * scale, 2.5 * scale);
-            ctx.fillRect(half + 3.5 * scale, half + 5 * scale - antLag, 3 * scale, 3 * scale);
+            // ----------------------------------------------------------
+            // 1. RÂU GIUN (ANTENNAE)
+            // ----------------------------------------------------------
+            if (mythicType === "chromaUnique") {
+              const scepCol = "#ffd700";
+              const gemHue = (nowMs * 0.2) % 360;
+              const gemCol = "hsla(" + gemHue + ", 100%, 75%, 1)";
 
-            // Mắt pixel retro
+              ctx.fillStyle = scepCol;
+              ctx.fillRect(half - 1, -half - 2 * scale + antLag, 2 * scale, 2 * scale);
+              ctx.fillRect(half + 1, -half - 5 * scale + antLag, 2.2 * scale, 2.2 * scale);
+              ctx.fillRect(half - 1, half + 0.5 * scale - antLag, 2 * scale, 2 * scale);
+              ctx.fillRect(half + 1, half + 2.5 * scale - antLag, 2.2 * scale, 2.2 * scale);
+
+              drawMiniDiamondGem(ctx, half + 4.5 * scale, -half - 8 * scale + antLag, 4 * scale, 5 * scale, gemCol, "#ffffff", 0.8);
+              drawMiniDiamondGem(ctx, half + 4.5 * scale, half + 6 * scale - antLag, 4 * scale, 5 * scale, gemCol, "#ffffff", 0.8);
+            } else if (mythicType === "dimigo") {
+              ctx.fillStyle = "#ff69b4";
+              ctx.fillRect(half - 1, -half - 2 * scale + antLag, 2 * scale, 2 * scale);
+              ctx.fillRect(half + 1, -half - 5 * scale + antLag, 2.2 * scale, 2.2 * scale);
+              ctx.fillRect(half - 1, half + 0.5 * scale - antLag, 2 * scale, 2 * scale);
+              ctx.fillRect(half + 1, half + 2.5 * scale - antLag, 2.2 * scale, 2.2 * scale);
+
+              drawMiniVectorHeart(ctx, half + 4.5 * scale, -half - 8 * scale + antLag, 3.8 * scale, "#ff1493", "#ffffff", 0.8 * scale);
+              drawMiniVectorHeart(ctx, half + 4.5 * scale, half + 6 * scale - antLag, 3.8 * scale, "#ff1493", "#ffffff", 0.8 * scale);
+            } else {
+              let antColor = isClicking ? "#ffea00" : isHovering ? "hsla(" + rainbowBaseHue + ", 95%, 60%, 1)" : (mythicType ? "#ffffff" : "#00e5ff");
+              ctx.fillStyle = antColor;
+              ctx.fillRect(half - 1, -half - 2 * scale + antLag, 2 * scale, 2 * scale);
+              ctx.fillRect(half + 1, -half - 5 * scale + antLag, 2.5 * scale, 2.5 * scale);
+              ctx.fillRect(half + 3.5 * scale, -half - 8 * scale + antLag, 3 * scale, 3 * scale);
+
+              ctx.fillRect(half - 1, half + 0.5 * scale - antLag, 2 * scale, 2 * scale);
+              ctx.fillRect(half + 1, half + 2.5 * scale - antLag, 2.5 * scale, 2.5 * scale);
+              ctx.fillRect(half + 3.5 * scale, half + 5 * scale - antLag, 3 * scale, 3 * scale);
+            }
+
+            // ----------------------------------------------------------
+            // 2. PHỤ KIỆN VƯƠNG MIỆN & HÀO QUANG TRÊN ĐẦU (HEAD ACCESSORIES)
+            // ----------------------------------------------------------
+
+            // [TOP 1] CROWN OF UNIQUE CHROMAS 👑🌈✨
+            if (mythicType === "chromaUnique") {
+              ctx.save();
+              const crwBob = Math.sin(nowMs * 0.005) * 1.0 * scale;
+              const crwBaseY = -half - 3.5 * scale + crwBob;
+              const crwW = half * 1.5;
+              const crwH = half * 1.35;
+              const centerGemHue = (nowMs * 0.18) % 360;
+
+              ctx.fillStyle = "#ffd700";
+              ctx.strokeStyle = "#ffffff";
+              ctx.lineWidth = 0.9 * scale;
+              ctx.shadowBlur = getShadow(8);
+              ctx.shadowColor = "hsla(" + centerGemHue + ", 100%, 70%, 0.9)";
+
+              ctx.beginPath();
+              ctx.moveTo(-crwW, crwBaseY);
+              ctx.lineTo(crwW, crwBaseY);
+              ctx.lineTo(crwW * 0.85, crwBaseY - crwH * 0.65);
+              ctx.lineTo(crwW * 0.45, crwBaseY - crwH * 0.35);
+              ctx.lineTo(0, crwBaseY - crwH);
+              ctx.lineTo(-crwW * 0.45, crwBaseY - crwH * 0.35);
+              ctx.lineTo(-crwW * 0.85, crwBaseY - crwH * 0.65);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+
+              drawMiniDiamondGem(ctx, 0, crwBaseY - crwH * 0.45, 3.8 * scale, 5.0 * scale, "hsla(" + centerGemHue + ", 100%, 65%, 1)", "#ffffff", 0.8 * scale);
+              drawMiniDiamondGem(ctx, -crwW * 0.8, crwBaseY - crwH * 0.6, 2.2 * scale, 3.0 * scale, "hsla(" + ((centerGemHue + 120) % 360) + ", 100%, 70%, 1)", "#ffffff", 0.6 * scale);
+              drawMiniDiamondGem(ctx, crwW * 0.8, crwBaseY - crwH * 0.6, 2.2 * scale, 3.0 * scale, "hsla(" + ((centerGemHue + 240) % 360) + ", 100%, 70%, 1)", "#ffffff", 0.6 * scale);
+
+              const twinkle = (Math.sin(nowMs * 0.008) + 1) / 2;
+              drawMiniStar4(ctx, 0, crwBaseY - crwH - 1.5 * scale, (2.5 + twinkle * 2.0) * scale, (0.8 + twinkle * 0.6) * scale, "#ffffff");
+              ctx.restore();
+            }
+
+            // [TOP 1] DIMIGO (HIMICO) 💖🌸✨
+            if (mythicType === "dimigo") {
+              ctx.save();
+              const haloBob = Math.sin(nowMs * 0.004) * 0.8 * scale;
+              const haloY = -half - 6.5 * scale + haloBob;
+              ctx.shadowBlur = getShadow(10);
+              ctx.shadowColor = "rgba(255, 105, 180, 0.95)";
+              ctx.strokeStyle = "rgba(255, 245, 252, 0.95)";
+              ctx.lineWidth = 1.6 * scale;
+              ctx.beginPath();
+              ctx.ellipse(0, haloY, half * 0.9, half * 0.32, 0, 0, Math.PI * 2);
+              ctx.stroke();
+
+              const orbitR = half * 1.5;
+              const orbitTilt = 0.52;
+              for (let hIdx = 0; hIdx < 2; hIdx++) {
+                const hAngle = nowMs * 0.0035 + (hIdx * Math.PI);
+                const hx = Math.cos(hAngle) * orbitR;
+                const hy = Math.sin(hAngle) * (orbitR * orbitTilt) - 2 * scale;
+                const hDepth = (Math.sin(hAngle) + 1) / 2;
+                const hSz = (3.2 + hDepth * 1.8) * scale;
+                const hCol = hIdx === 0 ? "rgba(255, 60, 150, 0.95)" : "rgba(255, 140, 190, 0.95)";
+                drawMiniVectorHeart(ctx, hx, hy, hSz, hCol, "rgba(255, 255, 255, 0.9)", 0.8 * scale);
+              }
+
+              const haloTwinkle = (Math.sin(nowMs * 0.007) + 1) / 2;
+              if (haloTwinkle > 0.4) {
+                drawMiniStar4(ctx, half * 0.8, haloY - 1 * scale, (2.0 + haloTwinkle * 1.5) * scale, 0.6 * scale, "#ffffff");
+              }
+              ctx.restore();
+            }
+
+            // [ULTRA20] VƯƠNG MIỆN TINH TÚ
+            if (mythicType === "ultra20") {
+              ctx.save();
+              const uBob = Math.sin(nowMs * 0.004) * 0.8 * scale;
+              const uY = -half - 4 * scale + uBob;
+              drawMiniStar4(ctx, 0, uY, 4.5 * scale, 1.8 * scale, "#ffd700");
+              drawMiniStar4(ctx, -half * 0.65, uY + 2 * scale, 2.5 * scale, 1.0 * scale, "#ffea00");
+              drawMiniStar4(ctx, half * 0.65, uY + 2 * scale, 2.5 * scale, 1.0 * scale, "#ffea00");
+              ctx.restore();
+            }
+
+            // [OCEAN TIDE GRAND] ĐINH BA POSEIDON
+            if (mythicType === "oceanTideGrand") {
+              ctx.save();
+              const triY = -half - 5 * scale;
+              ctx.strokeStyle = "#00e5ff";
+              ctx.lineWidth = 1.2 * scale;
+              ctx.beginPath();
+              ctx.moveTo(0, triY + 4 * scale); ctx.lineTo(0, triY - 3 * scale);
+              ctx.moveTo(-3 * scale, triY + 2 * scale); ctx.lineTo(-3 * scale, triY - 1 * scale);
+              ctx.moveTo(3 * scale, triY + 2 * scale); ctx.lineTo(3 * scale, triY - 1 * scale);
+              ctx.moveTo(-3 * scale, triY + 2 * scale); ctx.lineTo(3 * scale, triY + 2 * scale);
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // [CYBER QUANTUM] KÍNH MA TRẬN HOLOGRAPHIC
+            if (mythicType === "cyberQuantum") {
+              ctx.save();
+              ctx.fillStyle = "rgba(0, 240, 255, 0.75)";
+              ctx.strokeStyle = "#ff007f";
+              ctx.lineWidth = 0.8 * scale;
+              ctx.fillRect(-half * 0.4, -half - 3 * scale, half * 1.6, 2.5 * scale);
+              ctx.strokeRect(-half * 0.4, -half - 3 * scale, half * 1.6, 2.5 * scale);
+              ctx.restore();
+            }
+
+            // [VINTAGE ANTIQUE] HOA VĂN HOÀNG GIA FLEUR-DE-LIS
+            if (mythicType === "vintageAntique") {
+              ctx.save();
+              const fY = -half - 4.5 * scale;
+              drawMiniDiamondGem(ctx, 0, fY, 3.5 * scale, 5.0 * scale, "#ffd700", "#5d4037", 0.8 * scale);
+              ctx.restore();
+            }
+
+            // ----------------------------------------------------------
+            // 3. MẮT GIUN & BIỂU CẢM ĐÁNG YÊU (EXPRESSIVE EYES & BLUSH)
+            // ----------------------------------------------------------
             const eyeDistY = half * 0.55;
             const eyePosX = half * 0.25;
 
             [-1, 1].forEach(side => {
               const eyePosY = side * eyeDistY;
-              if (isClicking) {
-                // Nhắm tít mắt nụ cười (> <) siêu vui tươi khi ấn!
-                ctx.strokeStyle = "#ffffff";
-                ctx.lineWidth = 1.3 * scale;
-                ctx.beginPath();
-                ctx.moveTo(eyePosX - 1.5 * scale, eyePosY - (side * 1.5 * scale));
-                ctx.lineTo(eyePosX + 1.5 * scale, eyePosY);
-                ctx.lineTo(eyePosX - 1.5 * scale, eyePosY + (side * 1.5 * scale));
-                ctx.stroke();
-              } else if (worm.isBlinking) {
-                ctx.fillStyle = "#001b3a";
-                ctx.fillRect(eyePosX - 1 * scale, eyePosY - 0.5 * scale, 3.5 * scale, 1.2 * scale);
+
+              if (mythicType === "dimigo") {
+                if (isClicking) {
+                  // Mắt cười híp tít vui sướng ^ ^
+                  ctx.strokeStyle = "#d81b60";
+                  ctx.lineWidth = 1.4 * scale;
+                  ctx.beginPath();
+                  ctx.arc(eyePosX, eyePosY, 2.0 * scale, Math.PI * 0.9, Math.PI * 0.1, true);
+                  ctx.stroke();
+                } else if (worm.isBlinking) {
+                  ctx.fillStyle = "#880e4f";
+                  ctx.fillRect(eyePosX - 1 * scale, eyePosY - 0.5 * scale, 3.5 * scale, 1.2 * scale);
+                } else {
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(eyePosX - 1 * scale, eyePosY - 1.8 * scale, 4.0 * scale, 3.6 * scale);
+
+                  ctx.fillStyle = "#880e4f";
+                  ctx.fillRect(eyePosX + 0.4 * scale, eyePosY - 1.2 * scale, 2.5 * scale, 2.4 * scale);
+
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(eyePosX + 1.2 * scale, eyePosY - 1.4 * scale, 1.2 * scale, 1.2 * scale);
+                  ctx.fillRect(eyePosX + 0.6 * scale, eyePosY + 0.2 * scale, 0.8 * scale, 0.8 * scale);
+                }
+              } else if (mythicType === "chromaUnique") {
+                if (isClicking) {
+                  ctx.strokeStyle = "#ffffff";
+                  ctx.lineWidth = 1.4 * scale;
+                  ctx.beginPath();
+                  ctx.moveTo(eyePosX - 1.5 * scale, eyePosY - (side * 1.5 * scale));
+                  ctx.lineTo(eyePosX + 1.5 * scale, eyePosY);
+                  ctx.lineTo(eyePosX - 1.5 * scale, eyePosY + (side * 1.5 * scale));
+                  ctx.stroke();
+                } else if (worm.isBlinking) {
+                  ctx.fillStyle = "#4a148c";
+                  ctx.fillRect(eyePosX - 1 * scale, eyePosY - 0.5 * scale, 3.5 * scale, 1.2 * scale);
+                } else {
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(eyePosX - 1 * scale, eyePosY - 1.6 * scale, 3.8 * scale, 3.4 * scale);
+
+                  ctx.fillStyle = "#4a148c";
+                  ctx.fillRect(eyePosX + 0.4 * scale, eyePosY - 1.1 * scale, 2.2 * scale, 2.3 * scale);
+
+                  ctx.fillStyle = "#ffd700";
+                  ctx.fillRect(eyePosX + 1.2 * scale, eyePosY - 1.2 * scale, 1.0 * scale, 1.0 * scale);
+                }
               } else {
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(eyePosX - 1 * scale, eyePosY - 1.5 * scale, 3.5 * scale, 3.2 * scale);
+                if (isClicking) {
+                  ctx.strokeStyle = "#ffffff";
+                  ctx.lineWidth = 1.3 * scale;
+                  ctx.beginPath();
+                  ctx.moveTo(eyePosX - 1.5 * scale, eyePosY - (side * 1.5 * scale));
+                  ctx.lineTo(eyePosX + 1.5 * scale, eyePosY);
+                  ctx.lineTo(eyePosX - 1.5 * scale, eyePosY + (side * 1.5 * scale));
+                  ctx.stroke();
+                } else if (worm.isBlinking) {
+                  ctx.fillStyle = "#001b3a";
+                  ctx.fillRect(eyePosX - 1 * scale, eyePosY - 0.5 * scale, 3.5 * scale, 1.2 * scale);
+                } else {
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(eyePosX - 1 * scale, eyePosY - 1.5 * scale, 3.5 * scale, 3.2 * scale);
 
-                ctx.fillStyle = "#0a192f";
-                ctx.fillRect(eyePosX + 0.5 * scale, eyePosY - 1 * scale, 2.0 * scale, 2.2 * scale);
+                  ctx.fillStyle = "#0a192f";
+                  ctx.fillRect(eyePosX + 0.5 * scale, eyePosY - 1, 2.0 * scale, 2.2 * scale);
 
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(eyePosX + 1.2 * scale, eyePosY - 1.2 * scale, 1.0 * scale, 1.0 * scale);
+                  ctx.fillStyle = "#ffffff";
+                  ctx.fillRect(eyePosX + 1.2 * scale, eyePosY - 1.2 * scale, 1.0 * scale, 1.0 * scale);
+                }
               }
             });
 
-            // Hai má hồng pixel đáng yêu
-            ctx.fillStyle = isClicking ? "rgba(255, 40, 100, 0.95)" : "rgba(255, 110, 160, 0.75)";
-            ctx.fillRect(-half * 0.2, -half + 1 * scale, 2 * scale, 2 * scale);
-            ctx.fillRect(-half * 0.2, half - 3 * scale, 2 * scale, 2 * scale);
+            // Má hồng phúng phính (Blush cheeks)
+            if (mythicType === "dimigo") {
+              ctx.fillStyle = isClicking ? "rgba(255, 20, 147, 0.95)" : "rgba(255, 105, 180, 0.85)";
+              drawMiniVectorHeart(ctx, -half * 0.1, -half + 1.2 * scale, 2.2 * scale, ctx.fillStyle);
+              drawMiniVectorHeart(ctx, -half * 0.1, half - 2.5 * scale, 2.2 * scale, ctx.fillStyle);
+            } else if (mythicType === "chromaUnique") {
+              const blHue = (nowMs * 0.2 + 300) % 360;
+              ctx.fillStyle = "hsla(" + blHue + ", 100%, 70%, 0.85)";
+              ctx.fillRect(-half * 0.2, -half + 1 * scale, 2 * scale, 2 * scale);
+              ctx.fillRect(-half * 0.2, half - 3 * scale, 2 * scale, 2 * scale);
+            } else {
+              ctx.fillStyle = isClicking ? "rgba(255, 40, 100, 0.95)" : "rgba(255, 110, 160, 0.75)";
+              ctx.fillRect(-half * 0.2, -half + 1 * scale, 2 * scale, 2 * scale);
+              ctx.fillRect(-half * 0.2, half - 3 * scale, 2 * scale, 2 * scale);
+            }
 
-            // Nụ cười pixel
+            // Miệng cười nhỏ nhắn xinh xắn
             ctx.fillStyle = isClicking ? "#d81b60" : "rgba(10, 30, 60, 0.85)";
             ctx.fillRect(half * 0.45, -1 * scale, 1.8 * scale, 2 * scale);
           }
@@ -52009,44 +53140,74 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       function renderCustomWormCursor() {
         requestAnimationFrame(renderCustomWormCursor);
 
-        // ÁP DỤNG CHO CẢ TRONG GAME LẪN SẢNH CHÍNH (KHI BẬT TÍNH NĂNG TRONG CÀI ĐẶT)
         if (typeof customWormCursorEnabled !== "undefined" && !customWormCursorEnabled) {
           cursorCanvas.classList.remove("cursor-active");
           touchCursors.clear();
+          if (typeof ctx.setTransform === "function") {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+          } else if (typeof ctx.resetTransform === "function") {
+            ctx.resetTransform();
+          }
+          ctx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
           return;
         }
 
         const nowMs = performance.now();
         const rainbowBaseHue = (nowMs * 0.22) % 360;
+        const activeSkinId = getActiveCursorSkinId();
+        const mythicType = getMythicCursorType(activeSkinId);
+
+        // Tự động ẩn chuột PC khi không di chuyển quá 2.5 giây
+        if (isMouseVisible && nowMs - lastMouseMoveTime > 2500) {
+          isMouseVisible = false;
+        }
 
         const hasActiveTouches = touchCursors.size > 0;
         const hasActiveMouse = isMouseVisible && mouseCursor && mouseCursor.x >= 0 && mouseCursor.y >= 0;
 
         if (!hasActiveTouches && !hasActiveMouse) {
           cursorCanvas.classList.remove("cursor-active");
+          if (typeof ctx.setTransform === "function") {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+          } else if (typeof ctx.resetTransform === "function") {
+            ctx.resetTransform();
+          }
+          ctx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
           return;
         }
 
         cursorCanvas.classList.add("cursor-active");
 
-        // Xóa sạch canvas full màn hình mỗi frame
         ctx.save();
+        if (typeof ctx.setTransform === "function") {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+          } else if (typeof ctx.resetTransform === "function") {
+            ctx.resetTransform();
+          }
+        ctx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
         ctx.scale(dpr, dpr);
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-        // 1. Cập nhật và vẽ chuột máy tính (nếu có chuột đang di chuyển)
+        // 1. Cập nhật và vẽ chuột máy tính
         if (hasActiveMouse) {
-          updateWormPhysics(mouseCursor, nowMs);
+          updateWormPhysics(mouseCursor, nowMs, mythicType);
           renderSingleWorm(mouseCursor, nowMs, rainbowBaseHue);
         }
 
         // 2. Cập nhật và vẽ từng điểm chạm đa cảm ứng trên điện thoại (Multi-touch)
         if (hasActiveTouches) {
           touchCursors.forEach((worm, touchId) => {
-            updateWormPhysics(worm, nowMs);
+            // Chống kẹt icon: Nếu điểm chạm không di chuyển >1200ms và không còn tương tác touch >600ms, tự động giải phóng
+            if (!worm.releasing && nowMs - worm.lastActiveTime > 1200 && nowMs - lastTouchInteractionTime > 600) {
+              worm.releasing = true;
+              if (!worm.releaseStartTime) worm.releaseStartTime = nowMs;
+              worm.isPressed = false;
+            }
+
+            updateWormPhysics(worm, nowMs, mythicType);
             renderSingleWorm(worm, nowMs, rainbowBaseHue);
-            // Xóa điểm chạm đã nhấc ngón tay và mờ dần hoàn tất
-            if (worm.releasing && worm.opacity <= 0.01) {
+
+            // Xóa điểm chạm đã nhấc ngón tay và mờ dần hoàn tất (hoặc quá 400ms kể từ khi giải phóng)
+            if (worm.releasing && (worm.opacity <= 0.02 || (worm.releaseStartTime && nowMs - worm.releaseStartTime > 400))) {
               touchCursors.delete(touchId);
             }
           });
@@ -52057,6 +53218,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
       requestAnimationFrame(renderCustomWormCursor);
     }
+
+
 
 
     // Khởi tạo điều hướng nút quay lại Android & Con chuột giun sảnh chính & trong game
