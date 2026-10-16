@@ -18610,8 +18610,16 @@
 
     let rows = 27;
 
-    let currentMapSizeSetting = "small";
-    let hasUserExplicitlyChosenNormalMap = false;
+    const MAP_SIZE_STORAGE_KEY = "lumbricidMapSizeSetting";
+    let normalMapSizeSetting = "small";
+    try {
+      const savedMap = localStorage.getItem(MAP_SIZE_STORAGE_KEY);
+      if (["small", "medium", "large", "huge"].includes(savedMap)) {
+        normalMapSizeSetting = savedMap;
+      }
+    } catch (e) { }
+    let currentMapSizeSetting = normalMapSizeSetting;
+    let hasUserExplicitlyChosenNormalMap = true;
 
     let audioCtx = null;
 
@@ -19426,28 +19434,116 @@
       });
     });
 
-    ["pointerdown", "touchstart", "keydown"].forEach(evt => {
-      document.addEventListener(evt, () => enterImmersiveMode(), {
-        once: true,
-        passive: true
+    function isMobilePhone() {
+      if (typeof isMobileDevice !== "undefined" && isMobileDevice) return true;
+      if (typeof navigator !== "undefined") {
+        if (/Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent)) return true;
+        if (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && Math.min(window.innerWidth, window.innerHeight) <= 1024) return true;
+      }
+      return false;
+    }
+
+    function enterFullscreenAndLandscapeOnPhone() {
+      let fsPromise = null;
+      try {
+        const el = document.documentElement;
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          if (typeof requestGameFullscreen === "function") {
+            fsPromise = requestGameFullscreen();
+          } else if (el.requestFullscreen) {
+            fsPromise = el.requestFullscreen();
+            if (fsPromise && typeof fsPromise.catch === "function") fsPromise.catch(() => { });
+          } else if (typeof el.webkitRequestFullscreen === "function") {
+            fsPromise = el.webkitRequestFullscreen();
+          }
+        }
+      } catch (err) { }
+
+      const lockLandscape = () => {
+        try {
+          if (screen.orientation && typeof screen.orientation.lock === "function") {
+            screen.orientation.lock("landscape").catch(() => {
+              try { screen.orientation.lock("landscape-primary").catch(() => {}); } catch (_) {}
+            });
+          } else if (screen.lockOrientation) {
+            screen.lockOrientation("landscape");
+          } else if (screen.webkitLockOrientation) {
+            screen.webkitLockOrientation("landscape");
+          } else if (screen.mozLockOrientation) {
+            screen.mozLockOrientation("landscape");
+          } else if (screen.msLockOrientation) {
+            screen.msLockOrientation("landscape");
+          }
+        } catch (e) { }
+      };
+
+      lockLandscape();
+
+      if (fsPromise && typeof fsPromise.then === "function") {
+        fsPromise.then(() => {
+          lockLandscape();
+          setTimeout(() => {
+            lockLandscape();
+            if (typeof applyCanvasResolution === "function") applyCanvasResolution();
+            if (typeof refreshDpadRect === "function") refreshDpadRect();
+          }, 80);
+        }).catch(() => {});
+      } else {
+        setTimeout(() => {
+          lockLandscape();
+          if (typeof applyCanvasResolution === "function") applyCanvasResolution();
+          if (typeof refreshDpadRect === "function") refreshDpadRect();
+        }, 120);
+      }
+    }
+
+    let hasTriggeredAutoLandscapeOnFirstTouch = false;
+
+    function handleFirstTouchAutoFullscreen(e) {
+      if (hasTriggeredAutoLandscapeOnFirstTouch) return;
+      hasTriggeredAutoLandscapeOnFirstTouch = true;
+
+      ['pointerdown', 'touchstart', 'touchend', 'click'].forEach(evt => {
+        document.removeEventListener(evt, handleFirstTouchAutoFullscreen, true);
       });
+
+      if (isMobilePhone()) {
+        enterFullscreenAndLandscapeOnPhone();
+      } else {
+        try {
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (typeof requestGameFullscreen === "function") {
+              requestGameFullscreen();
+            } else {
+              const el = document.documentElement;
+              if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+              else if (typeof el.webkitRequestFullscreen === "function") el.webkitRequestFullscreen();
+            }
+          }
+        } catch (_) {}
+      }
+    }
+
+    ['pointerdown', 'touchstart', 'touchend', 'click'].forEach(evt => {
+      document.addEventListener(evt, handleFirstTouchAutoFullscreen, { capture: true, passive: true });
     });
 
     function enterImmersiveMode() {
-      if (typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait()) {
-        return;
-      }
-      try {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-          if (typeof requestGameFullscreen === "function") {
-            requestGameFullscreen();
-          } else {
-            const el = document.documentElement;
-            if (el.requestFullscreen) el.requestFullscreen().catch(() => { });
-            else if (typeof el.webkitRequestFullscreen === "function") el.webkitRequestFullscreen();
+      if (isMobilePhone()) {
+        enterFullscreenAndLandscapeOnPhone();
+      } else {
+        try {
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (typeof requestGameFullscreen === "function") {
+              requestGameFullscreen();
+            } else {
+              const el = document.documentElement;
+              if (el.requestFullscreen) el.requestFullscreen().catch(() => { });
+              else if (typeof el.webkitRequestFullscreen === "function") el.webkitRequestFullscreen();
+            }
           }
-        }
-      } catch (e) { }
+        } catch (e) { }
+      }
     }
 
     const orientationOverlay = document.getElementById("orientation-prompt-overlay");
@@ -22952,10 +23048,6 @@
       isInfiniteMapMode = false;
       isTsunamiMode = false;
       isDarkNightMode = false;
-      hasUserExplicitlyChosenNormalMap = false;
-      if (typeof setMapSizeConfig === "function") {
-        setMapSizeConfig("small");
-      }
       document.body.classList.remove("race-mode", "darknight-active", "tsunami-hud-shift");
       const bBtn = document.getElementById("m-btn-boss-attack");
       if (bBtn) bBtn.style.display = "none";
@@ -22998,11 +23090,15 @@
       if (typeof bossJsbBouncingCubes !== "undefined") bossJsbBouncingCubes = [];
       if (typeof bossJsbSatellites !== "undefined") bossJsbSatellites = [];
       if (typeof bossPerfStats !== "undefined") bossPerfStats.stutterGraceTimer = 0;
-      if (!isRaceMode && !isInfiniteMapMode && !isDarkNightMode) {
+      if (!isRaceMode && !isInfiniteMapMode && !isDarkNightMode && !isTsunamiMode) {
+        currentMapSizeSetting = ["small", "medium", "large", "huge"].includes(currentMapSizeSetting) ? currentMapSizeSetting : (normalMapSizeSetting || "small");
         if (currentMapSizeSetting === "small") { cols = 48; rows = 27; }
         else if (currentMapSizeSetting === "medium") { cols = 83; rows = 47; }
         else if (currentMapSizeSetting === "large") { cols = 118; rows = 66; }
         else if (currentMapSizeSetting === "huge") { cols = 152; rows = 85; }
+        if (typeof applyCanvasResolution === "function") {
+          applyCanvasResolution();
+        }
       }
       if (typeof bossUnlockedSkills !== "undefined") {
         for (let k in bossUnlockedSkills) bossUnlockedSkills[k] = false;
@@ -23044,9 +23140,7 @@
         e.stopPropagation();
         initAudio();
         playSound("click");
-        if (!hasUserExplicitlyChosenNormalMap) {
-          setMapSizeConfig("small");
-        }
+        setMapSizeConfig(normalMapSizeSetting || currentMapSizeSetting || "small");
         switchPanel(panelRoot, panelDifficulty, "in", "difficulty");
       };
       navDiffBtn.addEventListener("click", handleNavDiff);
@@ -23452,22 +23546,25 @@
     }
 
     function setMapSizeConfig(size) {
-      currentMapSizeSetting = size;
-      document.querySelectorAll(".map-size-btn").forEach(b => b.classList.remove("active-setting"));
-      if (size === "small") {
-        document.getElementById("map-small").classList.add("active-setting");
+      normalMapSizeSetting = ["small", "medium", "large", "huge"].includes(size) ? size : "small";
+      currentMapSizeSetting = normalMapSizeSetting;
+      hasUserExplicitlyChosenNormalMap = true;
+      try {
+        localStorage.setItem(MAP_SIZE_STORAGE_KEY, normalMapSizeSetting);
+      } catch (e) { }
+      document.querySelectorAll("#panel-difficulty .map-size-btn").forEach(b => b.classList.remove("active-setting"));
+      const btn = document.getElementById("map-" + normalMapSizeSetting);
+      if (btn) btn.classList.add("active-setting");
+      if (normalMapSizeSetting === "small") {
         cols = 48;
         rows = 27;
-      } else if (size === "medium") {
-        document.getElementById("map-medium").classList.add("active-setting");
+      } else if (normalMapSizeSetting === "medium") {
         cols = 83;
         rows = 47;
-      } else if (size === "large") {
-        document.getElementById("map-large").classList.add("active-setting");
+      } else if (normalMapSizeSetting === "large") {
         cols = 118;
         rows = 66;
-      } else if (size === "huge") {
-        document.getElementById("map-huge").classList.add("active-setting");
+      } else if (normalMapSizeSetting === "huge") {
         cols = 152;
         rows = 85;
       }
@@ -23479,9 +23576,8 @@
     let endlessMapSizeSetting = "small";
 
     function setEndlessMapSizeConfig(size) {
-      hasUserExplicitlyChosenNormalMap = false;
-      endlessMapSizeSetting = size;
-      currentMapSizeSetting = size;
+      endlessMapSizeSetting = ["small", "medium", "large", "huge"].includes(size) ? size : "small";
+      currentMapSizeSetting = endlessMapSizeSetting;
       document.querySelectorAll("#panel-endless .map-size-btn").forEach(b => b.classList.remove("active-setting"));
       const btn = document.getElementById("endless-map-" + size);
       if (btn) btn.classList.add("active-setting");
@@ -23558,7 +23654,6 @@
     }
 
     function selectRaceWidth(wKey) {
-      hasUserExplicitlyChosenNormalMap = false;
       raceWidthSetting = wKey;
       document.querySelectorAll("#panel-race .map-size-btn").forEach(b => b.classList.remove("active-setting"));
       const btn = document.getElementById("race-width-" + wKey);
@@ -23595,7 +23690,6 @@
       isRaceMode = true;
       isInfiniteMapMode = true;
       currentDifficulty = "race";
-      currentMapSizeSetting = raceWidthSetting;
 
       cols = RACE_WIDTH_COLS[raceWidthSetting] || 83;
       rows = INFINITE_MAP_ROWS;
@@ -23662,11 +23756,13 @@
       });
     }
 
+    let tsunamiMapSizeSetting = "small";
+
     function setTsunamiMapSizeConfig(size) {
-      hasUserExplicitlyChosenNormalMap = false;
-      currentMapSizeSetting = size;
+      tsunamiMapSizeSetting = ["small", "medium", "large", "huge"].includes(size) ? size : "small";
+      currentMapSizeSetting = tsunamiMapSizeSetting;
       document.querySelectorAll("#panel-tsunami .map-size-btn").forEach(b => b.classList.remove("active-setting"));
-      const btn = document.getElementById("tsu-map-" + size);
+      const btn = document.getElementById("tsu-map-" + tsunamiMapSizeSetting);
       if (btn) btn.classList.add("active-setting");
       if (size === "small") {
         cols = 48;
@@ -23720,6 +23816,12 @@
       enterImmersiveMode();
       showOnlyPanel(panelRoot);
       isTsunamiMode = true;
+      currentMapSizeSetting = tsunamiMapSizeSetting || "small";
+      if (currentMapSizeSetting === "small") { cols = 48; rows = 27; }
+      else if (currentMapSizeSetting === "medium") { cols = 83; rows = 47; }
+      else if (currentMapSizeSetting === "large") { cols = 118; rows = 66; }
+      else if (currentMapSizeSetting === "huge") { cols = 152; rows = 85; }
+      applyCanvasResolution();
       document.body.classList.add("tsunami-hud-shift");
       document.body.classList.add("in-game");
       currentDifficulty = pendingTsunamiDifficultyChoice;
@@ -24692,8 +24794,7 @@
     });
 
     function setDarkNightMapSizeConfig(size) {
-      hasUserExplicitlyChosenNormalMap = false;
-      darkNightMapSizeSetting = size;
+      darkNightMapSizeSetting = ["small", "medium", "large", "huge"].includes(size) ? size : "small";
       document.querySelectorAll("#panel-darknight .map-size-btn").forEach(b => b.classList.remove("active-setting"));
       const btn = document.getElementById("dn-map-" + size);
       if (btn) btn.classList.add("active-setting");
@@ -32495,6 +32596,9 @@
     function startGameWithDiff(diff) {
       if (!diff) diff = "normal";
       pendingDifficultyChoice = diff;
+      if (!isTwoPlayerFrame) {
+        currentMapSizeSetting = normalMapSizeSetting || "small";
+      }
       resetAllGameModeFlags();
       enterImmersiveMode();
       showOnlyPanel(panelRoot);
@@ -35949,9 +36053,11 @@
     }
 
     function drawVectorHeart(ctx, x, y, size, color, glowColor, glowBlur) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      const isLow = isUltraLow || (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
       ctx.save();
-      if (glowColor) {
-        ctx.shadowBlur = glowBlur || 8;
+      if (glowColor && !isLow && glowBlur !== 0) {
+        ctx.shadowBlur = (glowBlur !== undefined ? glowBlur : 8);
         ctx.shadowColor = glowColor;
       }
       ctx.fillStyle = color;
@@ -35971,34 +36077,48 @@
     }
 
     function drawDimigoLoveBorder(ctx, pxX, pxY, segSize, index, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      const isLow = isUltraLow || (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
       const pulse = (Math.sin(timeMs * 0.005 + index * 0.5) + 1) / 2;
       ctx.save();
-      ctx.shadowBlur = 10 + pulse * 6;
-      ctx.shadowColor = "rgba(255, 75, 139, 0.85)";
+      if (!isLow) {
+        ctx.shadowBlur = 10 + pulse * 6;
+        ctx.shadowColor = "rgba(255, 75, 139, 0.85)";
+      }
       ctx.strokeStyle = `rgba(255, 182, 193, ${0.7 + pulse * 0.3})`;
-      ctx.lineWidth = 1.6;
+      ctx.lineWidth = isUltraLow ? 1.0 : 1.6;
       ctx.strokeRect(pxX - 1, pxY - 1, segSize + 2, segSize + 2);
       ctx.restore();
 
-      if (index % 2 === 0) {
-        drawVectorHeart(ctx, pxX + segSize / 2, pxY - 4, 4.5, "rgba(255, 105, 180, 0.95)", "#ff1493", 6);
+      if (!isUltraLow && (!isLow || index === 0) && index % 2 === 0) {
+        drawVectorHeart(ctx, pxX + segSize / 2, pxY - 4, 4.5, "rgba(255, 105, 180, 0.95)", "#ff1493", isLow ? 0 : 6);
       }
     }
 
     function drawDimigoHeartSparkle(ctx, pxX, pxY, segSize, index, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
       const bucket = Math.floor(timeMs / 120);
       const chance = pseudoRandom01(index * 37.3 + bucket * 19.1);
       if (chance <= 0.68) return;
       const sx = pxX + pseudoRandom01(index * 4.1 + bucket) * segSize;
       const sy = pxY + pseudoRandom01(index * 2.9 + bucket * 1.5) * segSize;
-      drawVectorHeart(ctx, sx, sy, 3.5, "rgba(255, 192, 203, 0.9)", "rgba(255, 105, 180, 0.8)", 8);
+      drawVectorHeart(ctx, sx, sy, 3.5, "rgba(255, 192, 203, 0.9)", "rgba(255, 105, 180, 0.8)", isLow ? 0 : 8);
     }
 
     function drawDimigoHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
       const cx = pxX + segSize / 2, cy = pxY - 8;
       ctx.save();
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = "rgba(255, 105, 180, 0.95)";
+      if (!isLow) {
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = "rgba(255, 105, 180, 0.95)";
+      }
       ctx.strokeStyle = "rgba(255, 235, 245, 0.95)";
       ctx.lineWidth = 1.8;
       ctx.beginPath();
@@ -36008,7 +36128,10 @@
     }
 
     function drawDimigoOrbitingHearts(ctx, cx, cy, segSize, timeMs) {
-      const count = 5;
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      const count = isLow ? 2 : 5;
       const orbitR = segSize * 1.25;
       const orbitTilt = 0.45;
       for (let i = 0; i < count; i++) {
@@ -41736,7 +41859,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         btnStartEl.classList.remove("disabled");
         updateStartButtonGradient();
       }
+      currentMapSizeSetting = normalMapSizeSetting || "small";
       resetAllGameModeFlags();
+      setMapSizeConfig(normalMapSizeSetting || "small");
       speedSlipstreamParticles = [];
       isMenuMode = true;
       mainMenu.style.display = "flex";
@@ -41898,32 +42023,41 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (!isFs) {
         if (typeof requestGameFullscreen === "function") {
           requestGameFullscreen();
+        } else {
+          const el = document.documentElement;
+          if (el.requestFullscreen) el.requestFullscreen().catch(() => { });
+          else if (typeof el.webkitRequestFullscreen === "function") el.webkitRequestFullscreen();
         }
-        try {
-          if (screen.orientation && typeof screen.orientation.lock === "function") {
-            if (typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled) {
-              screen.orientation.lock("portrait").catch(() => {
-                if (screen.orientation.unlock) screen.orientation.unlock();
-              });
-            } else {
-              // Cho phép xoay tự do nếu không ép ngang, hoặc khóa theo hướng hiện tại
-              if (window.innerHeight > window.innerWidth) {
-                if (screen.orientation.unlock) screen.orientation.unlock();
-                else screen.orientation.lock("portrait").catch(() => {});
-              } else {
-                if (screen.orientation.unlock) screen.orientation.unlock();
-                else screen.orientation.lock("landscape").catch(() => {});
+
+        if (isMobilePhone()) {
+          enterFullscreenAndLandscapeOnPhone();
+        } else {
+          try {
+            if (screen.orientation && typeof screen.orientation.lock === "function") {
+              if (window.innerWidth < window.innerHeight) {
+                screen.orientation.lock("landscape").catch(() => {});
               }
             }
-          } else if (screen.orientation && typeof screen.orientation.unlock === "function") {
-            screen.orientation.unlock();
-          }
-        } catch (e) { }
+          } catch (e) { }
+        }
       } else {
         if (typeof exitGameFullscreen === "function") {
           exitGameFullscreen();
         }
+        try {
+          if (screen.orientation && typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
+          } else if (screen.unlockOrientation) {
+            screen.unlockOrientation();
+          } else if (screen.webkitUnlockOrientation) {
+            screen.webkitUnlockOrientation();
+          }
+        } catch (e) { }
       }
+      setTimeout(() => {
+        if (typeof applyCanvasResolution === "function") applyCanvasResolution();
+        if (typeof refreshDpadRect === "function") refreshDpadRect();
+      }, 100);
     }
 
     function updateAllFullscreenUI() {
@@ -41941,23 +42075,66 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
     }
 
-    btnFullscreen.addEventListener("click", () => {
-      toggleAppFullscreen();
-    });
-
-    const lobbyFsFab = document.getElementById("btn-lobby-fullscreen");
-    if (lobbyFsFab) {
-      lobbyFsFab.addEventListener("click", () => {
+    if (btnFullscreen) {
+      let btnFsHandled = false;
+      const handleBtnFs = (e) => {
+        if (e.type === "click" && btnFsHandled) {
+          btnFsHandled = false;
+          return;
+        }
         toggleAppFullscreen();
-      });
-      lobbyFsFab.addEventListener("touchend", (e) => {
+      };
+      btnFullscreen.addEventListener("click", handleBtnFs);
+      btnFullscreen.addEventListener("touchend", (e) => {
+        btnFsHandled = true;
         try { e.preventDefault(); } catch (err) { }
-        toggleAppFullscreen();
+        handleBtnFs(e);
       }, { passive: false });
     }
 
-    document.addEventListener("fullscreenchange", updateAllFullscreenUI);
-    document.addEventListener("webkitfullscreenchange", updateAllFullscreenUI);
+    const lobbyFsFab = document.getElementById("btn-lobby-fullscreen");
+    if (lobbyFsFab) {
+      let lobbyFsHandled = false;
+      const handleLobbyFs = (e) => {
+        if (e.type === "click" && lobbyFsHandled) {
+          lobbyFsHandled = false;
+          return;
+        }
+        toggleAppFullscreen();
+      };
+      lobbyFsFab.addEventListener("click", handleLobbyFs);
+      lobbyFsFab.addEventListener("touchend", (e) => {
+        lobbyFsHandled = true;
+        try { e.preventDefault(); } catch (err) { }
+        handleLobbyFs(e);
+      }, { passive: false });
+    }
+
+    const onFullscreenChangeHandler = () => {
+      updateAllFullscreenUI();
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        if (isMobilePhone() && !(typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled)) {
+          try {
+            if (screen.orientation && typeof screen.orientation.lock === "function") {
+              screen.orientation.lock("landscape").catch(() => {});
+            }
+          } catch (e) { }
+        }
+      } else {
+        try {
+          if (screen.orientation && typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
+          }
+        } catch (e) { }
+      }
+      setTimeout(() => {
+        if (typeof applyCanvasResolution === "function") applyCanvasResolution();
+        if (typeof refreshDpadRect === "function") refreshDpadRect();
+      }, 100);
+    };
+
+    document.addEventListener("fullscreenchange", onFullscreenChangeHandler);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChangeHandler);
     window.addEventListener("resize", updateAllFullscreenUI);
     setTimeout(updateAllFullscreenUI, 300);
 
@@ -47347,6 +47524,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
       if (isUltraLow) return;
       const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
 
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const seed = index * 997 + Math.floor(timeMs * 0.001);
@@ -47403,23 +47582,33 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function drawTwilightHorizonHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const pulse = Math.sin(timeMs * 0.0035) * 0.16;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = "lighter";
 
-      // Quầng sáng đa sắc chân trời vũ trụ
-      const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.85 + pulse));
-      hGrad.addColorStop(0, "rgba(255, 255, 245, 0.98)");
-      hGrad.addColorStop(0.25, "rgba(253, 224, 71, 0.8)");
-      hGrad.addColorStop(0.5, "rgba(217, 70, 239, 0.65)");
-      hGrad.addColorStop(0.78, "rgba(56, 189, 248, 0.45)");
-      hGrad.addColorStop(1, "rgba(30, 10, 68, 0)");
-      ctx.fillStyle = hGrad;
-      ctx.beginPath();
-      ctx.arc(0, 0, segSize * (1.85 + pulse), 0, Math.PI * 2);
-      ctx.fill();
+      if (isLow) {
+        ctx.fillStyle = "rgba(253, 224, 71, 0.35)";
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.85 + pulse));
+        hGrad.addColorStop(0, "rgba(255, 255, 245, 0.98)");
+        hGrad.addColorStop(0.25, "rgba(253, 224, 71, 0.8)");
+        hGrad.addColorStop(0.5, "rgba(217, 70, 239, 0.65)");
+        hGrad.addColorStop(0.78, "rgba(56, 189, 248, 0.45)");
+        hGrad.addColorStop(1, "rgba(30, 10, 68, 0)");
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * (1.85 + pulse), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Tia sáng thập tự vương miện hoàng hôn
       ctx.strokeStyle = "rgba(253, 224, 71, 0.75)";
@@ -47735,6 +47924,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
       if (isUltraLow) return;
       const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
 
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const seed = index * 811 + Math.floor(timeMs * 0.001);
@@ -47761,23 +47952,33 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function drawCelestialMarbleHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const pulse = Math.sin(timeMs * 0.0035) * 0.15;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = "lighter";
 
-      // Hào quang tròn đa tầng pastel
-      const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.75 + pulse));
-      hGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
-      hGrad.addColorStop(0.25, "rgba(254, 240, 138, 0.75)");
-      hGrad.addColorStop(0.55, "rgba(244, 114, 182, 0.6)");
-      hGrad.addColorStop(0.8, "rgba(56, 189, 248, 0.4)");
-      hGrad.addColorStop(1, "transparent");
-      ctx.fillStyle = hGrad;
-      ctx.beginPath();
-      ctx.arc(0, 0, segSize * (1.75 + pulse), 0, Math.PI * 2);
-      ctx.fill();
+      if (isLow) {
+        ctx.fillStyle = "rgba(254, 240, 138, 0.35)";
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.75 + pulse));
+        hGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
+        hGrad.addColorStop(0.25, "rgba(254, 240, 138, 0.75)");
+        hGrad.addColorStop(0.55, "rgba(244, 114, 182, 0.6)");
+        hGrad.addColorStop(0.8, "rgba(56, 189, 248, 0.4)");
+        hGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * (1.75 + pulse), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Tia sáng chữ thập ngôi sao hoàng kim pastel
       ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
@@ -47966,6 +48167,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
       if (isUltraLow) return;
       const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
 
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const seed = index * 733 + Math.floor(timeMs * 0.001);
@@ -48001,22 +48204,33 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function drawObsidianGoldHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const pulse = Math.sin(timeMs * 0.0036) * 0.14;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = "lighter";
 
-      const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.75 + pulse));
-      hGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
-      hGrad.addColorStop(0.2, "rgba(255, 248, 225, 0.85)");
-      hGrad.addColorStop(0.5, "rgba(255, 215, 0, 0.65)");
-      hGrad.addColorStop(0.8, "rgba(218, 165, 32, 0.35)");
-      hGrad.addColorStop(1, "transparent");
-      ctx.fillStyle = hGrad;
-      ctx.beginPath();
-      ctx.arc(0, 0, segSize * (1.75 + pulse), 0, Math.PI * 2);
-      ctx.fill();
+      if (isLow) {
+        ctx.fillStyle = "rgba(255, 215, 0, 0.35)";
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.75 + pulse));
+        hGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
+        hGrad.addColorStop(0.2, "rgba(255, 248, 225, 0.85)");
+        hGrad.addColorStop(0.5, "rgba(255, 215, 0, 0.65)");
+        hGrad.addColorStop(0.8, "rgba(218, 165, 32, 0.35)");
+        hGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * (1.75 + pulse), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       const crownY = -segSize * 0.85;
       ctx.strokeStyle = "rgba(255, 215, 0, 0.95)";
@@ -48220,6 +48434,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
       if (isUltraLow) return;
       const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
 
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const seed = index * 677 + Math.floor(timeMs * 0.001);
@@ -48255,22 +48471,33 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function drawSoulfireSilkHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const pulse = Math.sin(timeMs * 0.0038) * 0.15;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = "lighter";
 
-      const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.8 + pulse));
-      hGrad.addColorStop(0, "rgba(255, 255, 245, 0.98)");
-      hGrad.addColorStop(0.2, "rgba(254, 202, 87, 0.85)");
-      hGrad.addColorStop(0.5, "rgba(255, 45, 120, 0.65)");
-      hGrad.addColorStop(0.8, "rgba(168, 85, 247, 0.35)");
-      hGrad.addColorStop(1, "transparent");
-      ctx.fillStyle = hGrad;
-      ctx.beginPath();
-      ctx.arc(0, 0, segSize * (1.8 + pulse), 0, Math.PI * 2);
-      ctx.fill();
+      if (isLow) {
+        ctx.fillStyle = "rgba(255, 45, 120, 0.35)";
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.8 + pulse));
+        hGrad.addColorStop(0, "rgba(255, 255, 245, 0.98)");
+        hGrad.addColorStop(0.2, "rgba(254, 202, 87, 0.85)");
+        hGrad.addColorStop(0.5, "rgba(255, 45, 120, 0.65)");
+        hGrad.addColorStop(0.8, "rgba(168, 85, 247, 0.35)");
+        hGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * (1.8 + pulse), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       const crownY = -segSize * 0.88;
       ctx.strokeStyle = "rgba(255, 45, 120, 0.95)";
@@ -48459,6 +48686,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
       if (isUltraLow) return;
       const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
 
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const seed = index * 659 + Math.floor(timeMs * 0.001);
@@ -48486,22 +48715,33 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function drawCrimsonSilkHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const pulse = Math.sin(timeMs * 0.0038) * 0.15;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = "lighter";
 
-      const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.8 + pulse));
-      hGrad.addColorStop(0, "rgba(255, 240, 245, 0.98)");
-      hGrad.addColorStop(0.25, "rgba(255, 23, 68, 0.85)");
-      hGrad.addColorStop(0.6, "rgba(247, 37, 133, 0.65)");
-      hGrad.addColorStop(0.85, "rgba(114, 9, 183, 0.3)");
-      hGrad.addColorStop(1, "transparent");
-      ctx.fillStyle = hGrad;
-      ctx.beginPath();
-      ctx.arc(0, 0, segSize * (1.8 + pulse), 0, Math.PI * 2);
-      ctx.fill();
+      if (isLow) {
+        ctx.fillStyle = "rgba(255, 23, 68, 0.35)";
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.8 + pulse));
+        hGrad.addColorStop(0, "rgba(255, 240, 245, 0.98)");
+        hGrad.addColorStop(0.25, "rgba(255, 23, 68, 0.85)");
+        hGrad.addColorStop(0.6, "rgba(247, 37, 133, 0.65)");
+        hGrad.addColorStop(0.85, "rgba(114, 9, 183, 0.3)");
+        hGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * (1.8 + pulse), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Vòng xoáy lụa đỏ tím quanh đầu
       ctx.rotate(timeMs * 0.0016);
@@ -48657,6 +48897,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
       if (isUltraLow) return;
       const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
 
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const seed = index * 659 + Math.floor(timeMs * 0.001);
@@ -48692,22 +48934,33 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function drawEmeraldAuroraHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const pulse = Math.sin(timeMs * 0.0038) * 0.15;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.globalCompositeOperation = "lighter";
 
-      const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.8 + pulse));
-      hGrad.addColorStop(0, "rgba(240, 253, 244, 0.98)");
-      hGrad.addColorStop(0.2, "rgba(190, 242, 100, 0.85)");
-      hGrad.addColorStop(0.5, "rgba(0, 245, 212, 0.65)");
-      hGrad.addColorStop(0.8, "rgba(16, 185, 129, 0.35)");
-      hGrad.addColorStop(1, "transparent");
-      ctx.fillStyle = hGrad;
-      ctx.beginPath();
-      ctx.arc(0, 0, segSize * (1.8 + pulse), 0, Math.PI * 2);
-      ctx.fill();
+      if (isLow) {
+        ctx.fillStyle = "rgba(0, 245, 212, 0.35)";
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (1.8 + pulse));
+        hGrad.addColorStop(0, "rgba(240, 253, 244, 0.98)");
+        hGrad.addColorStop(0.2, "rgba(190, 242, 100, 0.85)");
+        hGrad.addColorStop(0.5, "rgba(0, 245, 212, 0.65)");
+        hGrad.addColorStop(0.8, "rgba(16, 185, 129, 0.35)");
+        hGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * (1.8 + pulse), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       // Vương miện lá ngọc cực quang đỉnh đầu
       const crownY = -segSize * 0.88;
@@ -48865,17 +49118,24 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       ctx.fillRect(pxX, pxY, segSize, segSize);
 
       // 3. Phân chia 2 nửa màu tương phản: Nửa trái Hồng Crimson (#ff0055), Nửa phải Lam Cobalt (#0099ff)
-      const leftGrad = ctx.createLinearGradient(pxX, cy, cx, cy);
-      leftGrad.addColorStop(0, `rgba(255, 0, 85, ${Math.min(1, 0.45 * pulse + waveGlow * 0.3)})`);
-      leftGrad.addColorStop(1, "rgba(255, 0, 85, 0.04)");
-      ctx.fillStyle = leftGrad;
-      ctx.fillRect(pxX, pxY, half, segSize);
+      if (isLow) {
+        ctx.fillStyle = "rgba(255, 0, 85, 0.35)";
+        ctx.fillRect(pxX, pxY, half, segSize);
+        ctx.fillStyle = "rgba(0, 153, 255, 0.35)";
+        ctx.fillRect(cx, pxY, half, segSize);
+      } else {
+        const leftGrad = ctx.createLinearGradient(pxX, cy, cx, cy);
+        leftGrad.addColorStop(0, `rgba(255, 0, 85, ${Math.min(1, 0.45 * pulse + waveGlow * 0.3)})`);
+        leftGrad.addColorStop(1, "rgba(255, 0, 85, 0.04)");
+        ctx.fillStyle = leftGrad;
+        ctx.fillRect(pxX, pxY, half, segSize);
 
-      const rightGrad = ctx.createLinearGradient(cx, cy, pxX + segSize, cy);
-      rightGrad.addColorStop(0, "rgba(0, 153, 255, 0.04)");
-      rightGrad.addColorStop(1, `rgba(0, 153, 255, ${Math.min(1, 0.45 * pulse + waveGlow * 0.3)})`);
-      ctx.fillStyle = rightGrad;
-      ctx.fillRect(cx, pxY, half, segSize);
+        const rightGrad = ctx.createLinearGradient(cx, cy, pxX + segSize, cy);
+        rightGrad.addColorStop(0, "rgba(0, 153, 255, 0.04)");
+        rightGrad.addColorStop(1, `rgba(0, 153, 255, ${Math.min(1, 0.45 * pulse + waveGlow * 0.3)})`);
+        ctx.fillStyle = rightGrad;
+        ctx.fillRect(cx, pxY, half, segSize);
+      }
 
       // 4. Viền Laser phát quang đa sắc (Crimson bên trái, Cobalt bên phải)
       const borderW = isUltraLow ? 1.0 : (isLow ? 1.6 : 2.2);
@@ -48920,10 +49180,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       ctx.stroke();
 
       // 6. Cánh Chevron Laser V kép hướng xuống sắc nét trên từng đốt
-      const chvConfigs = [
+      const chvConfigs = isUltraLow ? [] : (isLow ? [
+        { spanFrac: 0.85, dropFrac: 0.58, yOff: 0.08, lw: 1.4 }
+      ] : [
         { spanFrac: 0.85, dropFrac: 0.58, yOff: 0.08, lw: 1.5 },
         { spanFrac: 0.55, dropFrac: 0.38, yOff: -0.15, lw: 1.1 }
-      ];
+      ]);
 
       chvConfigs.forEach((cfg) => {
         const chvSpan = half * cfg.spanFrac;
@@ -48996,6 +49258,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
       if (isUltraLow) return;
       const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      if (isLow && index !== 0) return;
+      if (index !== 0 && index % 3 !== 0) return;
 
       const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
       const sparkCount = isLow ? 2 : 4;
@@ -49023,13 +49287,18 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function drawApexLaserHeadCrown(ctx, cx, cy, segSize, timeMs, isCrazy) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
       ctx.save();
       const pulse = 1 + Math.sin(timeMs * 0.005) * 0.09;
       const span = segSize * 1.15 * pulse;
       const drop = segSize * 0.68 * pulse;
 
-      // 3 tầng cánh Laser Chevron hướng xuống vươn rộng
-      for (let layer = 0; layer < 3; layer++) {
+      // Cánh Laser Chevron: 1 tầng ở cấu hình thấp, 3 tầng ở medium/high
+      const crownLayers = isLow ? 1 : 3;
+      for (let layer = 0; layer < crownLayers; layer++) {
         const lSpan = span * (1 - layer * 0.24);
         const lDrop = drop * (1 - layer * 0.24);
         const lY = cy - segSize * 0.28 + layer * 4.2;
@@ -49038,8 +49307,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         // Cánh trái laser hồng crimson
         ctx.strokeStyle = isCrazy ? "#ffff00" : `rgba(255, 0, 85, ${cPulse})`;
         ctx.lineWidth = (layer === 0 ? 2.6 : 1.6);
-        ctx.shadowBlur = 14;
-        ctx.shadowColor = isCrazy ? "#ffd600" : "#ff0055";
+        if (!isLow) {
+          ctx.shadowBlur = 14;
+          ctx.shadowColor = isCrazy ? "#ffd600" : "#ff0055";
+        }
         ctx.beginPath();
         ctx.moveTo(cx - lSpan, lY - lDrop);
         ctx.lineTo(cx, lY);
@@ -49163,16 +49434,23 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (!isUltraLow) {
         ctx.globalCompositeOperation = "lighter";
         const outerR = sunR * (isCrazy ? 1.6 : 1.35) * (1 + pulse);
-        const sunGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, outerR);
-        sunGrad.addColorStop(0, "rgba(255, 255, 245, 0.95)");
-        sunGrad.addColorStop(0.35, "rgba(255, 235, 110, 0.85)");
-        sunGrad.addColorStop(0.65, "rgba(255, 109, 0, 0.5)");
-        sunGrad.addColorStop(0.88, "rgba(255, 23, 68, 0.18)");
-        sunGrad.addColorStop(1, "rgba(213, 0, 0, 0)");
-        ctx.fillStyle = sunGrad;
-        ctx.beginPath();
-        ctx.arc(0, 0, outerR, 0, Math.PI * 2);
-        ctx.fill();
+        if (isLow) {
+          ctx.fillStyle = "rgba(255, 235, 110, 0.35)";
+          ctx.beginPath();
+          ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          const sunGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, outerR);
+          sunGrad.addColorStop(0, "rgba(255, 255, 245, 0.95)");
+          sunGrad.addColorStop(0.35, "rgba(255, 235, 110, 0.85)");
+          sunGrad.addColorStop(0.65, "rgba(255, 109, 0, 0.5)");
+          sunGrad.addColorStop(0.88, "rgba(255, 23, 68, 0.18)");
+          sunGrad.addColorStop(1, "rgba(213, 0, 0, 0)");
+          ctx.fillStyle = sunGrad;
+          ctx.beginPath();
+          ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
 
       // 2. Tia sáng mặt trời tỏa rộng xoay tròn theo thời gian (Rotating Solar Flare Rays)
@@ -56731,6 +57009,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           try {
             if (typeof renderModeLockUI === "function") renderModeLockUI();
             if (typeof initMysteryShopEvents === "function") initMysteryShopEvents();
+            if (typeof setMapSizeConfig === "function") setMapSizeConfig(normalMapSizeSetting || "small");
             if (typeof initMenuDemo === "function") initMenuDemo();
           } catch (e) { }
         }
@@ -58399,7 +58678,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const tier = getGfxTier();
         // Giảm dần trần hạt tối đa và độ dài vệt đuôi: High: 36/32 | Medium: 22/20 | Low: 10/12 | UltraLow: 4/6
         const maxParticles = tier === 3 ? 36 : (tier === 2 ? 22 : (tier === 1 ? 10 : 4));
-        const maxTrailPoints = (mythicType === "apexLaser") ? (tier === 3 ? 48 : (tier === 2 ? 32 : (tier === 1 ? 18 : 10))) : (tier === 3 ? 32 : (tier === 2 ? 20 : (tier === 1 ? 12 : 6)));
+        const maxTrailPoints = (mythicType === "apexLaser") ? (tier === 3 ? 48 : (tier === 2 ? 32 : (tier === 1 ? 8 : 4))) : (tier === 3 ? 32 : (tier === 2 ? 20 : (tier === 1 ? 7 : 4)));
         const spawnChance = tier === 3 ? 0.75 : (tier === 2 ? 0.50 : (tier === 1 ? 0.28 : 0.12));
         const idleTwinkleChance = tier === 3 ? 0.09 : (tier === 2 ? 0.045 : (tier === 1 ? 0.015 : 0));
 
@@ -58718,7 +58997,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
             // 1. NHÓM SKIN ĐA MÀU: HIỆU ỨNG VUỐT CHUỘT GRADIENT
             if (isMulti) {
-              const segGrad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+              if (tier <= 1) {
+                // Tối ưu cấu hình thấp: Dùng strokeColor trực tiếp từ activePalette, loại bỏ LinearGradient
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = activePalette[i % activePalette.length] || activePalette[0];
+                ctx.lineWidth = width * (mythicType === "apexLaser" ? 1.4 : 1.1);
+                ctx.lineCap = "round";
+                ctx.stroke();
+              } else {
+                const segGrad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
 
               if (mythicType === "chromaUnique") {
                 const h1 = (rainbowBaseHue + (1 - age1) * 180) % 360;
@@ -58791,6 +59080,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                 ctx.lineCap = "round";
                 ctx.stroke();
               }
+              } // Kết thúc tier >= 2
 
               // Pass 2: Lõi sợi quang siêu dẫn Laser trắng tinh khiết siêu sáng
               if (tier >= 2) {
@@ -59339,18 +59629,18 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
 
         // Tối ưu hóa hào quang theo mức đồ họa:
-        if (tier === 0) {
-          // Tier 0: Không tạo RadialGradient đắt đỏ mỗi frame; chỉ vẽ vòng viền thanh thoát nếu đang hover
-          if (isHovering) {
+        if (tier <= 1) {
+          // Tier 0 & 1: Không tạo RadialGradient đắt đỏ mỗi frame; vẽ viền tròn mượt mà nếu đang hover hoặc click
+          if (isHovering || isClicking || tier === 1) {
             ctx.strokeStyle = auraColor;
-            ctx.lineWidth = 1.0 * scale;
+            ctx.lineWidth = (tier === 1 ? 1.3 : 1.0) * scale;
             ctx.beginPath();
-            ctx.arc(worm.x, worm.y, 16 * scale, 0, Math.PI * 2);
+            ctx.arc(worm.x, worm.y, (tier === 1 ? 18 : 16) * scale, 0, Math.PI * 2);
             ctx.stroke();
           }
         } else {
           ctx.save();
-          const effR = (tier === 1) ? auraR * 0.65 : ((tier === 2) ? auraR * 0.85 : auraR);
+          const effR = (tier === 2) ? auraR * 0.85 : auraR;
           const auraGrad = ctx.createRadialGradient(worm.x, worm.y, 0, worm.x, worm.y, effR);
           auraGrad.addColorStop(0, auraCenter);
           auraGrad.addColorStop(0.4, auraColor);
@@ -60027,7 +60317,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               ctx.beginPath();
               ctx.arc(0, sY, sunR, Math.PI, 0);
               ctx.closePath();
-              if (tier >= 1) {
+              if (tier >= 2) {
                 const sunGrad = ctx.createRadialGradient(0, sY, 0, 0, sY, sunR);
                 sunGrad.addColorStop(0, isClicking ? "#ffffff" : "#fff9c4");
                 sunGrad.addColorStop(0.4, isClicking ? "#ffff00" : "#ffd54f");
@@ -60098,7 +60388,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               ctx.beginPath();
               ctx.arc(0, thY, crownR, Math.PI, 0);
               ctx.closePath();
-              if (tier >= 1) {
+              if (tier >= 2) {
                 const thGrad = ctx.createRadialGradient(0, thY, 0, 0, thY, crownR);
                 thGrad.addColorStop(0, isClicking ? "#ffffff" : "#fef08a");
                 thGrad.addColorStop(0.35, isClicking ? "#fde047" : "#38bdf8");
@@ -60165,7 +60455,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                 // 2. Cánh Laser Điện Quang phóng nhọn về phía trước (+X)
                 const apexSpan = half * 1.15;
                 const apexReach = half * 0.85;
-                for (let layer = 0; layer < 3; layer++) {
+                const shieldLayers = (tier <= 1) ? 1 : 3;
+                for (let layer = 0; layer < shieldLayers; layer++) {
                   const lSpan = apexSpan * (1 - layer * 0.22);
                   const lReach = apexReach * (1 - layer * 0.22);
                   const lBaseX = fwdBaseX + layer * 2.0 * scale;
@@ -60196,7 +60487,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                 const apexReach = half * 1.15;
 
                 // 1. Cánh Laser mở rộng cực đại rực lửa vàng kim & đỏ hồng phóng nhọn về phía trước (+X)
-                for (let layer = 0; layer < 3; layer++) {
+                const crazyLayers = (tier <= 1) ? 1 : 3;
+                for (let layer = 0; layer < crazyLayers; layer++) {
                   const lSpan = apexSpan * (1 - layer * 0.2);
                   const lReach = apexReach * (1 - layer * 0.2);
                   const lBaseX = fwdBaseX + layer * 2.4 * scale;
@@ -60257,13 +60549,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                 ctx.save();
                 ctx.globalCompositeOperation = "lighter";
                 const streakH = 40 * scale;
-                const flareGrad = ctx.createLinearGradient(0, -streakH, 0, streakH);
-                flareGrad.addColorStop(0, "transparent");
-                flareGrad.addColorStop(0.3, "rgba(255, 214, 0, 0.75)");
-                flareGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.98)");
-                flareGrad.addColorStop(0.7, "rgba(255, 0, 85, 0.75)");
-                flareGrad.addColorStop(1, "transparent");
-                ctx.strokeStyle = flareGrad;
+                if (tier >= 2) {
+                  const flareGrad = ctx.createLinearGradient(0, -streakH, 0, streakH);
+                  flareGrad.addColorStop(0, "transparent");
+                  flareGrad.addColorStop(0.3, "rgba(255, 214, 0, 0.75)");
+                  flareGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.98)");
+                  flareGrad.addColorStop(0.7, "rgba(255, 0, 85, 0.75)");
+                  flareGrad.addColorStop(1, "transparent");
+                  ctx.strokeStyle = flareGrad;
+                } else {
+                  ctx.strokeStyle = "rgba(255, 214, 0, 0.75)";
+                }
                 ctx.lineWidth = 1.6 * scale;
                 ctx.beginPath();
                 ctx.moveTo(fwdBaseX + 3.0 * scale, -streakH);
@@ -60281,9 +60577,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                 const apexSpan = half * 1.10;
                 const apexReach = half * 0.85;
 
-                // 3 tầng cánh laser chevron hướng mũi nhọn tiến về phía trước (+X)
+                // Cánh laser chevron hướng mũi nhọn tiến về phía trước (+X) (1 tầng ở low, 3 tầng ở high)
                 // Cánh trái (-Y): Crimson #ff0055 | Cánh phải (+Y): Cobalt #0099ff
-                for (let layer = 0; layer < 3; layer++) {
+                const normLayers = (tier <= 1) ? 1 : 3;
+                for (let layer = 0; layer < normLayers; layer++) {
                   const lSpan = apexSpan * (1 - layer * 0.22);
                   const lReach = apexReach * (1 - layer * 0.22);
                   const lBaseX = fwdBaseX + layer * 2.2 * scale;
@@ -60337,13 +60634,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                 ctx.save();
                 ctx.globalCompositeOperation = "lighter";
                 const streakH = 28 * scale;
-                const flareGrad = ctx.createLinearGradient(0, -streakH, 0, streakH);
-                flareGrad.addColorStop(0, "transparent");
-                flareGrad.addColorStop(0.3, "rgba(255, 0, 85, 0.7)");
-                flareGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.98)");
-                flareGrad.addColorStop(0.7, "rgba(0, 153, 255, 0.7)");
-                flareGrad.addColorStop(1, "transparent");
-                ctx.strokeStyle = flareGrad;
+                if (tier >= 2) {
+                  const flareGrad = ctx.createLinearGradient(0, -streakH, 0, streakH);
+                  flareGrad.addColorStop(0, "transparent");
+                  flareGrad.addColorStop(0.3, "rgba(255, 0, 85, 0.7)");
+                  flareGrad.addColorStop(0.5, "rgba(255, 255, 255, 0.98)");
+                  flareGrad.addColorStop(0.7, "rgba(0, 153, 255, 0.7)");
+                  flareGrad.addColorStop(1, "transparent");
+                  ctx.strokeStyle = flareGrad;
+                } else {
+                  ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
+                }
                 ctx.lineWidth = 1.2 * scale;
                 ctx.beginPath();
                 ctx.moveTo(fwdBaseX + 2.5 * scale, -streakH);
