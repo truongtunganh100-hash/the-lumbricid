@@ -7778,6 +7778,117 @@
     }
 
     /* TWILIGHT HORIZON 🌆✨ (EPIC - MÀN ĐÊM TỐI KHÓ) */
+    /* MINT CLOUD ☁️🌈🎈 (RARE - MÂY BẠC HÀ & CẦU VỒNG PASTEL) */
+    /* MINT CLOUD ☁️🌈🎈 (RARE - ĐỂ MẶC ĐỊNH BÌNH THƯỜNG THEO YÊU CẦU NGƯỜI DÙNG) */
+    .skin-preview-stage.stage-mintcloud {
+      border: 2px solid rgba(255, 255, 255, 0.18) !important;
+      background: radial-gradient(ellipse at 50% 60%, rgba(35, 12, 35, 0.9) 0%, rgba(10, 4, 14, 0.98) 100%) !important;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.85), 0 10px 28px rgba(0, 0, 0, 0.55) !important;
+      animation: none !important;
+    }
+    .skin-card.skin-card-mintcloud {
+      /* Để thẻ bình thường như các skin chuẩn khác */
+      background: linear-gradient(135deg, rgba(35, 14, 25, 0.8) 0%, rgba(14, 6, 12, 0.88) 100%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+      animation: none !important;
+    }
+    .skin-card.skin-card-mintcloud::before {
+      display: none !important;
+    }
+    .skin-card.skin-card-mintcloud .card-skin-name,
+    .skin-card.skin-card-mintcloud .skin-name {
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+      color: #ffffff !important;
+      animation: none !important;
+      text-shadow: none !important;
+      font-weight: 700 !important;
+    }
+
+    /* CHROMA VORTEX 🌀✨🌈 (EPIC - VÒNG XOÁY QUANG PHỔ PINWHEEL NEON) */
+    .skin-preview-stage.stage-chromavortex {
+      border-color: transparent !important;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(10, 2, 18, 0.98) 0%, rgba(4, 1, 10, 0.99) 100%) padding-box,
+        conic-gradient(from 0deg at 50% 50%, #00f5d4, #4361ee, #7209b7, #f72585, #ff4d6d, #ff7b00, #ffaa00, #00f5d4) border-box;
+      border: 3px solid transparent;
+      animation: chromaVortexStagePulse 3.5s linear infinite;
+      box-shadow: 0 0 35px rgba(247, 37, 133, 0.45), 0 0 65px rgba(0, 245, 212, 0.35), inset 0 0 35px rgba(0, 0, 0, 0.9);
+    }
+
+    @keyframes chromaVortexStagePulse {
+      0% {
+        box-shadow: 0 0 25px rgba(0, 245, 212, 0.5), 0 0 50px rgba(247, 37, 133, 0.35), inset 0 0 35px rgba(0, 0, 0, 0.9);
+      }
+      50% {
+        box-shadow: 0 0 45px rgba(255, 123, 0, 0.55), 0 0 75px rgba(114, 9, 183, 0.45), inset 0 0 45px rgba(0, 0, 0, 0.9);
+      }
+      100% {
+        box-shadow: 0 0 25px rgba(0, 245, 212, 0.5), 0 0 50px rgba(247, 37, 133, 0.35), inset 0 0 35px rgba(0, 0, 0, 0.9);
+      }
+    }
+
+    .skin-card.skin-card-chromavortex {
+      background:
+        linear-gradient(135deg, rgba(10, 2, 18, 0.95), rgba(20, 5, 30, 0.92)) padding-box,
+        conic-gradient(from 0deg, #00f5d4, #4361ee, #7209b7, #f72585, #ff4d6d, #ff7b00, #ffaa00, #00f5d4) border-box;
+      border: 2px solid transparent;
+      animation: chromaVortexCardGlow 3.0s ease-in-out infinite alternate;
+    }
+
+    .skin-card.skin-card-chromavortex::before {
+      content: "🌀";
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 11px;
+      line-height: 1;
+      filter: drop-shadow(0 0 4px #00f5d4);
+      z-index: 2;
+    }
+
+    .skin-card.skin-card-chromavortex .skin-name {
+      background: linear-gradient(90deg, #00f5d4, #f72585, #ffaa00, #00f5d4);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: chromaVortexNameFlow 3.5s linear infinite;
+      font-weight: 800;
+    }
+
+    @keyframes chromaVortexCardGlow {
+      0% {
+        box-shadow: 0 0 12px rgba(0, 245, 212, 0.4), 0 0 24px rgba(247, 37, 133, 0.3);
+      }
+      100% {
+        box-shadow: 0 0 22px rgba(255, 123, 0, 0.55), 0 0 38px rgba(114, 9, 183, 0.45);
+      }
+    }
+
+    @keyframes chromaVortexNameFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    /* PRISM NEBULA 🌈✨🌌 (MYTHIC - LĂNG KÍNH TINH VÂN QUANG PHỔ) */
+    /* PRISM NEBULA 🌈✨🌌 (MYTHIC - THIẾT KẾ SANG TRỌNG, THẨM MỸ, NỀN BOKEH ĐÊM HUYỀN DIỆU CHUẨN ẢNH 1) */
+    .skin-preview-stage.stage-prismnebula {
+      border: 1.5px solid rgba(255, 220, 130, 0.35) !important;
+      background: radial-gradient(ellipse at 50% 30%, #061124 0%, #030814 70%, #01040a 100%) !important;
+      border-radius: 14px !important;
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.95), 0 10px 30px rgba(0, 0, 0, 0.75), 0 0 20px rgba(255, 215, 100, 0.12) !important;
+      animation: none !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    .stage-prismnebula .stage-hologram-grid {
+      display: none !important;
+    }
+    .stage-prismnebula .stage-ambient-glow {
+      display: none !important;
+    }
+
     /* TWILIGHT HORIZON 🌆✨🌌 (MYTHIC - THẮNG BOSS RUSH INSANE) */
     .skin-preview-stage.stage-twilighthorizon {
       border-color: transparent !important;
@@ -16807,10 +16918,16 @@
             </svg>
           </span>
           <div class="boss-text-group">
-            <span class="boss-btn-text">BOSS RUSH</span>
+            <span class="boss-btn-text">QUYẾT ĐẤU BOSS</span>
             <span class="boss-btn-sub">⚔️ TRUY SÁT SINH TỒN ⚔️</span>
           </div>
         </button>
+        <div class="mode-lock-info zoom-rotate-item" id="mode-lock-race">
+          <div class="mode-lock-track">
+            <div class="mode-lock-fill" id="mode-lock-fill-race"></div>
+          </div>
+          <div class="mode-lock-text" id="mode-lock-text-race"></div>
+        </div>
         <button id="nav-endless" class="menu-btn zoom-rotate-item">🚀 Tăng Tốc Vô Tận</button>
         <div class="mode-lock-info zoom-rotate-item" id="mode-lock-endless">
           <div class="mode-lock-track">
@@ -19444,6 +19561,22 @@
     }
 
     function enterFullscreenAndLandscapeOnPhone() {
+      // SỬA LỖI ĐỂ DỌC MÀN HÌNH ĐIỆN THOẠI:
+      // Nếu người chơi đang để dọc màn hình: TUYỆT ĐỐI không xoay ngang hay khóa landscape
+      if (typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait()) {
+        try {
+          if (screen.orientation && typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
+          }
+        } catch (_) { }
+        return;
+      }
+
+      // Chỉ xoay hoặc giữ landscape khi thiết bị đã đang ở chế độ nằm ngang
+      if (typeof window !== "undefined" && window.innerWidth < window.innerHeight) {
+        return;
+      }
+
       let fsPromise = null;
       try {
         const el = document.documentElement;
@@ -19460,6 +19593,8 @@
       } catch (err) { }
 
       const lockLandscape = () => {
+        if (typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait()) return;
+        if (typeof window !== "undefined" && window.innerWidth < window.innerHeight) return;
         try {
           if (screen.orientation && typeof screen.orientation.lock === "function") {
             screen.orientation.lock("landscape").catch(() => {
@@ -19477,20 +19612,20 @@
         } catch (e) { }
       };
 
-      lockLandscape();
+      if (typeof window !== "undefined" && window.innerWidth >= window.innerHeight) {
+        lockLandscape();
+      }
 
       if (fsPromise && typeof fsPromise.then === "function") {
         fsPromise.then(() => {
-          lockLandscape();
+          if (typeof window !== "undefined" && window.innerWidth >= window.innerHeight) lockLandscape();
           setTimeout(() => {
-            lockLandscape();
             if (typeof applyCanvasResolution === "function") applyCanvasResolution();
             if (typeof refreshDpadRect === "function") refreshDpadRect();
           }, 80);
         }).catch(() => {});
       } else {
         setTimeout(() => {
-          lockLandscape();
           if (typeof applyCanvasResolution === "function") applyCanvasResolution();
           if (typeof refreshDpadRect === "function") refreshDpadRect();
         }, 120);
@@ -19507,8 +19642,20 @@
         document.removeEventListener(evt, handleFirstTouchAutoFullscreen, true);
       });
 
+      // Nếu đang để dọc màn hình trên điện thoại: Không khóa ngang, mở khóa orientation
+      if (typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait()) {
+        try {
+          if (screen.orientation && typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
+          }
+        } catch (_) { }
+        return;
+      }
+
       if (isMobilePhone()) {
-        enterFullscreenAndLandscapeOnPhone();
+        if (typeof window !== "undefined" && window.innerWidth >= window.innerHeight) {
+          enterFullscreenAndLandscapeOnPhone();
+        }
       } else {
         try {
           if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -19529,8 +19676,27 @@
     });
 
     function enterImmersiveMode() {
+      // SỬA LỖI ĐỂ DỌC MÀN HÌNH VÀO VÁN GAME BỊ XOAY NGANG:
+      // Khi người chơi đang để dọc điện thoại: Tuyệt đối giữ nguyên màn hình dọc
+      // Không ép toàn màn hình xoay ngang, mở khóa orientation để màn hình tự do theo chiều dọc
+      if (typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait()) {
+        try {
+          if (screen.orientation && typeof screen.orientation.unlock === "function") {
+            screen.orientation.unlock();
+          }
+        } catch (_) { }
+        setTimeout(() => {
+          if (typeof applyCanvasResolution === "function") applyCanvasResolution();
+          if (typeof refreshDpadRect === "function") refreshDpadRect();
+        }, 60);
+        return;
+      }
+
       if (isMobilePhone()) {
-        enterFullscreenAndLandscapeOnPhone();
+        // Chỉ vào fullscreen landscape nếu thiết bị đang nằm ngang
+        if (typeof window !== "undefined" && window.innerWidth >= window.innerHeight) {
+          enterFullscreenAndLandscapeOnPhone();
+        }
       } else {
         try {
           if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -19572,15 +19738,17 @@
       if (typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled) {
         return true;
       }
-      const isMobile = isMobileDevice ||
+      const isMobile = (typeof isMobileDevice !== "undefined" && isMobileDevice) ||
+        (typeof isMobilePhone === "function" && isMobilePhone()) ||
         (typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent)) ||
         (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && Math.max(window.innerWidth, window.innerHeight) <= 1366);
       if (!isMobile) return false;
 
-      const isPortrait = window.innerHeight > window.innerWidth ||
-        (window.matchMedia && window.matchMedia("(orientation: portrait)").matches);
+      const isPortrait = window.innerHeight >= window.innerWidth ||
+        (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(orientation: portrait)").matches) ||
+        (typeof screen !== "undefined" && screen.orientation && screen.orientation.type && screen.orientation.type.startsWith("portrait"));
 
-      return isPortrait;
+      return !!isPortrait;
     }
 
     function showOrientationPrompt() {
@@ -23078,6 +23246,7 @@
       if (typeof bossJsbScreenSweepers !== "undefined") bossJsbScreenSweepers = [];
       if (typeof bossJsbSaws !== "undefined") bossJsbSaws = [];
       if (typeof bossJsbBarrageBullets !== "undefined") bossJsbBarrageBullets = [];
+      if (typeof bossJsbSafeLanes !== "undefined") bossJsbSafeLanes = [];
       if (typeof bossJsbRhythmExpanders !== "undefined") bossJsbRhythmExpanders = [];
       if (typeof bossJsbHazardWalls !== "undefined") bossJsbHazardWalls = [];
       if (typeof bossJsbHomingSaws !== "undefined") bossJsbHomingSaws = [];
@@ -23741,6 +23910,10 @@
     if (navRaceEl) {
       navRaceEl.addEventListener("click", () => {
         initAudio();
+        if (!isModeUnlocked("race")) {
+          shakeLockedModeBtn("race");
+          return;
+        }
         playSound("click");
         selectRaceDifficulty(raceDifficulty || "normal");
         showOnlyPanel(panelRace);
@@ -23811,6 +23984,7 @@
     });
 
     function startTsunamiMode() {
+      currentRunTsunamiGatesPassed = 0;
       if (!pendingTsunamiDifficultyChoice) pendingTsunamiDifficultyChoice = "normal";
       resetAllGameModeFlags();
       enterImmersiveMode();
@@ -25861,6 +26035,7 @@
     let bossJsbScreenSweepers = [];    // 2. Tia quét & Tường đạn từ mép màn hình
     let bossJsbSaws = [];              // 3. Bánh cưa huyết gai xoay neon
     let bossJsbBarrageBullets = [];    // 4. Loạt đạn nhịp điệu bay từ mép màn hình
+    let bossJsbSafeLanes = [];         // 4.1. Làn né an toàn cảnh báo nhịp điệu
     let bossJsbRhythmExpanders = [];   // 5. Vòng xung kích nhịp điệu mở rộng: { x, y, radius, maxRadius, speed, warnTimer, maxWarnTimer, fired, safeGapAngle, safeGapWidth, life }
     let bossJsbHazardWalls = [];       // 6. Tường đạn quét nhịp điệu có khe né: { y, vy, dir, height, blocks: [{ x, w }], life }
     let bossJsbHomingSaws = [];        // 7. Bánh cưa xoay tầm nhiệt nhả mìn: { x, y, vx, vy, radius, angle, rotSpeed, mineDropTimer, life }
@@ -26068,6 +26243,7 @@
       bossJsbScreenSweepers = [];
       bossJsbSaws = [];
       bossJsbBarrageBullets = [];
+      bossJsbSafeLanes = [];
       bossJsbRhythmExpanders = [];
       bossJsbHazardWalls = [];
       bossJsbHomingSaws = [];
@@ -26863,8 +27039,18 @@
       if (!worm.body || !worm.body[0]) return;
       const head = worm.body[0];
       const isInsane = (isRaceMode || currentDifficulty === "race") ? (raceDifficulty === "insane") : (currentDifficulty === "insane");
-      const totalWaves = isInsane ? 4 : 3;
+      const totalWaves = isInsane ? 6 : 5;
       const currentSession = bossRushSessionId;
+
+      // Chuỗi khe né an toàn nhịp điệu luân phiên mượt mà, người chơi cực kỳ dễ đoán
+      const patternCols = [
+        Math.floor(cols * 0.5),
+        Math.floor(cols * 0.28),
+        Math.floor(cols * 0.72),
+        Math.floor(cols * 0.42),
+        Math.floor(cols * 0.60),
+        Math.floor(cols * 0.50)
+      ];
 
       for (let w = 0; w < totalWaves; w++) {
         setTimeout(() => {
@@ -26872,25 +27058,46 @@
           if (!worm.body || !worm.body[0]) return;
           const curHead = worm.body[0];
 
-          const colOffset = (w - (totalWaves - 1) / 2) * 3.2;
-          const sx = Math.max(2, Math.min(cols - 3, curHead.x + colOffset));
-          const sy = (curHead.y - 15) * gridSize;
+          // Chọn khe an toàn nhịp nhàng
+          const safeCol = patternCols[w % patternCols.length];
+          const safeRadius = isInsane ? 2.0 : 2.5;
 
-          const bulletColor = w % 2 === 0 ? "#ff007f" : "#00f2fe";
-          bossJsbBarrageBullets.push({
-            x: sx * gridSize,
-            y: sy,
-            vx: (Math.random() - 0.5) * 45,
-            vy: 145 + Math.random() * 30,
-            radius: gridSize * 0.72,
-            color: bulletColor,
-            life: 5.0
+          // Đăng ký làn an toàn để hệ thống vẽ tia cảnh báo và vùng trống an toàn
+          bossJsbSafeLanes.push({
+            col: safeCol,
+            radiusCols: safeRadius,
+            life: 2.2,
+            maxLife: 2.2,
+            color: "#00f2fe"
           });
+
+          // Màu đạn luân phiên neon rực rỡ, độ tương phản cực cao
+          const waveColors = ["#ff007f", "#00f2fe", "#ffd600", "#ff007f", "#00f2fe", "#d500f9"];
+          const bulletColor = waveColors[w % waveColors.length];
+          const skyY = (curHead.y - 16) * gridSize;
+          const stepCol = isInsane ? 1.25 : 1.45;
+
+          // Rải đạn khắp bề ngang đấu trường nhưng chừa đúng khe an toàn rộng rãi
+          for (let c = 1.5; c <= cols - 1.5; c += stepCol) {
+            if (Math.abs(c - safeCol) < safeRadius) continue; // Khe an toàn đảm bảo không dính đạn
+
+            bossJsbBarrageBullets.push({
+              x: c * gridSize,
+              y: skyY,
+              vx: 0, // Tuyệt đối không rung lắc ngẫu nhiên - rơi thẳng đứng 100% dễ đoán
+              vy: isInsane ? 180 : 155, // Tốc độ đạn chuẩn mực, người chơi nhìn rõ và né dễ dàng
+              radius: gridSize * 0.62,
+              color: bulletColor,
+              life: 5.5,
+              isWaterfall: false
+            });
+          }
+
           playSound("pew");
-        }, w * 280);
+        }, w * 320);
       }
-      screenShake = 15;
-      showBossRushBanner("⚡ [BARRAGE] ĐẠN NHỊP RƠI TỪ BẦU TRỜI! DỄ DÀNG QUAN SÁT VÀ NÉ!", "#00f2fe");
+      screenShake = 16;
+      showBossRushBanner("⚡ [BARRAGE] ĐẠN NHỊP RƠI TỪ BẦU TRỜI! THEO DÕI TIA DẪN HƯỚNG VÀ NÉ! ⚡", "#00f2fe");
     }
 
     // 1. CHIÊU MỚI ĐẶC QUYỀN CHẾ ĐỘ KHÓ: SIÊU CẦU NĂNG LƯỢNG HOA THỊ JSAB (Mega Nova Blast Sphere)
@@ -26909,7 +27116,7 @@
           type: "cluster_nova",
           x: targetX,
           y: startY,
-          vx: (Math.random() - 0.5) * 30,
+          vx: 0,
           vy: 95,
           radius: gridSize * 1.5,
           baseRadius: gridSize * 1.5,
@@ -26931,8 +27138,8 @@
       if (!worm.body || !worm.body[0]) return;
       const head = worm.body[0];
       const isInsane = (isRaceMode || currentDifficulty === "race") ? (raceDifficulty === "insane") : (currentDifficulty === "insane");
-      const totalSteps = isInsane ? 22 : 16;
-      const intervalMs = 60;
+      const totalSteps = isInsane ? 28 : 22;
+      const intervalMs = 65;
       const currentSession = bossRushSessionId;
       const centerX = Math.max(4, Math.min(cols - 5, head.x)) * gridSize;
       const skyY = (head.y - 16) * gridSize;
@@ -26942,30 +27149,30 @@
         setTimeout(() => {
           if (bossRushSessionId !== currentSession || !bossRush.active || bossRush.defeated || gameOver || gameWin) return;
           if (!worm.body || !worm.body[0]) return;
-          const theta = s * 0.42;
+          const theta = s * 0.38;
           const offsetX1 = Math.sin(theta) * amp;
           const offsetX2 = -Math.sin(theta) * amp;
 
-          // Luồng đạn 1 (Hồng Neon)
+          // Luồng đạn 1 (Hồng Neon) - quỹ đạo sóng sin đối xứng hài hòa
           bossJsbBarrageBullets.push({
             x: centerX + offsetX1,
             y: skyY - (s * 3),
-            vx: Math.cos(theta) * 35,
-            vy: isInsane ? 190 : 165,
-            radius: gridSize * 0.72,
+            vx: Math.cos(theta) * (isInsane ? 28 : 22),
+            vy: isInsane ? 180 : 155,
+            radius: gridSize * 0.65,
             color: "#ff007f",
-            life: 4.5
+            life: 5.0
           });
 
           // Luồng đạn 2 (Xanh Điện Cyan)
           bossJsbBarrageBullets.push({
             x: centerX + offsetX2,
             y: skyY - (s * 3),
-            vx: -Math.cos(theta) * 35,
-            vy: isInsane ? 190 : 165,
-            radius: gridSize * 0.72,
+            vx: -Math.cos(theta) * (isInsane ? 28 : 22),
+            vy: isInsane ? 180 : 155,
+            radius: gridSize * 0.65,
             color: "#00f2fe",
-            life: 4.5
+            life: 5.0
           });
 
           if (s % 3 === 0) playSound("pew");
@@ -26974,7 +27181,7 @@
 
       screenShake = 18;
       playSound("shield");
-      showBossRushBanner("🌀 [HELIX BEAT] DẢI BÓNG ĐẠN XOẮN KÉP JSAB QUÉT TOÀN ĐƯỜNG ĐUA! ⚡", "#00f2fe");
+      showBossRushBanner("🌀 [HELIX BEAT] DẢI SÓNG BÓNG ĐẠN XOẮN KÉP JSAB! QUAN SÁT TÂM ĐỐI XỨNG! ⚡", "#00f2fe");
     }
 
     // 3. CHIÊU MỚI ĐẶC QUYỀN CHẾ ĐỘ KHÓ: THÁC ĐẠN DIỆN RỘNG NGUYÊN TỬ (Atomic Waterfall Curtain)
@@ -26982,11 +27189,11 @@
       if (!worm.body || !worm.body[0]) return;
       const head = worm.body[0];
       const isInsane = (isRaceMode || currentDifficulty === "race") ? (raceDifficulty === "insane") : (currentDifficulty === "insane");
-      const waves = isInsane ? 6 : 4;
-      const waveIntervalMs = 280;
+      const waves = isInsane ? 6 : 5;
+      const waveIntervalMs = 320;
       const currentSession = bossRushSessionId;
 
-      let currentSafeCol = Math.max(3, Math.min(cols - 4, Math.round(head.x)));
+      let currentSafeCol = Math.max(3.5, Math.min(cols - 3.5, Math.round(head.x)));
 
       for (let w = 0; w < waves; w++) {
         setTimeout(() => {
@@ -26994,24 +27201,35 @@
           if (!worm.body || !worm.body[0]) return;
           const curHead = worm.body[0];
 
-          const shift = (Math.random() < 0.5 ? -1 : 1) * (2 + Math.floor(Math.random() * 2));
-          currentSafeCol = Math.max(3, Math.min(cols - 4, currentSafeCol + shift));
+          // Dịch chuyển khe an toàn nhịp nhàng có thể đoán trước
+          const shift = (w % 2 === 0 ? -1.8 : 1.8);
+          currentSafeCol = Math.max(3.5, Math.min(cols - 3.5, currentSafeCol + shift));
 
-          const safeGapRadiusCols = isInsane ? 1.6 : 2.4;
-          const skyY = (curHead.y - 15) * gridSize;
+          const safeGapRadiusCols = isInsane ? 2.2 : 2.8;
+          const skyY = (curHead.y - 16) * gridSize;
+          const stepCol = isInsane ? 1.05 : 1.25;
 
-          for (let c = 2; c <= cols - 2; c += 1.5) {
+          // Đăng ký làn an toàn
+          bossJsbSafeLanes.push({
+            col: currentSafeCol,
+            radiusCols: safeGapRadiusCols,
+            life: 2.2,
+            maxLife: 2.2,
+            color: "#00f2fe"
+          });
+
+          for (let c = 1.2; c <= cols - 1.2; c += stepCol) {
             if (Math.abs(c - currentSafeCol) < safeGapRadiusCols) continue; // Khe an toàn nhịp điệu
 
             bossJsbBarrageBullets.push({
               x: c * gridSize,
-              y: skyY - Math.random() * 15,
-              vx: (Math.random() - 0.5) * 15,
-              vy: isInsane ? 280 : 230,
-              radius: gridSize * 0.72,
+              y: skyY,
+              vx: 0, // Đạn thác rơi thẳng đứng hoàn hảo, không lệch vào khe né
+              vy: isInsane ? 205 : 175, // Tốc độ thác mượt mà, kịp quan sát và lách qua
+              radius: gridSize * 0.60,
               color: w % 2 === 0 ? "#ff007f" : "#00f2fe",
               isWaterfall: true,
-              life: 4.0
+              life: 4.5
             });
           }
 
@@ -27020,7 +27238,7 @@
         }, w * waveIntervalMs);
       }
 
-      showBossRushBanner("🌊 [WATERFALL] THÁC MƯA ĐẠN DIỆN RỘNG DỘI XUỐNG! LUỒN VÀO KHE TRỐNG! ⚡", "#00f2fe");
+      showBossRushBanner("🌊 [WATERFALL] THÁC ĐẠN NGUYÊN TỬ DỘI XUỐNG! LUỒN VÀO LÀN AN TOÀN! ⚡", "#00f2fe");
     }
 
     // 4. CHIÊU MỚI ĐẶC QUYỀN CHẾ ĐỘ KHÓ: VÒNG SÓNG XUNG KÍCH NHỊP ĐIỆU CO NỞ (Expanding Rhythm Shockwave Rings)
@@ -27958,13 +28176,29 @@
         }
       }
 
+      // Cập nhật làn né an toàn
+      if (typeof bossJsbSafeLanes !== "undefined" && bossJsbSafeLanes.length > 0) {
+        for (let si = bossJsbSafeLanes.length - 1; si >= 0; si--) {
+          bossJsbSafeLanes[si].life -= dt;
+          if (bossJsbSafeLanes[si].life <= 0) {
+            bossJsbSafeLanes.splice(si, 1);
+          }
+        }
+      }
+
       for (let i = bossJsbBarrageBullets.length - 1; i >= 0; i--) {
         const b = bossJsbBarrageBullets[i];
         b.life -= dt;
         b.x += b.vx * dt;
         b.y += b.vy * dt;
 
-        if (Math.hypot(head.x * gridSize - b.x, head.y * gridSize - b.y) < b.radius + gridSize * 0.65) {
+        // Tính khoảng cách tâm đầu giun chính xác
+        const headPxX = (head.x + 0.5) * gridSize;
+        const headPxY = (head.y + 0.5) * gridSize;
+        const distHead = Math.hypot(headPxX - b.x, headPxY - b.y);
+        const bHitRadius = (b.radius || gridSize * 0.6) * 0.72 + gridSize * 0.28;
+
+        if (distHead < bHitRadius) {
           const hitName = b.isWaterfall ? "THÁC ĐẠN NGUYÊN TỬ" : "MƯA ĐẠN NGUYÊN TỬ";
           if (dashPunchTimer > 0) {
             onPlayerPerfectDashGraze(b.x, b.y, hitName);
@@ -27975,7 +28209,7 @@
           continue;
         }
 
-        const bBodyHit = checkProjectileHitsWormBody(b.x, b.y, b.radius);
+        const bBodyHit = checkProjectileHitsWormBody(b.x, b.y, (b.radius || gridSize * 0.6) * 0.7);
         if (bBodyHit.hit) {
           const hitName = b.isWaterfall ? "THÁC ĐẠN NGUYÊN TỬ" : "MƯA ĐẠN NGUYÊN TỬ";
           if (dashPunchTimer > 0) {
@@ -27987,7 +28221,8 @@
           continue;
         }
 
-        if (b.life <= 0 || b.x < -gridSize * 4 || b.x > (cols + 4) * gridSize) {
+        // Culling đạn khi bay quá màn hình hoặc hết thời gian sống
+        if (b.life <= 0 || b.x < -gridSize * 4 || b.x > (cols + 4) * gridSize || b.y > (head.y + 22) * gridSize) {
           bossJsbBarrageBullets.splice(i, 1);
         }
       }
@@ -29886,24 +30121,153 @@
         targetCtx.restore();
       }
 
+      // 4.1. VÙNG AN TOÀN & TIA CHỈ DẪN LÀN ĐẠN RƠI (LANE TELEGRAPH & SAFE ZONES)
+      if (typeof bossJsbSafeLanes !== "undefined" && bossJsbSafeLanes.length > 0 && worm.body && worm.body[0]) {
+        targetCtx.save();
+        const vH = getViewH();
+        for (let si = 0; si < bossJsbSafeLanes.length; si++) {
+          const sl = bossJsbSafeLanes[si];
+          const minX = (sl.col - sl.radiusCols) * gridSize;
+          const maxX = (sl.col + sl.radiusCols) * gridSize;
+          const slW = maxX - minX;
+          const alphaRatio = Math.max(0, Math.min(1, sl.life / (sl.maxLife || 2.0)));
+          const pulse = 0.5 + 0.5 * Math.sin(now * 0.015);
+
+          // Vùng hào quang an toàn dịu mắt
+          targetCtx.fillStyle = "rgba(0, 242, 254, " + (0.07 * alphaRatio) + ")";
+          targetCtx.fillRect(minX, infiniteCamY, slW, vH);
+
+          // Hai vạch ranh giới neon xanh ngọc phát sáng phân định rõ ràng
+          targetCtx.strokeStyle = "rgba(0, 255, 170, " + ((0.45 + pulse * 0.35) * alphaRatio) + ")";
+          targetCtx.lineWidth = 2.0;
+          targetCtx.setLineDash([8, 6]);
+          targetCtx.beginPath();
+          targetCtx.moveTo(minX, infiniteCamY);
+          targetCtx.lineTo(minX, infiniteCamY + vH);
+          targetCtx.moveTo(maxX, infiniteCamY);
+          targetCtx.lineTo(maxX, infiniteCamY + vH);
+          targetCtx.stroke();
+          targetCtx.setLineDash([]);
+
+          // Nhãn chỉ dẫn "🛡️ LÀN AN TOÀN 🛡️" ở mép trên
+          const midX = (minX + maxX) / 2;
+          const tagY = infiniteCamY + 44;
+          targetCtx.fillStyle = "rgba(0, 40, 30, " + (0.75 * alphaRatio) + ")";
+          targetCtx.fillRect(midX - 55, tagY - 9, 110, 18);
+          targetCtx.strokeStyle = "rgba(0, 255, 170, " + (0.8 * alphaRatio) + ")";
+          targetCtx.lineWidth = 1.0;
+          targetCtx.strokeRect(midX - 55, tagY - 9, 110, 18);
+
+          targetCtx.font = "bold 11px 'Rajdhani', 'Segoe UI', sans-serif";
+          targetCtx.textAlign = "center";
+          targetCtx.textBaseline = "middle";
+          targetCtx.fillStyle = "rgba(100, 255, 218, " + (0.95 * alphaRatio) + ")";
+          targetCtx.fillText("🛡️ LÀN AN TOÀN 🛡️", midX, tagY);
+        }
+        targetCtx.restore();
+      }
+
       if (bossJsbBarrageBullets.length > 0) {
         targetCtx.save();
+        const vH = getViewH();
+        const headY = worm.body && worm.body[0] ? worm.body[0].y * gridSize : 0;
+        const nowMs = now;
+
+        // 4.2. VẼ TIA LAZE CHỈ DẪN DỌC TRƯỚC LÀN ĐẠN RƠI (VERTICAL DROP LANE GUIDES)
+        // Thu thập các cột đạn đang lao xuống để vẽ tia laser dẫn hướng thanh mảnh, tinh tế
+        const activeCols = new Map();
+        for (let i = 0; i < bossJsbBarrageBullets.length; i++) {
+          const b = bossJsbBarrageBullets[i];
+          if (b.vy > 50 && b.y < headY + 12 * gridSize) {
+            const laneKey = Math.round(b.x / (gridSize * 0.5)) * (gridSize * 0.5);
+            if (!activeCols.has(laneKey)) {
+              activeCols.set(laneKey, b.color || "#ff007f");
+            }
+          }
+        }
+
+        if (activeCols.size > 0 && activeCols.size <= 24) {
+          activeCols.forEach((color, lx) => {
+            const isCyan = color === "#00f2fe";
+            const colPulse = 0.5 + 0.5 * Math.sin(nowMs * 0.01 + lx * 0.1);
+
+            // Dải ánh sáng dẫn hướng mờ
+            targetCtx.fillStyle = isCyan
+              ? "rgba(0, 242, 254, " + (0.05 + colPulse * 0.04) + ")"
+              : "rgba(255, 0, 127, " + (0.05 + colPulse * 0.04) + ")";
+            targetCtx.fillRect(lx - gridSize * 0.35, infiniteCamY, gridSize * 0.7, vH);
+
+            // Tia laze trung tâm nét đứt tinh xảo
+            targetCtx.strokeStyle = isCyan
+              ? "rgba(0, 242, 254, " + (0.22 + colPulse * 0.18) + ")"
+              : "rgba(255, 0, 127, " + (0.22 + colPulse * 0.18) + ")";
+            targetCtx.lineWidth = 1.0;
+            targetCtx.setLineDash([4, 8]);
+            targetCtx.beginPath();
+            targetCtx.moveTo(lx, infiniteCamY);
+            targetCtx.lineTo(lx, infiniteCamY + vH);
+            targetCtx.stroke();
+            targetCtx.setLineDash([]);
+
+            // Mũi tên cảnh báo nhấp nháy ở mép trên màn hình
+            const arrowY = infiniteCamY + 28 + (colPulse * 3);
+            targetCtx.fillStyle = color;
+            targetCtx.beginPath();
+            targetCtx.moveTo(lx - 5, arrowY - 6);
+            targetCtx.lineTo(lx + 5, arrowY - 6);
+            targetCtx.lineTo(lx, arrowY + 1);
+            targetCtx.closePath();
+            targetCtx.fill();
+          });
+        }
+
+        // 4.3. VẼ TỪNG VIÊN ĐẠN BOSS: ĐUÔI SAO BĂNG, HÀO QUANG NEON & LÕI TRẮNG TƯƠNG PHẢN CAO
         for (let i = 0; i < bossJsbBarrageBullets.length; i++) {
           const b = bossJsbBarrageBullets[i];
           const bR = b.radius || gridSize * 0.55;
-          targetCtx.fillStyle = "rgba(255, 0, 127, 0.35)";
+          const bColor = b.color || "#ff007f";
+          const isCyan = bColor === "#00f2fe";
+          const isYellow = bColor === "#ffd600";
+
+          // Đuôi sao băng phát sáng vuốt ngược hướng di chuyển
+          if (b.vy > 40) {
+            const tailLen = Math.min(48, Math.max(20, b.vy * 0.22));
+            const tailGrad = targetCtx.createLinearGradient(b.x, b.y, b.x - (b.vx || 0) * 0.1, b.y - tailLen);
+            tailGrad.addColorStop(0, bColor);
+            tailGrad.addColorStop(1, "transparent");
+
+            targetCtx.fillStyle = tailGrad;
+            targetCtx.beginPath();
+            targetCtx.moveTo(b.x - bR * 0.65, b.y);
+            targetCtx.lineTo(b.x + bR * 0.65, b.y);
+            targetCtx.lineTo(b.x - (b.vx || 0) * 0.1, b.y - tailLen);
+            targetCtx.closePath();
+            targetCtx.fill();
+          }
+
+          // Hào quang neon mềm bao quanh viên đạn
+          targetCtx.fillStyle = isCyan
+            ? "rgba(0, 242, 254, 0.35)"
+            : (isYellow ? "rgba(255, 214, 0, 0.35)" : "rgba(255, 0, 127, 0.35)");
           targetCtx.beginPath();
-          targetCtx.arc(b.x, b.y, bR * 1.45, 0, Math.PI * 2);
+          targetCtx.arc(b.x, b.y, bR * 1.5, 0, Math.PI * 2);
           targetCtx.fill();
 
-          targetCtx.fillStyle = "#ff007f";
+          // Thân đạn neon bão hòa màu sắc chuẩn JSAB
+          targetCtx.fillStyle = bColor;
           targetCtx.beginPath();
           targetCtx.arc(b.x, b.y, bR, 0, Math.PI * 2);
           targetCtx.fill();
 
+          // Viền sáng tương phản
+          targetCtx.strokeStyle = "#ffffff";
+          targetCtx.lineWidth = 1.0;
+          targetCtx.stroke();
+
+          // Lõi đạn trắng tinh cực sáng (#ffffff) giúp mắt người chơi bắt dính ngay lập tức
           targetCtx.fillStyle = "#ffffff";
           targetCtx.beginPath();
-          targetCtx.arc(b.x, b.y, bR * 0.38, 0, Math.PI * 2);
+          targetCtx.arc(b.x, b.y, bR * 0.42, 0, Math.PI * 2);
           targetCtx.fill();
         }
         targetCtx.restore();
@@ -32803,6 +33167,18 @@
       id: "crimsonSilkSwirl",
       name: "Crimson Silk Swirl 🍷🌸✨",
       condition: "Bắn đạn trúng Boss trong chế độ Boss Rush 500 lần."
+    }, {
+      id: "mintCloud",
+      name: "Mint Cloud",
+      condition: "Đi qua tích lũy đủ 30 cửa trong chế độ Sóng Thần."
+    }, {
+      id: "chromaVortex",
+      name: "Chroma Vortex 🌀✨🌈",
+      condition: "Sở hữu toàn bộ ngoại trang cấp Hiếm (Rare) trong bộ sưu tập."
+    }, {
+      id: "prismNebula",
+      name: "Prism Nebula 🌈✨🌌",
+      condition: "Sở hữu toàn bộ ngoại trang cấp Sử Thi (Epic) trong bộ sưu tập."
     }];
 
     function loadUnlockedSkins() {
@@ -33335,6 +33711,37 @@
     window.addBossRushAmmoHit = addBossRushAmmoHit;
     window.loadBossRushAmmoHits = loadBossRushAmmoHits;
 
+    const SKIN_STORAGE_TSUNAMI_GATES = "lumbricidLifetimeTsunamiGatesPassed";
+
+    function loadLifetimeTsunamiGatesPassed() {
+      try {
+        const val = parseInt(localStorage.getItem(SKIN_STORAGE_TSUNAMI_GATES), 10);
+        return isNaN(val) ? 0 : val;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function saveLifetimeTsunamiGatesPassed(n) {
+      try {
+        localStorage.setItem(SKIN_STORAGE_TSUNAMI_GATES, String(n));
+      } catch (e) { }
+    }
+
+    let lifetimeTsunamiGatesPassed = loadLifetimeTsunamiGatesPassed();
+    let currentRunTsunamiGatesPassed = 0;
+
+    function addLifetimeTsunamiGatePassed() {
+      lifetimeTsunamiGatesPassed = (lifetimeTsunamiGatesPassed || 0) + 1;
+      currentRunTsunamiGatesPassed = (currentRunTsunamiGatesPassed || 0) + 1;
+      saveLifetimeTsunamiGatesPassed(lifetimeTsunamiGatesPassed);
+      if (lifetimeTsunamiGatesPassed >= 30 || currentRunTsunamiGatesPassed >= 30) {
+        unlockSkin("mintCloud");
+      }
+    }
+    window.addLifetimeTsunamiGatePassed = addLifetimeTsunamiGatePassed;
+    window.loadLifetimeTsunamiGatesPassed = loadLifetimeTsunamiGatesPassed;
+
     const SKIN_STORAGE_MAX_WORM_LENGTH = "lumbricidMaxWormLength";
 
     function loadMaxWormLength() {
@@ -33457,13 +33864,13 @@
     let giftModesUnlocked = loadGiftModesUnlocked();
 
     const MODE_UNLOCK_REQUIREMENTS = {
-      endless: 1e4,
+      endless: 10000,
       tsunami: 17500,
-      darknight: 0
+      darknight: 20000,
+      race: 30000
     };
 
     function isModeUnlocked(mode) {
-      if (mode === "darknight") return true;
       if (giftModesUnlocked) return true;
       const req = MODE_UNLOCK_REQUIREMENTS[mode];
       if (!req) return true;
@@ -34014,7 +34421,824 @@
       b: 70
     }];
 
-    // BẢNG MÀU TWILIGHT HORIZON 🌆✨ (BẦU TRỜI HOÀNG HÔN TÍM LAM MỘNG ẢO - HÌNH 1)
+    // MINT CLOUD ☁️🌈🎈 (MÂY BẠC HÀ & CẦU VỒNG PASTEL MỘNG MƠ)
+    const MINT_CLOUD_COLORS = [
+      { r: 255, g: 255, b: 255 }, // Fluffy Cloud White (#ffffff)
+      { r: 167, g: 232, b: 222 }, // Soft Pastel Mint (#a7e8de)
+      { r: 126, g: 216, b: 203 }, // Mint Green (#7ed8cb)
+      { r: 147, g: 197, b: 253 }, // Pastel Sky Blue (#93c5fd)
+      { r: 254, g: 240, b: 138 }, // Pastel Butter Yellow (#fef08a)
+      { r: 253, g: 186, b: 116 }, // Pastel Peach (#fdba74)
+      { r: 244, g: 114, b: 182 }  // Pastel Rose Pink (#f472b6)
+    ];
+
+    const mintCloudFootsteps = [];
+
+    function spawnMintCloudFootstep(pxX, pxY, segSize, moveAngle) {
+      if (mintCloudFootsteps.length > 45) mintCloudFootsteps.shift();
+      mintCloudFootsteps.push({
+        x: pxX + (Math.random() - 0.5) * segSize * 0.4,
+        y: pxY + (Math.random() - 0.5) * segSize * 0.4,
+        radius: segSize * (0.35 + Math.random() * 0.35),
+        life: 1.0,
+        decay: 0.026 + Math.random() * 0.016,
+        isHeart: Math.random() < 0.28,
+        driftY: -0.25 - Math.random() * 0.4
+      });
+    }
+
+    function drawMintCloudFootsteps(ctx, bodyList, timeMs) {
+      if (!ctx || !Array.isArray(bodyList) || bodyList.length === 0) return;
+      const tailSeg = bodyList[bodyList.length - 1];
+      const prevTailSeg = bodyList[Math.max(0, bodyList.length - 2)];
+
+      if (tailSeg && prevTailSeg) {
+        const dx = tailSeg.x - prevTailSeg.x;
+        const dy = tailSeg.y - prevTailSeg.y;
+        const moveAng = Math.atan2(dy, dx);
+        if (Math.random() < 0.5) {
+          spawnMintCloudFootstep(tailSeg.x, tailSeg.y, tailSeg.size || 15, moveAng);
+        }
+      }
+
+      for (let i = mintCloudFootsteps.length - 1; i >= 0; i--) {
+        const fp = mintCloudFootsteps[i];
+        fp.life -= fp.decay;
+        fp.y += fp.driftY;
+        if (fp.life <= 0) {
+          mintCloudFootsteps.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        const alpha = fp.life * 0.8;
+        if (fp.isHeart) {
+          // Trái tim pastel hồng bay lơ lửng
+          ctx.fillStyle = `rgba(244, 114, 182, ${alpha})`;
+          ctx.translate(fp.x, fp.y);
+          const hs = fp.radius * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(0, -hs * 0.3);
+          ctx.bezierCurveTo(-hs * 0.5, -hs * 0.9, -hs, -hs * 0.2, 0, hs * 0.8);
+          ctx.bezierCurveTo(hs, -hs * 0.2, hs * 0.5, -hs * 0.9, 0, -hs * 0.3);
+          ctx.fill();
+        } else {
+          // Búi mây trắng bồng bềnh
+          ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
+          ctx.beginPath();
+          ctx.arc(fp.x, fp.y, fp.radius * 0.55, 0, Math.PI * 2);
+          ctx.arc(fp.x - fp.radius * 0.35, fp.y + fp.radius * 0.1, fp.radius * 0.4, 0, Math.PI * 2);
+          ctx.arc(fp.x + fp.radius * 0.35, fp.y + fp.radius * 0.1, fp.radius * 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    // MINT CLOUD: Đã loại bỏ hoàn toàn các vòng tròn, trái tim và cầu vồng theo yêu cầu của người dùng, để skin dạng Rare bình thường
+    function drawMintCloudBorder(ctx, pxX, pxY, segSize, index, timeMs) {
+      // Skin Rare chuẩn: không vẽ vòng tròn ngoài, giữ đốt giun thanh thoát
+    }
+    function drawMintCloudEssence(ctx, pxX, pxY, segSize, index, timeMs) {
+      // Skin Rare chuẩn: không vẽ trái tim bay quanh
+    }
+    function drawMintCloudHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      // Skin Rare chuẩn: không vẽ cầu vồng trên đầu
+    }
+
+    // CHROMA VORTEX 🌀✨🌈 (VÒNG XOÁY QUANG PHỔ PINWHEEL NEON ĐA SẮC)
+    const CHROMA_VORTEX_COLORS = [
+      { r: 0, g: 245, b: 212 },   // Astral Cyan (#00f5d4)
+      { r: 0, g: 180, b: 216 },   // Sky Blue (#00b4d8)
+      { r: 67, g: 97, b: 238 },   // Cobalt Blue (#4361ee)
+      { r: 114, g: 9, b: 183 },   // Royal Violet (#7209b7)
+      { r: 181, g: 23, b: 158 },  // Magenta Orchid (#b5179e)
+      { r: 247, g: 37, b: 133 },  // Hot Pink (#f72585)
+      { r: 255, g: 77, b: 109 },  // Coral Crimson (#ff4d6d)
+      { r: 255, g: 123, b: 0 },   // Neon Orange (#ff7b00)
+      { r: 255, g: 170, b: 0 }    // Golden Amber (#ffaa00)
+    ];
+
+    const chromaVortexFootsteps = [];
+
+    function spawnChromaVortexFootstep(pxX, pxY, segSize, moveAngle) {
+      if (chromaVortexFootsteps.length > 55) chromaVortexFootsteps.shift();
+      const colIdx = Math.floor(Math.random() * CHROMA_VORTEX_COLORS.length);
+      const col = CHROMA_VORTEX_COLORS[colIdx];
+      chromaVortexFootsteps.push({
+        x: pxX + (Math.random() - 0.5) * segSize * 0.45,
+        y: pxY + (Math.random() - 0.5) * segSize * 0.45,
+        radius: segSize * (0.42 + Math.random() * 0.38),
+        color: `rgba(${col.r}, ${col.g}, ${col.b}, `,
+        spinAngle: moveAngle + Math.random() * Math.PI,
+        spinSpeed: (Math.random() < 0.5 ? 1 : -1) * (0.04 + Math.random() * 0.05),
+        life: 1.0,
+        decay: 0.024 + Math.random() * 0.018
+      });
+    }
+
+    function drawChromaVortexFootsteps(ctx, bodyList, timeMs) {
+      if (!ctx || !Array.isArray(bodyList) || bodyList.length === 0) return;
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      const tailSeg = bodyList[bodyList.length - 1];
+      const prevTailSeg = bodyList[Math.max(0, bodyList.length - 2)];
+
+      if (tailSeg && prevTailSeg) {
+        const dx = tailSeg.x - prevTailSeg.x;
+        const dy = tailSeg.y - prevTailSeg.y;
+        const moveAng = Math.atan2(dy, dx);
+        if (Math.random() < 0.55) {
+          spawnChromaVortexFootstep(tailSeg.x, tailSeg.y, tailSeg.size || 15, moveAng);
+        }
+      }
+
+      for (let i = chromaVortexFootsteps.length - 1; i >= 0; i--) {
+        const fp = chromaVortexFootsteps[i];
+        fp.life -= fp.decay;
+        fp.spinAngle += fp.spinSpeed;
+        if (fp.life <= 0) {
+          chromaVortexFootsteps.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.translate(fp.x, fp.y);
+        ctx.rotate(fp.spinAngle);
+
+        const curR = fp.radius * (1.0 + (1.0 - fp.life) * 0.35);
+        const alpha = fp.life * 0.85;
+
+        // Vẽ 4 cánh xoáy mini của vòng xoáy quang phổ
+        for (let p = 0; p < 4; p++) {
+          const pAng = p * (Math.PI / 2);
+          ctx.save();
+          ctx.rotate(pAng);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(curR * 0.6, -curR * 0.35, curR * 0.95, -curR * 0.15);
+          ctx.strokeStyle = fp.color + (alpha * 0.9) + ")";
+          ctx.lineWidth = Math.max(1.0, curR * 0.22 * fp.life);
+          ctx.stroke();
+
+          // Viền sáng trắng neon rực
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(curR * 0.6, -curR * 0.35, curR * 0.95, -curR * 0.15);
+          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.95})`;
+          ctx.lineWidth = Math.max(0.6, curR * 0.08 * fp.life);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Tâm sáng của bước chân
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(1.0, curR * 0.18), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // Viền sáng dạng ống neon kép (Dual-piped Neon Luminous Border)
+    function drawChromaVortexBorder(ctx, pxX, pxY, segSize, index, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      const radius = segSize * 0.5;
+      const cyclePos = index * 0.44 - timeMs * 0.0025;
+      const baseCol = paletteColorAt(CHROMA_VORTEX_COLORS, cyclePos, 1.0);
+      const highlightCol = paletteColorAt(CHROMA_VORTEX_COLORS, cyclePos + 0.25, 1.0);
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      // 1. Quầng sáng tỏa mờ bên ngoài
+      if (!isUltraLow) {
+        ctx.beginPath();
+        ctx.arc(pxX, pxY, radius * 1.25, 0, Math.PI * 2);
+        ctx.strokeStyle = baseCol.replace("1)", "0.35)");
+        ctx.lineWidth = radius * 0.32;
+        ctx.stroke();
+      }
+
+      // 2. Viền neon ống rực rỡ
+      ctx.beginPath();
+      ctx.arc(pxX, pxY, radius * 1.08, 0, Math.PI * 2);
+      ctx.strokeStyle = baseCol.replace("1)", "0.85)");
+      ctx.lineWidth = radius * 0.18;
+      ctx.stroke();
+
+      // 3. Đường gân trắng sáng neon siêu nét (Neon edge piping)
+      ctx.beginPath();
+      ctx.arc(pxX, pxY, radius * 1.08, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.92)";
+      ctx.lineWidth = Math.max(1.0, radius * 0.07);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Hạt tinh túy xoáy vòng (Swirling Spiral Essence Particles)
+    function drawChromaVortexEssence(ctx, pxX, pxY, segSize, index, timeMs) {
+      if (index % 2 !== 0) return;
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      const radius = segSize * 0.5;
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      const starPalette = ["#00f5d4", "#4361ee", "#f72585", "#ff7b00", "#ffaa00", "#ffffff"];
+      const pCount = isUltraLow ? 2 : 4;
+
+      for (let s = 0; s < pCount; s++) {
+        const spiralProgress = ((timeMs * 0.0022 + index * 0.35 + s * 0.25) % 1.0);
+        const spiralRadius = radius * (0.85 + spiralProgress * 0.9);
+        const spiralAngle = timeMs * 0.0035 + index * 0.55 + s * (Math.PI * 2 / pCount);
+
+        const ex = pxX + Math.cos(spiralAngle) * spiralRadius;
+        const ey = pxY + Math.sin(spiralAngle) * spiralRadius;
+        const eAlpha = (1.0 - spiralProgress) * 0.88;
+        const eSize = Math.max(1.0, radius * 0.14 * (1.0 - spiralProgress * 0.5));
+        const eCol = starPalette[(index + s) % starPalette.length];
+
+        ctx.fillStyle = eCol;
+        ctx.globalAlpha = eAlpha;
+        ctx.beginPath();
+        ctx.arc(ex, ey, eSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (s === 0 && !isUltraLow && typeof drawMiniStar4 === "function") {
+          drawMiniStar4(ctx, ex, ey, eSize * 2.8, eSize * 0.7, eCol);
+        }
+      }
+
+      ctx.restore();
+    }
+
+    // Hào quang đầu giun dạng vòng xoáy cánh quạt pinwheel (Pinwheel Vortex Head Halo)
+    function drawChromaVortexHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      const radius = segSize * 0.5;
+      const rotAngle = timeMs * 0.0028;
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.translate(pxX, pxY);
+      ctx.rotate(rotAngle);
+
+      const armCount = 6;
+      const armPalette = ["#00f5d4", "#4361ee", "#b5179e", "#f72585", "#ff7b00", "#ffaa00"];
+
+      for (let a = 0; a < armCount; a++) {
+        const ang = a * (Math.PI * 2 / armCount);
+        const armCol = armPalette[a % armPalette.length];
+        const armLen = radius * 1.55;
+
+        ctx.save();
+        ctx.rotate(ang);
+
+        // Cánh xoáy uốn cong
+        ctx.beginPath();
+        ctx.moveTo(radius * 0.3, 0);
+        ctx.quadraticCurveTo(armLen * 0.65, -armLen * 0.42, armLen, -armLen * 0.2);
+        ctx.strokeStyle = armCol;
+        ctx.lineWidth = Math.max(1.2, radius * 0.2);
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        // Gân sáng trắng trên cánh xoáy
+        ctx.beginPath();
+        ctx.moveTo(radius * 0.3, 0);
+        ctx.quadraticCurveTo(armLen * 0.65, -armLen * 0.42, armLen, -armLen * 0.2);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = Math.max(0.7, radius * 0.07);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // Tâm vòng xoáy
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(0, 0, Math.max(1.5, radius * 0.24), 0, Math.PI * 2);
+      ctx.fill();
+
+      if (!isUltraLow && typeof drawMiniStar8 === "function") {
+        drawMiniStar8(ctx, 0, 0, radius * 0.8, radius * 0.25, "#00f5d4", "#ffffff", 1.0);
+      }
+
+      ctx.restore();
+    }
+
+    // PRISM NEBULA 🌈✨🌌 (LĂNG KÍNH TINH VÂN - DẢI QUANG PHỔ THÁI DƯƠNG & HỒNG NGỌC)
+    // =========================================================================
+    // DỮ LIỆU TĨNH TỐI ƯU HIỆU SUẤT CHO PRISM NEBULA (ZERO GC ALLOCATIONS)
+    // =========================================================================
+    // Dữ liệu 20 đĩa Bokeh nghệ thuật chuẩn phong cách nhiếp ảnh điện ảnh (Creamy Bokeh - Ảnh 1)
+    // Các đốm sáng mờ ảo mềm mại, phân bố hài hòa, tôn vinh thân giun rực rỡ
+    const PRISM_AESTHETIC_BOKEH = [
+      // Vùng đỏ rượu vang / Ruby ấm áp góc trên phải (Ảnh 1)
+      { rx: 0.82, ry: 0.14, r: 42, col: "rgba(220, 30, 65, ",   alpha: 0.40 },
+      { rx: 0.70, ry: 0.10, r: 32, col: "rgba(245, 60, 110, ",  alpha: 0.35 },
+      { rx: 0.92, ry: 0.16, r: 36, col: "rgba(200, 15, 45, ",   alpha: 0.42 },
+      { rx: 0.78, ry: 0.24, r: 26, col: "rgba(255, 80, 110, ",  alpha: 0.38 },
+      { rx: 0.88, ry: 0.30, r: 24, col: "rgba(220, 45, 75, ",   alpha: 0.32 },
+      { rx: 0.65, ry: 0.18, r: 20, col: "rgba(255, 110, 140, ", alpha: 0.30 },
+
+      // Vùng vàng kim mật ong & Champagne ở đỉnh giữa (Ảnh 1)
+      { rx: 0.48, ry: 0.08, r: 38, col: "rgba(255, 215, 90, ",  alpha: 0.42 },
+      { rx: 0.38, ry: 0.12, r: 30, col: "rgba(255, 185, 20, ",  alpha: 0.36 },
+      { rx: 0.58, ry: 0.14, r: 32, col: "rgba(255, 200, 70, ",  alpha: 0.38 },
+      { rx: 0.44, ry: 0.22, r: 24, col: "rgba(255, 175, 10, ",  alpha: 0.32 },
+      { rx: 0.52, ry: 0.26, r: 22, col: "rgba(255, 230, 120, ", alpha: 0.35 },
+
+      // Vùng xanh ngọc lục bảo & Cyan góc trái (Ảnh 1)
+      { rx: 0.16, ry: 0.14, r: 44, col: "rgba(0, 235, 195, ",   alpha: 0.38 },
+      { rx: 0.08, ry: 0.22, r: 34, col: "rgba(6, 205, 155, ",   alpha: 0.34 },
+      { rx: 0.25, ry: 0.18, r: 30, col: "rgba(70, 195, 220, ",  alpha: 0.32 },
+      { rx: 0.14, ry: 0.32, r: 26, col: "rgba(0, 230, 190, ",   alpha: 0.35 },
+      { rx: 0.26, ry: 0.28, r: 22, col: "rgba(6, 205, 155, ",   alpha: 0.30 },
+
+      // Các đốm sáng trôi nhẹ nửa dưới trên nền đêm sâu
+      { rx: 0.36, ry: 0.52, r: 20, col: "rgba(0, 235, 195, ",   alpha: 0.28 },
+      { rx: 0.62, ry: 0.55, r: 22, col: "rgba(220, 30, 65, ",   alpha: 0.26 },
+      { rx: 0.48, ry: 0.68, r: 18, col: "rgba(255, 200, 70, ",  alpha: 0.25 },
+      { rx: 0.80, ry: 0.70, r: 18, col: "rgba(220, 45, 75, ",   alpha: 0.24 }
+    ];
+
+    // Mảng 48 hạt bụi sao tuyết thần tiên tĩnh li ti (Delicate Fairy Snow - Nhẹ nhàng, tao nhã)
+    const PRISM_AESTHETIC_SNOW = (function() {
+      const arr = [];
+      for (let i = 0; i < 48; i++) {
+        const x = (Math.sin(i * 733.1) * 0.5 + 0.5);
+        const y = (Math.cos(i * 491.9) * 0.5 + 0.5);
+        const speed = 0.012 + (i % 5) * 0.005;
+        const size = (i % 6 === 0) ? 1.8 : ((i % 3 === 0) ? 1.2 : 0.7);
+        const isGold = (i % 3 === 0);
+        arr.push({ x, y, speed, size, isGold, seed: i });
+      }
+      return arr;
+    })();
+
+    const PRISM_NEBULA_COLORS = [
+      { r: 255, g: 224, b: 102 }, // Vàng rực Champagne Bokeh (#ffe066)
+      { r: 255, g: 170, b: 0 },   // Hổ phách Ánh Kim Hào Quang (#ffaa00)
+      { r: 255, g: 77, b: 109 },  // Hồng ngọc Tinh Vân (#ff4d6d)
+      { r: 230, g: 57, b: 70 },   // Đỏ thẫm Huyết Ngọc Ảnh 1 (#e63946)
+      { r: 217, g: 4, b: 41 },    // Đỏ sâu Lăng Kính (#d90429)
+      { r: 114, g: 9, b: 183 },   // Tím thạch anh Vũ Trụ (#7209b7)
+      { r: 58, g: 12, b: 163 },   // Chàm Đêm Sâu Thẳm (#3a0ca3)
+      { r: 0, g: 245, b: 212 },   // Xanh Ngọc Lục Bảo Bokeh Ảnh 1 (#00f5d4)
+      { r: 6, g: 214, b: 160 },   // Xanh Lục Bảo Bạc Hà Tinh Khôi (#06d6a0)
+      { r: 72, g: 202, b: 228 }   // Xanh Lam Biển Tinh Tú (#48cae4)
+    ];
+
+    // =========================================================================
+    // HIỆU ỨNG ĐẶC BIỆT CHÂN GIUN & BỤI SAO BOKEH LĂNG KÍNH (PRISM NEBULA 5X)
+    // =========================================================================
+    const prismNebulaFootsteps = new Map();
+    let lastPrismNebulaFootstepTime = 0;
+    // Bộ nhớ đệm vệt sau đuôi giun siêu nhỏ gọn, thanh mảnh, tinh tế (Refined Petite Stardust Tail - 0 GC)
+    const prismNebulaTrailHistory = new Map();
+
+    function spawnPrismNebulaFootstep(bodyList, x, y, nowMs, isDash) {
+      let record = prismNebulaTrailHistory.get(bodyList);
+      if (!record) {
+        record = {
+          points: [],
+          lastTime: 0,
+          lastX: x,
+          lastY: y
+        };
+        prismNebulaTrailHistory.set(bodyList, record);
+        while (prismNebulaTrailHistory.size > 8) {
+          const oldest = prismNebulaTrailHistory.keys().next().value;
+          prismNebulaTrailHistory.delete(oldest);
+        }
+      }
+
+      const dx = x - record.lastX;
+      const dy = y - record.lastY;
+      const distSq = dx * dx + dy * dy;
+
+      const minInterval = isDash ? 16 : 22;
+      if (nowMs - record.lastTime < minInterval && distSq < 16) return;
+      if (distSq < 2.5 && !isDash) return;
+
+      record.lastTime = nowMs;
+      record.lastX = x;
+      record.lastY = y;
+
+      const angle = Math.atan2(dy, dx);
+      record.points.push({ x, y, time: nowMs, isDash: Boolean(isDash), angle });
+
+      // Giữ tối đa 10 điểm ngắn gọn bám sát ngay chóp đuôi
+      const maxLen = isDash ? 12 : 9;
+      if (record.points.length > maxLen) {
+        record.points.splice(0, record.points.length - maxLen);
+      }
+    }
+
+    function drawPrismNebulaFootsteps(ctx, bodyList, nowMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
+      const record = prismNebulaTrailHistory.get(bodyList);
+      if (!record || !record.points || record.points.length < 2) return;
+
+      const pts = record.points;
+      const pLen = pts.length;
+      // Thời gian ngắn 240ms để vệt giun nhỏ gọn, thanh mảnh, không bị to lố
+      const maxAge = 240;
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      // 1. SỢI CHỈ QUANG PHỔ NHỎ GỌN, THANH MẢNH (Petite Delicate Stardust Thread)
+      for (let i = pLen - 1; i >= 1; i--) {
+        const p1 = pts[i];
+        const p0 = pts[i - 1];
+        const age = nowMs - p1.time;
+        if (age >= maxAge) continue;
+
+        const lifeFrac = 1.0 - (age / maxAge);
+        const segIdx = pLen - 1 - i;
+        // Kích thước nhỏ gọn: chỉ 1.5px - 2.5px vuốt nhọn dần về 0.4px
+        const baseWidth = Math.max(0.4, (p1.isDash ? 2.5 : 1.5) * lifeFrac);
+
+        const colIdx = (segIdx * 0.40 - nowMs * 0.0025) % PRISM_NEBULA_COLORS.length;
+        const colorStr = paletteColorAt(PRISM_NEBULA_COLORS, colIdx, lifeFrac * 0.85);
+
+        // Lớp 1: Sợi màu quang phổ thanh mảnh
+        ctx.strokeStyle = colorStr;
+        ctx.lineWidth = baseWidth * 1.2;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+
+        // Lớp 2: Lõi chỉ kim cương trắng siêu nhỏ ở trung tâm
+        if (!isLow) {
+          ctx.strokeStyle = "rgba(255, 255, 255, " + (lifeFrac * 0.85) + ")";
+          ctx.lineWidth = Math.max(0.3, baseWidth * 0.35);
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.stroke();
+        }
+
+        // 2. CÁC HẠT BỤI SAO SIÊU NHỎ LI TI (0.5px - 0.9px, không làm to lố)
+        if (i % 3 === 0) {
+          const sideOffset = Math.sin(p1.time * 0.007 + i) * (p1.isDash ? 2.0 : 1.2);
+          const perpAngle = p1.angle + Math.PI * 0.5;
+          const bx = p1.x + Math.cos(perpAngle) * sideOffset;
+          const by = p1.y + Math.sin(perpAngle) * sideOffset;
+          const bR = Math.max(0.4, (p1.isDash ? 1.0 : 0.65) * lifeFrac);
+
+          ctx.fillStyle = colorStr;
+          ctx.beginPath();
+          ctx.arc(bx, by, bR, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "rgba(255, 255, 255, " + (lifeFrac * 0.85) + ")";
+          ctx.beginPath();
+          ctx.arc(bx, by, bR * 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    function drawPrismNebulaBorder(ctx, pxX, pxY, segSize, index, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      const isLow = isUltraLow || (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
+      const cx = pxX + segSize * 0.5, cy = pxY + segSize * 0.5;
+      const cyclePos = (index * 0.45 - timeMs * 0.0022);
+      const cycleCol = paletteColorAt(PRISM_NEBULA_COLORS, cyclePos, 1);
+      const isHead = (index === 0);
+
+      ctx.save();
+
+      // 1. LỚP ĐỆM HÀO QUANG QUANG SAI (Tối ưu: Chỉ dùng shadowBlur cho đầu giun ở high/medium)
+      if (!isLow && isHead) {
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = cycleCol;
+      }
+
+      // 2. KHUNG LĂNG KÍNH HOÀNG GIA KIM CƯƠNG (Ornate Gilded Prism Frame)
+      ctx.strokeStyle = cycleCol;
+      ctx.lineWidth = isHead ? 2.4 : 1.8;
+      ctx.strokeRect(pxX - 1, pxY - 1, segSize + 2, segSize + 2);
+
+      // Viền chỉ vàng ngọc mỏng bên trong tạo chiều sâu 3D (Inner Gilded Inset)
+      if (!isUltraLow) {
+        ctx.strokeStyle = "rgba(255, 235, 150, 0.55)";
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(pxX + 1.2, pxY + 1.2, segSize - 2.4, segSize - 2.4);
+      }
+
+      // 3. HOA VĂN MẶT CẮT KIM CƯƠNG ĐA DIỆN & VỆT SÁNG LĂNG KÍNH (Faceted Diamond Crystal Prism)
+      if (!isLow) {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        
+        // 4 đường vân vát kim cương từ 4 góc hội tụ về tâm
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(pxX, pxY); ctx.lineTo(cx, cy);
+        ctx.moveTo(pxX + segSize, pxY); ctx.lineTo(cx, cy);
+        ctx.moveTo(pxX, pxY + segSize); ctx.lineTo(cx, cy);
+        ctx.moveTo(pxX + segSize, pxY + segSize); ctx.lineTo(cx, cy);
+        ctx.stroke();
+
+        // Đã loại bỏ vệt sáng ngang chạy qua các đốt giun (sửa triệt để lỗi tạo vệt sáng cả hàng)
+
+        // 4. VIÊN ĐÁ QUÝ KIM CƯƠNG ÁNH SAO Ở TRUNG TÂM (Central Astral Prism Diamond Gem ✦)
+        const starSize = Math.max(1.8, segSize * 0.22);
+        const pulse = 0.85 + 0.35 * Math.sin(timeMs * 0.004 + index * 0.6);
+        ctx.fillStyle = "#ffffff";
+        ctx.globalAlpha = Math.min(1.0, 0.78 * pulse);
+        
+        // Ngôi sao lăng kính 4 cánh sắc nhọn ở tâm đốt
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - starSize * pulse);
+        ctx.lineTo(cx + starSize * 0.3 * pulse, cy);
+        ctx.lineTo(cx, cy + starSize * pulse);
+        ctx.lineTo(cx - starSize * 0.3 * pulse, cy);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(cx - starSize * pulse, cy);
+        ctx.lineTo(cx, cy + starSize * 0.3 * pulse);
+        ctx.lineTo(cx + starSize * pulse, cy);
+        ctx.lineTo(cx, cy - starSize * 0.3 * pulse);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tâm vàng óng chói lọi
+        ctx.fillStyle = "#ffe49e";
+        ctx.beginPath();
+        ctx.arc(cx, cy, Math.max(0.6, starSize * 0.25), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // 5. 4 GÓC VƯƠNG MIỆN DÁT VÀNG L-FILIGREE VỚI KIM CƯƠNG LẤP LÁNH
+      if (!isUltraLow) {
+        ctx.save();
+        ctx.fillStyle = "#ffffff";
+        if (!isLow && isHead) {
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = "#ffffff";
+        }
+        const cGlint = 1.6;
+
+        const corners = [
+          { x: pxX - 1.2, y: pxY - 1.2 },
+          { x: pxX + segSize - 0.4, y: pxY - 1.2 },
+          { x: pxX - 1.2, y: pxY + segSize - 0.4 },
+          { x: pxX + segSize - 0.4, y: pxY + segSize - 0.4 }
+        ];
+
+        corners.forEach((c, ci) => {
+          ctx.fillRect(c.x, c.y, cGlint, cGlint);
+          if (!isLow) {
+            ctx.strokeStyle = "#ffd166";
+            ctx.lineWidth = 0.9;
+            ctx.beginPath();
+            if (ci === 0) { ctx.moveTo(c.x + 3.5, c.y); ctx.lineTo(c.x, c.y); ctx.lineTo(c.x, c.y + 3.5); }
+            else if (ci === 1) { ctx.moveTo(c.x - 2.5, c.y); ctx.lineTo(c.x + 1, c.y); ctx.lineTo(c.x + 1, c.y + 3.5); }
+            else if (ci === 2) { ctx.moveTo(c.x + 3.5, c.y + 1); ctx.lineTo(c.x, c.y + 1); ctx.lineTo(c.x, c.y - 2.5); }
+            else { ctx.moveTo(c.x - 2.5, c.y + 1); ctx.lineTo(c.x + 1, c.y + 1); ctx.lineTo(c.x + 1, c.y - 2.5); }
+            ctx.stroke();
+          }
+        });
+        ctx.restore();
+      }
+
+      // 6. THIẾT KẾ ĐẶC BIỆT DÀNH RIÊNG CHO ĐẦU GIUN (Ornate Celestial Dragon Crown & Eyes)
+      if (isHead && !isUltraLow) {
+        ctx.save();
+        const crownW = segSize * 0.95;
+        const crownTop = pxY - 7;
+        const crownBase = pxY;
+        const crownLeft = cx - crownW * 0.5;
+
+        // Thân vương miện hoàng gia dát vàng 5 đỉnh
+        ctx.fillStyle = "rgba(255, 215, 0, 0.92)";
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(crownLeft, crownBase);
+        ctx.lineTo(crownLeft + crownW * 0.1, crownTop + 2);
+        ctx.lineTo(crownLeft + crownW * 0.28, crownBase - 2);
+        ctx.lineTo(cx, crownTop - 2);
+        ctx.lineTo(crownLeft + crownW * 0.72, crownBase - 2);
+        ctx.lineTo(crownLeft + crownW * 0.9, crownTop + 2);
+        ctx.lineTo(crownLeft + crownW, crownBase);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // 3 viên ngọc quý đính trên 3 đỉnh vương miện
+        ctx.fillStyle = "#e63946";
+        ctx.beginPath(); ctx.arc(crownLeft + crownW * 0.1, crownTop + 2, 1.2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#00f5d4";
+        ctx.beginPath(); ctx.arc(crownLeft + crownW * 0.9, crownTop + 2, 1.2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.arc(cx, crownTop - 2, 1.6, 0, Math.PI * 2); ctx.fill();
+
+        // 2 Mắt Tinh Anh Thái Dương lấp lánh thần thánh
+        const eyeY = cy - 1;
+        const eyeDist = segSize * 0.24;
+        [cx - eyeDist, cx + eyeDist].forEach(ex => {
+          ctx.fillStyle = "#00f5d4";
+          ctx.beginPath(); ctx.arc(ex, eyeY, 2.2, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath(); ctx.arc(ex, eyeY, 1.0, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // HẠT TINH TÚY MYTHIC HOA MỸ: BỌT BOKEH LỄ HỘI & TINH TÚ KIM CƯƠNG BAY LƠ LỬNG
+    // =========================================================================
+    function drawPrismNebulaEssence(ctx, pxX, pxY, segSize, index, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
+      const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
+      const seed = index * 1031 + Math.floor(timeMs * 0.0015);
+      const bCols = ["#ffd166", "#e63946", "#00f5d4", "#ff4d6d", "#48cae4", "#ffe49e"];
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+
+      // Đốm hạt 1: Quả cầu Bokeh mềm mại với viền quang học
+      const offX1 = (pseudoRandom01(seed) - 0.5) * segSize * 1.2;
+      const offY1 = (pseudoRandom01(seed + 17) - 0.5) * segSize * 1.2;
+      const r1 = Math.max(2.0, segSize * (0.22 + 0.25 * pseudoRandom01(seed + 5)));
+      const col1 = bCols[seed % bCols.length];
+
+      const bGrad1 = ctx.createRadialGradient(cx + offX1, cy + offY1, 0, cx + offX1, cy + offY1, r1);
+      bGrad1.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+      bGrad1.addColorStop(0.4, col1);
+      bGrad1.addColorStop(1, "transparent");
+
+      ctx.fillStyle = bGrad1;
+      ctx.beginPath();
+      ctx.arc(cx + offX1, cy + offY1, r1, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (!isLow) {
+        // Đốm hạt 2: Bụi sao tinh túy bay bổng
+        const offX2 = (pseudoRandom01(seed + 41) - 0.5) * segSize * 1.35;
+        const offY2 = (pseudoRandom01(seed + 67) - 0.5) * segSize * 1.35;
+        const r2 = Math.max(1.4, segSize * 0.16);
+        const col2 = bCols[(seed + 3) % bCols.length];
+
+        ctx.fillStyle = col2;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.arc(cx + offX2, cy + offY2, r2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Ngôi sao kim cương 4 cánh hoa mỹ
+        if (pseudoRandom01(seed + 89) > 0.4) {
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 0.9;
+          ctx.globalAlpha = 0.9;
+          const sL = r2 * 2.4;
+          ctx.beginPath();
+          ctx.moveTo(cx + offX2 - sL, cy + offY2);
+          ctx.lineTo(cx + offX2 + sL, cy + offY2);
+          ctx.moveTo(cx + offX2, cy + offY2 - sL);
+          ctx.lineTo(cx + offX2, cy + offY2 + sL);
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // HÀO QUANG ĐẦU GIUN MYTHIC HOA MỸ: 8 TIA THÁI DƯƠNG LĂNG KÍNH & CORONA TỎA SÁNG
+    // =========================================================================
+    function drawPrismNebulaHeadHalo(ctx, pxX, pxY, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
+      const cx = pxX + segSize / 2, cy = pxY + segSize / 2;
+      const pulse = Math.sin(timeMs * 0.0042) * 0.22;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalCompositeOperation = "lighter";
+
+      if (isLow) {
+        ctx.fillStyle = "rgba(255, 209, 102, 0.45)";
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * 1.6, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Hào quang đa tầng kết hợp màu sắc Ảnh 1: Vàng Kim, Hồng Ngọc, Xanh Ngọc
+        const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, segSize * (2.4 + pulse));
+        hGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
+        hGrad.addColorStop(0.2, "rgba(255, 224, 102, 0.85)");
+        hGrad.addColorStop(0.42, "rgba(230, 57, 70, 0.72)");
+        hGrad.addColorStop(0.68, "rgba(0, 245, 212, 0.55)");
+        hGrad.addColorStop(0.85, "rgba(114, 9, 183, 0.35)");
+        hGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = hGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, segSize * (2.4 + pulse), 0, Math.PI * 2);
+        ctx.fill();
+
+        // 8 chùm tia quang phổ lăng kính chiếu sáng rực rỡ 360 độ (Sunburst Rays)
+        const rayLen = segSize * (3.0 + pulse * 1.6);
+        const rayRot = timeMs * 0.0012;
+        const rayCols = ["#ffffff", "#ffd166", "#e63946", "#00f5d4"];
+
+        for (let r = 0; r < 8; r++) {
+          const rAngle = rayRot + r * (Math.PI / 4);
+          const rCol = rayCols[r % rayCols.length];
+          ctx.strokeStyle = rCol;
+          ctx.lineWidth = (r % 2 === 0) ? 2.2 : 1.4;
+          ctx.globalAlpha = 0.65;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(rAngle) * segSize * 0.4, Math.sin(rAngle) * segSize * 0.4);
+          ctx.lineTo(Math.cos(rAngle) * rayLen, Math.sin(rAngle) * rayLen);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // VƯƠNG MIỆNG CHÒM SAO & BOKEH QUAY QUANH ĐẦU GIUN MYTHIC 5X
+    // =========================================================================
+    function drawPrismNebulaOrbitingStars(ctx, cx, cy, segSize, timeMs) {
+      const isUltraLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+      if (isUltraLow) return;
+      const isLow = (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+      const starCount = isLow ? 2 : 4;
+      const orbitR = segSize * 1.45;
+      const starColors = ["#ffd166", "#e63946", "#00f5d4", "#48cae4"];
+
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      for (let s = 0; s < starCount; s++) {
+        const angle = (timeMs * 0.0028) + (s * (Math.PI * 2 / starCount));
+        const sx = cx + Math.cos(angle) * orbitR;
+        const sy = cy + Math.sin(angle) * orbitR * 0.75;
+        const col = starColors[s % starColors.length];
+        const sz = isLow ? 2.5 : (3.6 + Math.sin(timeMs * 0.006 + s) * 1.0);
+
+        // Vệt đuôi sao băng siêu nhỏ
+        const prevAngle = angle - 0.25;
+        const px = cx + Math.cos(prevAngle) * orbitR;
+        const py = cy + Math.sin(prevAngle) * orbitR * 0.75;
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.4;
+        ctx.globalAlpha = 0.45;
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(sx, sy);
+        ctx.stroke();
+
+        // Ngôi sao 4 cánh phát sáng
+        ctx.globalAlpha = 0.95;
+        if (typeof drawSunsetMirageStar === "function") {
+          drawSunsetMirageStar(ctx, sx, sy, sz, sz * 0.28, col);
+        } else {
+          ctx.fillStyle = col;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sz, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Đốm sáng trắng trung tâm
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(sx, sy, Math.max(0.8, sz * 0.35), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }// =========================================================================
+    // TWILIGHT HORIZON 🌆✨🌌 (MYTHIC - THẮNG BOSS RUSH INSANE)
+    // =========================================================================
     const TWILIGHT_HORIZON_COLORS = [
       { r: 46, g: 16, b: 101 },   // Tím thẫm
       { r: 88, g: 28, b: 135 },   // Tím hoàng gia
@@ -34779,6 +36003,21 @@
         if (isHead) return `rgba(255, 245, 220, ${alpha})`;
         const cyclePos = index * 0.35 - timeMs * 0.0018;
         return paletteColorAt(VINTAGE_ANTIQUE_COLORS, cyclePos, alpha);
+      }
+      if (skinId === "mintCloud") {
+        if (isHead) return `rgba(255, 255, 255, ${alpha})`;
+        const cyclePos = index * 0.45 - timeMs * 0.002;
+        return paletteColorAt(MINT_CLOUD_COLORS, cyclePos, alpha);
+      }
+      if (skinId === "chromaVortex") {
+        if (isHead) return `rgba(255, 255, 255, ${alpha})`;
+        const cyclePos = index * 0.48 - timeMs * 0.0024;
+        return paletteColorAt(CHROMA_VORTEX_COLORS, cyclePos, alpha);
+      }
+      if (skinId === "prismNebula") {
+        if (isHead) return `rgba(255, 255, 250, ${alpha})`;
+        const cyclePos = index * 0.52 - timeMs * 0.0022;
+        return paletteColorAt(PRISM_NEBULA_COLORS, cyclePos, alpha);
       }
       if (skinId === "twilightHorizon") {
         if (isHead) return `rgba(255, 242, 254, ${alpha})`;
@@ -36691,11 +37930,25 @@
         perks: "Angelic halo, romantic rose sunset horizon, radiant 3D crystal hearts pulsing with true eternal love rhythm."
       },
       crimsonTeal: {
-        rarity: "EPIC 🔥❄️",
-        rarityClass: "rarity-epic",
+        rarity: "RARE 🔥❄️",
+        rarityClass: "rarity-rare",
         theme: "Hỏa Băng Lưỡng Hợp ❄️🔥",
         desc: "Mở khóa khi nhận đủ 50 lần hiệu ứng bất lợi (Debuff). Bản phối hòa quyện giữa lửa đỏ nhiệt huyết và băng lam lạnh giá.",
         perks: "Harmonious duality of frost and flame, releasing sub-zero snowflakes and blazing crimson embers."
+      },
+      mintCloud: {
+        rarity: "RARE",
+        rarityClass: "rarity-rare",
+        theme: "Mây Bạc Hà & Cầu Vồng ☁️🌈",
+        desc: "Mở khóa khi đi qua tích lũy đủ 30 cửa trong chế độ Sóng Thần. Sắc xanh bạc hà dịu mát cùng mây trắng bồng bềnh, dải cầu vồng pastel và khinh khí cầu trái tim mộng mơ.",
+        perks: "Fluffy pastel mint & cloud segmentation, rainbow stardust wake, floating heart cloudlets, and pastel sky atmosphere."
+      },
+      chromaVortex: {
+        rarity: "EPIC 🌀✨",
+        rarityClass: "rarity-epic",
+        theme: "Vòng Xoáy Quang Phổ 🌀✨🌈",
+        desc: "Mở khóa khi sở hữu toàn bộ ngoại trang Hiếm (Rare). Vòng xoáy quang phổ đa sắc chuyển động xoay tròn ma mị với các dải ruy băng neon uốn lượn, viền ống ánh sáng rực rỡ và hạt tinh túy xoáy tinh vân.",
+        perks: "Chromatic pinwheel vortex trails, dual-piped neon luminous borders, swirling spiral essence particles, glowing stardust footsteps, and full chromatic spiral vortex arena background."
       },
       cyberQuantum: {
         rarity: "LEGENDARY ⚡🛸",
@@ -36766,12 +38019,22 @@
         theme: "Lụa Thủy Mặc Hồng Huyết 🍷🌸✨",
         desc: "Mở khóa khi bắn đạn trúng Boss trong chế độ Boss Rush tích lũy đủ 500 lần. Dải lụa thủy mặc cuộn xoáy hòa quyện sắc đỏ thắm crimson và hồng tím orchid uyển chuyển, vệt tơ ma mị cùng những đóa hoa lụa lấp lánh.",
         perks: "Fluid crimson & orchid silk marbling, dual-swirl liquid smoke trail, sparkling ruby embers, and luminous fluid ribbon footsteps."
+      },
+      prismNebula: {
+        rarity: "ASTRAL MYTHIC 🌈✨👑",
+        rarityClass: "rarity-mythic",
+        theme: "Lăng Kính Tinh Vân 🌈✨🌌",
+        desc: "Mở khóa khi sở hữu toàn bộ ngoại trang Sử Thi (Epic). Tinh hoa hội tụ của dải quang phổ lăng kính vũ trụ với các chùm tia sáng thái dương vàng rực, ngọn lửa tinh vân hồng ngọc và bụi sao lam ngọc siêu không gian.",
+        perks: "Prismatic astral light rays, hyper-chromatic starlight footsteps, orbiting celestial stardust essence, luminous prism aura, and triple-state Mythic Pro custom worm cursor."
       }
     };
 
     const SKIN_SIGNATURE_EMBLEMS = {
       cyberQuantum: { icon: "⚡🛸", glow: "rgba(0, 240, 255, 0.85)", border: "rgba(112, 0, 255, 0.8)" },
       vintageAntique: { icon: "⚜️🏺", glow: "rgba(224, 169, 109, 0.85)", border: "rgba(184, 115, 51, 0.8)" },
+      mintCloud: { icon: "☁️🌈", glow: "rgba(126, 216, 203, 0.9)", border: "rgba(244, 114, 182, 0.85)" },
+      chromaVortex: { icon: "🌀✨", glow: "rgba(0, 245, 212, 0.92)", border: "rgba(247, 37, 133, 0.88)" },
+      prismNebula: { icon: "🌈✨👑", glow: "rgba(255, 77, 109, 0.95)", border: "rgba(0, 245, 212, 0.92)" },
       twilightHorizon: { icon: "🌆✨", glow: "rgba(217, 70, 239, 0.95)", border: "rgba(56, 189, 248, 0.9)" },
       celestialMarble: { icon: "🌌🍭✨", glow: "rgba(244, 114, 182, 0.9)", border: "rgba(56, 189, 248, 0.85)" },
       obsidianGold: { icon: "🖤⚜️✨", glow: "rgba(255, 215, 0, 0.95)", border: "rgba(255, 179, 0, 0.9)" },
@@ -37019,6 +38282,52 @@
           current: 0, target: 1, label: "nhập mã quà tặng",
           remainingText: "Nhập mã quà tặng trong mục 'Nhận Quà' (mã: dimigo)"
         };
+        if (skinId === "mintCloud") {
+          const cur = typeof lifetimeTsunamiGatesPassed !== "undefined" ? lifetimeTsunamiGatesPassed : 0;
+          const target = 30;
+          return {
+            current: Math.min(cur, target),
+            target: target,
+            label: "cửa đã vượt qua trong chế độ Sóng Thần",
+            remainingText: cur >= target
+              ? "Đã vượt qua đủ 30 cửa Sóng Thần! Sẵn sàng mở khóa!"
+              : `Cần vượt qua thêm ${Math.max(0, target - cur)} cửa Sóng Thần (Tiến độ: ${cur}/${target})`
+          };
+        }
+        if (skinId === "chromaVortex") {
+          const rareIds = Object.keys(SKIN_METADATA).filter(k => {
+            const meta = SKIN_METADATA[k];
+            return meta && (meta.rarityClass === "rarity-rare" || (typeof meta.rarity === "string" && meta.rarity.includes("RARE") && !meta.rarity.includes("EPIC") && !meta.rarity.includes("MYTHIC")));
+          });
+          const totalRare = rareIds.length;
+          const ownedRare = rareIds.filter(id => Array.isArray(unlockedSkins) && unlockedSkins.includes(id)).length;
+          const remaining = Math.max(0, totalRare - ownedRare);
+          return {
+            current: ownedRare,
+            target: totalRare,
+            label: "ngoại trang Hiếm (Rare) đã sở hữu",
+            remainingText: remaining === 0
+              ? "Đã sở hữu đầy đủ toàn bộ skin Rare! Sẵn sàng mở khóa!"
+              : `Cần sở hữu thêm ${remaining} ngoại trang Rare (Tiến độ: ${ownedRare}/${totalRare})`
+          };
+        }
+        if (skinId === "prismNebula") {
+          const epicIds = Object.keys(SKIN_METADATA).filter(k => {
+            const meta = SKIN_METADATA[k];
+            return meta && typeof meta.rarity === "string" && meta.rarity.includes("EPIC") && !meta.rarity.includes("MYTHIC");
+          });
+          const totalEpic = epicIds.length;
+          const ownedEpic = epicIds.filter(id => Array.isArray(unlockedSkins) && unlockedSkins.includes(id)).length;
+          const remaining = Math.max(0, totalEpic - ownedEpic);
+          return {
+            current: ownedEpic,
+            target: totalEpic,
+            label: "ngoại trang Sử Thi (Epic) đã sở hữu",
+            remainingText: remaining === 0
+              ? "Đã sở hữu đầy đủ toàn bộ skin Epic! Sẵn sàng mở khóa!"
+              : `Cần sở hữu thêm ${remaining} ngoại trang Epic (Tiến độ: ${ownedEpic}/${totalEpic})`
+          };
+        }
         if (skinId === "twilightHorizon") return {
           current: 0, target: 1, label: "chiến thắng Boss Rush ở độ khó Insane",
           remainingText: "Chiến thắng chế độ Boss Rush ở độ khó Insane (Điên Rồ - 5000 HP) để mở khóa"
@@ -37110,6 +38419,36 @@
       if (typeof lifetimeBossRushAmmoHits !== "undefined" && lifetimeBossRushAmmoHits >= 500) unlockSkin("crimsonSilkSwirl");
     }
 
+    function checkRareSkinsMasteryUnlock() {
+      if (typeof unlockedSkins === "undefined" || !Array.isArray(unlockedSkins)) return;
+      if (unlockedSkins.includes("chromaVortex")) return;
+      if (typeof SKIN_METADATA === "undefined") return;
+
+      const rareSkinIds = Object.keys(SKIN_METADATA).filter(k => {
+        const meta = SKIN_METADATA[k];
+        return meta && (meta.rarityClass === "rarity-rare" || (typeof meta.rarity === "string" && meta.rarity.includes("RARE") && !meta.rarity.includes("EPIC") && !meta.rarity.includes("MYTHIC")));
+      });
+
+      if (rareSkinIds.length > 0 && rareSkinIds.every(id => unlockedSkins.includes(id))) {
+        unlockSkin("chromaVortex");
+      }
+    }
+
+    function checkEpicSkinsMasteryUnlock() {
+      if (typeof unlockedSkins === "undefined" || !Array.isArray(unlockedSkins)) return;
+      if (unlockedSkins.includes("prismNebula")) return;
+      if (typeof SKIN_METADATA === "undefined") return;
+
+      const epicSkinIds = Object.keys(SKIN_METADATA).filter(k => {
+        const meta = SKIN_METADATA[k];
+        return meta && typeof meta.rarity === "string" && meta.rarity.includes("EPIC") && !meta.rarity.includes("MYTHIC");
+      });
+
+      if (epicSkinIds.length > 0 && epicSkinIds.every(id => unlockedSkins.includes(id))) {
+        unlockSkin("prismNebula");
+      }
+    }
+
     function unlockSkin(id) {
       if (!id || typeof unlockedSkins === "undefined") return;
       if (unlockedSkins.includes(id)) return;
@@ -37118,6 +38457,13 @@
       const info = (typeof SKIN_CATALOG !== "undefined" && SKIN_CATALOG[id]) || (typeof SKIN_LIST !== "undefined" && SKIN_LIST.find(s => s.id === id));
       if (info) showSkinUnlockToast(info);
       if (typeof updateSkinCardsSelectionUI === "function") updateSkinCardsSelectionUI();
+
+      if (id !== "chromaVortex") {
+        checkRareSkinsMasteryUnlock();
+      }
+      if (id !== "prismNebula") {
+        checkEpicSkinsMasteryUnlock();
+      }
     }
 
     let skinToastTimer = null;
@@ -37128,7 +38474,7 @@
       const emojiEl = document.getElementById("toast-emoji");
       if (!toastEl || !nameEl) return;
       nameEl.textContent = skinInfo.name;
-      const emojiMap = { rainbow: "🌈", ultraviolet: "💜", redyellow: "🔥", tencolor: "🎆", ultra20: "✨", blueRed: "💙", glitterking: "👑", wildTide: "🌊" };
+      const emojiMap = { mintCloud: "☁️🌈", chromaVortex: "🌀✨", prismNebula: "🌈✨🌌", rainbow: "🌈", ultraviolet: "💜", redyellow: "🔥", tencolor: "🎆", ultra20: "✨", blueRed: "💙", glitterking: "👑", wildTide: "🌊" };
       if (emojiEl) emojiEl.textContent = emojiMap[skinInfo.id] || "🎉";
       if (typeof playSound === "function") playSound("shield");
       toastEl.classList.add("toast-show");
@@ -37385,6 +38731,9 @@
           "stage-twilighthorizon",
           "stage-sunsetmirage",
           "stage-apexlaser",
+          "stage-mintcloud",
+          "stage-chromavortex",
+          "stage-prismnebula",
           "stage-celestialmarble",
           "stage-obsidiangold",
           "stage-soulfiresilk",
@@ -37399,6 +38748,9 @@
         if (skin.id === "dimigo") stageEl.classList.add("stage-dimigo");
         if (skin.id === "cyberQuantum") stageEl.classList.add("stage-cyberquantum");
         if (skin.id === "vintageAntique") stageEl.classList.add("stage-vintageantique");
+/* mintCloud dùng khung sân khấu chuẩn */
+        if (skin.id === "chromaVortex") stageEl.classList.add("stage-chromavortex");
+        if (skin.id === "prismNebula") stageEl.classList.add("stage-prismnebula");
         if (skin.id === "twilightHorizon") stageEl.classList.add("stage-twilighthorizon");
         if (skin.id === "sunsetMirage") stageEl.classList.add("stage-sunsetmirage");
         if (skin.id === "apexLaser") stageEl.classList.add("stage-apexlaser");
@@ -37490,7 +38842,8 @@
         "chromaJewel",
         "sunsetMirage",
         "twilightHorizon",
-        "apexLaser"
+        "apexLaser",
+        "prismNebula"
       ].includes(skinId);
     }
 
@@ -37508,7 +38861,102 @@ function drawMythicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     ctx.shadowBlur = 0;
   }
 
-  if (skinId === "ultra20") {
+  if (skinId === "prismNebula") {
+    // PRISM NEBULA 🌈✨🌌 (MYTHIC - NỀN BOKEH ĐÊM NHUNG SANG TRỌNG & THẨM MỸ CHUẨN ẢNH 1)
+    const isUltraLowGfx = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+    const isLowGfx = isUltraLowGfx || (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
+    // 1. BẦU TRỜI ĐÊM NHUNG HUYỀN ẢO TƯƠNG PHẢN CAO (Tôn vinh trọn vẹn thân giun lấp lánh)
+    const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
+    baseGrad.addColorStop(0, "#050e1f");
+    baseGrad.addColorStop(0.55, "#030814");
+    baseGrad.addColorStop(1, "#01040a");
+    ctx.fillStyle = baseGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. CÁC VÒM ÁNH SÁNG MÀU DỊU MẮT NHƯ TRANH THỦY MẶC (Watercolor Soft Atmospheric Washes)
+    // Vòm Đỏ Rượu Vang / Ruby Huyết Ngọc góc trên phải (Ảnh 1)
+    const rubyWash = ctx.createRadialGradient(w * 0.82, h * 0.12, 10, w * 0.82, h * 0.12, w * 0.55);
+    rubyWash.addColorStop(0, "rgba(180, 20, 50, 0.36)");
+    rubyWash.addColorStop(0.40, "rgba(120, 10, 30, 0.22)");
+    rubyWash.addColorStop(0.80, "rgba(60, 5, 15, 0.08)");
+    rubyWash.addColorStop(1, "transparent");
+    ctx.fillStyle = rubyWash;
+    ctx.fillRect(0, 0, w, h);
+
+    // Vòm Xanh Ngọc Lục Bảo & Lam Ngọc góc trên trái (Ảnh 1)
+    const emeraldWash = ctx.createRadialGradient(w * 0.15, h * 0.16, 10, w * 0.15, h * 0.16, w * 0.50);
+    emeraldWash.addColorStop(0, "rgba(0, 180, 140, 0.32)");
+    emeraldWash.addColorStop(0.40, "rgba(0, 120, 95, 0.18)");
+    emeraldWash.addColorStop(0.80, "rgba(0, 60, 50, 0.06)");
+    emeraldWash.addColorStop(1, "transparent");
+    ctx.fillStyle = emeraldWash;
+    ctx.fillRect(0, 0, w, h);
+
+    // Vòm Vàng Kim Champagne ấm áp ở đỉnh giữa (Ảnh 1)
+    const goldWash = ctx.createRadialGradient(w * 0.48, h * 0.06, 10, w * 0.48, h * 0.06, w * 0.42);
+    goldWash.addColorStop(0, "rgba(255, 200, 70, 0.30)");
+    goldWash.addColorStop(0.40, "rgba(220, 140, 20, 0.15)");
+    goldWash.addColorStop(0.80, "rgba(160, 80, 0, 0.04)");
+    goldWash.addColorStop(1, "transparent");
+    ctx.fillStyle = goldWash;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    // 3. HỆ THỐNG ĐĨA BOKEH MỜ ẢO THẨM MỸ (Creamy Soft-Focus Photographic Bokeh)
+    // Các đĩa ánh sáng mềm mại, tan êm vào nền đêm, không viền sắc cạnh, không rối mắt
+    const orbs = PRISM_AESTHETIC_BOKEH;
+    const orbLimit = isUltraLowGfx ? 10 : (isLowGfx ? 14 : orbs.length);
+
+    for (let oi = 0; oi < orbLimit; oi++) {
+      const orb = orbs[oi];
+      const floatX = Math.sin(t * 0.0008 + oi * 1.5) * 4.0;
+      const floatY = Math.cos(t * 0.0010 + oi * 1.8) * 3.0;
+      const bx = orb.rx * w + floatX;
+      const by = orb.ry * h + floatY;
+      const br = orb.r;
+
+      const breathe = 0.90 + 0.15 * Math.sin(t * 0.0018 + oi * 2.2);
+      const curAlpha = Math.min(0.65, orb.alpha * breathe);
+
+      // Đĩa Bokeh luôn giữ hình tròn mềm mại, không bị kéo dãn thành vệt sáng ngang cả hàng
+      const dashScale = (isDashing && dashFrac > 0.08 && dashFrac < 0.65) ? (1 + (1.0 - dashFrac) * 0.15) : 1.0;
+      const bGrad = ctx.createRadialGradient(bx, by, 0, bx, by, br * breathe * dashScale);
+      bGrad.addColorStop(0, "rgba(255, 255, 255, " + (curAlpha * 0.75) + ")");
+      bGrad.addColorStop(0.35, orb.col + curAlpha + ")");
+      bGrad.addColorStop(0.80, orb.col + (curAlpha * 0.25) + ")");
+      bGrad.addColorStop(1, "transparent");
+
+      ctx.fillStyle = bGrad;
+      ctx.beginPath();
+      ctx.arc(bx, by, br * breathe * dashScale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 4. BỤI SAO & TUYẾT THẦN TIÊN LI TI LÃNG MẠN (Delicate Fairy Snowfall - Tao nhã)
+    const snowList = PRISM_AESTHETIC_SNOW;
+    const snowLimit = isUltraLowGfx ? 18 : (isLowGfx ? 30 : snowList.length);
+
+    for (let s = 0; s < snowLimit; s++) {
+      const snow = snowList[s];
+      const sway = Math.sin(t * 0.0012 + snow.seed) * 8;
+      let sx = ((snow.x * w + sway + t * 0.002) % (w + 10)) - 5;
+      let sy = ((snow.y * h + t * snow.speed * dashSpeedMult * 18) % (h + 10)) - 5;
+      if (sx < 0) sx += w;
+      if (sy < 0) sy += h;
+
+      const alpha = 0.25 + 0.45 * Math.sin(t * 0.005 + snow.seed * 2.1);
+
+      ctx.fillStyle = snow.isGold ? ("rgba(255, 225, 140, " + alpha + ")") : ("rgba(255, 255, 255, " + alpha + ")");
+      ctx.beginPath();
+      ctx.arc(sx, sy, snow.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+  } else if (skinId === "ultra20") {
     // 1. ULTRA20: BẦU TRỜI HOÀNG ĐẠO & VƯƠNG MIỆN TINH TÚ (CROWN OF CELESTIALS)
     const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.44, 12, w * 0.5, h * 0.5, w * 0.75);
     bgGrad.addColorStop(0, "rgba(80, 24, 128, 0.45)");
@@ -39161,7 +40609,7 @@ function isEpicSkin(skinId) {
     "oceanTide",
     "flashBolt",
     "survivalGreen",
-    "crimsonTeal",
+    "chromaVortex",
     "celestialMarble",
     "obsidianGold",
     "soulfireSilk",
@@ -39524,6 +40972,199 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
   // 18. TWILIGHT HORIZON: CHÂN TRỜI HOÀNG HÔN TÍM LAM MỘNG ẢO (EPIC 🌆✨ - HÌNH 1)
+    } else if (skinId === "prismNebula") {
+    // PRISM NEBULA 🌈✨🌌 (NỀN ĐỘNG HOA MỸ: TRẬN PHÁP CHIÊM TINH 3D, CỰC QUANG BOKEH & MƯA TUYẾT STARDUST)
+    // TỐI ƯU HIỆU SUẤT THÍCH ỨNG THEO ĐỘ HỌA (Tiered Performance Guard)
+    const isUltraLowGfx = (typeof graphicsQuality !== "undefined" && graphicsQuality === "ultralow");
+    const isLowGfx = isUltraLowGfx || (typeof graphicsQuality !== "undefined" && graphicsQuality === "low");
+
+    // 1. BẦU TRỜI NỀN ĐA SẮC ĐẬM ĐÀ RỰC RỠ TÁI HIỆN CHÂN THỰC ẢNH 1 (Source-Over Opaque Base)
+    // Nửa dưới là xanh biển đêm sapphire thẫm của Ảnh 1
+    const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
+    baseGrad.addColorStop(0, "#0a224a");
+    baseGrad.addColorStop(0.45, "#071736");
+    baseGrad.addColorStop(1, "#030818");
+    ctx.fillStyle = baseGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // VÙNG ĐỎ HUYẾT NGỌC / RUBY CRIMSON RỰC RỠ GÓC TRÊN BÊN PHẢI (Ảnh 1)
+    const rubyCanopy = ctx.createRadialGradient(w * 0.80, h * 0.10, 5, w * 0.80, h * 0.10, w * 0.60);
+    rubyCanopy.addColorStop(0, "rgba(230, 25, 60, 0.95)");
+    rubyCanopy.addColorStop(0.35, "rgba(185, 15, 45, 0.85)");
+    rubyCanopy.addColorStop(0.68, "rgba(110, 8, 30, 0.50)");
+    rubyCanopy.addColorStop(1, "transparent");
+    ctx.fillStyle = rubyCanopy;
+    ctx.fillRect(0, 0, w, h);
+
+    // VÙNG XANH NGỌC LỤC BẢO / CYAN MỘNG ẢO BÊN TRÁI (Ảnh 1)
+    const emeraldCanopy = ctx.createRadialGradient(w * 0.16, h * 0.18, 5, w * 0.16, h * 0.18, w * 0.55);
+    emeraldCanopy.addColorStop(0, "rgba(0, 245, 212, 0.90)");
+    emeraldCanopy.addColorStop(0.35, "rgba(6, 214, 160, 0.75)");
+    emeraldCanopy.addColorStop(0.68, "rgba(0, 130, 120, 0.40)");
+    emeraldCanopy.addColorStop(1, "transparent");
+    ctx.fillStyle = emeraldCanopy;
+    ctx.fillRect(0, 0, w, h);
+
+    // VÒM ÁNH SÁNG VÀNG KIM CHAMPAGNE Ở ĐỈNH GIỮA (Ảnh 1)
+    const goldCanopy = ctx.createRadialGradient(w * 0.48, h * 0.06, 5, w * 0.48, h * 0.06, w * 0.45);
+    goldCanopy.addColorStop(0, "rgba(255, 224, 102, 0.95)");
+    goldCanopy.addColorStop(0.35, "rgba(255, 170, 0, 0.75)");
+    goldCanopy.addColorStop(0.68, "rgba(240, 110, 0, 0.35)");
+    goldCanopy.addColorStop(1, "transparent");
+    ctx.fillStyle = goldCanopy;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    // 2. VÒNG TRẬN PHÁP CHIÊM TINH THẦN THOẠI 3D QUAY CHẬM PHÍA SAU (Celestial Mandala Astrolabe Ring)
+    // Tạo cảm giác hoa mỹ huyền diệu của siêu phẩm Mythic (Được tối ưu nhẹ nhàng)
+    if (!isUltraLowGfx) {
+      ctx.save();
+      ctx.translate(w * 0.50, h * 0.50);
+      ctx.scale(1.0, 0.38); // Chiếu nghiêng phối cảnh 3D
+      const astroRot = t * 0.00035;
+      ctx.rotate(astroRot);
+
+      // Vòng tròn lớn ngoài cùng
+      const astroR = Math.min(w * 0.42, 210);
+      ctx.strokeStyle = "rgba(255, 209, 102, 0.35)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(0, 0, astroR, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Vòng tròn nét đứt lăng kính bên trong
+      ctx.strokeStyle = "rgba(0, 245, 212, 0.42)";
+      ctx.lineWidth = 1.0;
+      ctx.setLineDash([8, 12]);
+      ctx.beginPath();
+      ctx.arc(0, 0, astroR * 0.82, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 12 tia chiêm tinh hoàng đạo tỏa ra từ tâm
+      if (!isLowGfx) {
+        ctx.strokeStyle = "rgba(255, 240, 180, 0.28)";
+        ctx.lineWidth = 0.8;
+        for (let ray = 0; ray < 12; ray++) {
+          const rAng = ray * (Math.PI / 6);
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(rAng) * astroR * 0.65, Math.sin(rAng) * astroR * 0.65);
+          ctx.lineTo(Math.cos(rAng) * astroR * 0.95, Math.sin(rAng) * astroR * 0.95);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    // 3. DẢI RÈM CỰC QUANG QUANG PHỔ UỐN LƯỢN MỀM MẠI (Flowing Aurora Curtains)
+    if (!isLowGfx) {
+      const auroraWave = Math.sin(t * 0.0016) * 10;
+      const aurGrad = ctx.createLinearGradient(0, 0, w, 0);
+      aurGrad.addColorStop(0, "rgba(0, 245, 212, 0.22)");
+      aurGrad.addColorStop(0.45, "rgba(255, 209, 102, 0.18)");
+      aurGrad.addColorStop(0.85, "rgba(230, 57, 70, 0.20)");
+      aurGrad.addColorStop(1, "transparent");
+
+      ctx.fillStyle = aurGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, h * 0.35);
+      for (let ax = 0; ax <= w; ax += 25) {
+        const ay = (h * 0.32) + Math.sin(ax * 0.012 + t * 0.002) * 12 + Math.cos(ax * 0.006 - t * 0.001) * 8 + auroraWave;
+        ctx.lineTo(ax, ay);
+      }
+      ctx.lineTo(w, h * 0.8);
+      ctx.lineTo(0, h * 0.8);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 4. CÁC CỤM ĐỐM BOKEH LỄ HỘI LỚN & RÕ NÉT THEO DỮ LIỆU TĨNH (Tối ưu Zero Allocations)
+    const bokehList = PRISM_BOKEH_STATIC_ORBS;
+    const orbLimit = isUltraLowGfx ? 16 : (isLowGfx ? 26 : bokehList.length);
+
+    for (let oi = 0; oi < orbLimit; oi++) {
+      const orb = bokehList[oi];
+      const floatX = Math.sin(t * 0.0012 + oi * 1.3) * 6;
+      const floatY = Math.cos(t * 0.0015 + oi * 1.7) * 5;
+      const bx = orb.rx * w + floatX;
+      const by = orb.ry * h + floatY;
+      const br = orb.r;
+
+      const pulse = 0.88 + 0.22 * Math.sin(t * 0.0025 + oi * 2.1);
+      const curAlpha = Math.min(1.0, orb.alpha * pulse);
+
+      if (isDashing && dashFrac > 0.08 && dashFrac < 0.65) {
+        const sW = br * (1.2 + (1.0 - dashFrac) * 3.8);
+        const streakGrad = ctx.createLinearGradient(bx - sW, by, bx + sW, by);
+        streakGrad.addColorStop(0, "transparent");
+        streakGrad.addColorStop(0.5, orb.col + curAlpha + ")");
+        streakGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = streakGrad;
+        ctx.beginPath();
+        ctx.ellipse(bx, by, sW, br * 0.55, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        const bGrad = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+        bGrad.addColorStop(0, "rgba(255, 255, 255, " + (curAlpha * 0.95) + ")");
+        bGrad.addColorStop(0.35, orb.col + (curAlpha * 0.85) + ")");
+        bGrad.addColorStop(0.75, orb.col + (curAlpha * 0.45) + ")");
+        bGrad.addColorStop(1, orb.col + "0)");
+
+        ctx.fillStyle = bGrad;
+        ctx.beginPath();
+        ctx.arc(bx, by, br, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Vòng viền quang sai khẩu độ máy ảnh (Aperture Rim)
+        if (!isUltraLowGfx && br > 20) {
+          ctx.strokeStyle = orb.col + (curAlpha * 0.55) + ")";
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(bx, by, br * 0.92, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      // Ngôi sao 4 cánh lấp lánh trên một số quả cầu bokeh
+      if (oi % 3 === 0 && !isUltraLowGfx && !isDashing) {
+        const starSz = 3.8 + (oi % 3) * 1.5;
+        const starAlp = Math.min(1.0, 0.5 + 0.5 * Math.sin(t * 0.004 + oi * 1.8));
+        ctx.fillStyle = "#ffffff";
+        ctx.globalAlpha = starAlp;
+        if (typeof drawSunsetMirageStar === "function") {
+          drawSunsetMirageStar(ctx, bx, by, starSz * 2.2, starSz * 0.5, "rgba(255, 255, 255, " + starAlp + ")");
+        } else {
+          ctx.beginPath();
+          ctx.arc(bx, by, starSz * 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    // 5. CƠN MƯA BỤI SAO & TUYẾT LẤP LÁNH ĐẶC TRƯNG ẢNH 1 (Tối ưu hóa hạt theo cấu hình)
+    const stardustTotal = isUltraLowGfx ? 25 : (isLowGfx ? 50 : 110);
+    for (let s = 0; s < stardustTotal; s++) {
+      const seed1 = pseudoRandom01(s * 719 + 23);
+      const seed2 = pseudoRandom01(s * 431 + 89);
+      const speed = 0.012 + (s % 5) * 0.008;
+
+      let sx = ((seed1 * w + Math.sin(t * 0.0018 + s) * 12 + t * 0.004) % (w + 10)) - 5;
+      let sy = ((seed2 * h + t * speed * dashSpeedMult * 20) % (h + 10)) - 5;
+      if (sx < 0) sx += w;
+      if (sy < 0) sy += h;
+
+      const sSize = (s % 6 === 0) ? 2.4 : ((s % 3 === 0) ? 1.5 : 0.8);
+      const sAlpha = 0.35 + 0.60 * Math.sin(t * 0.006 + s * 2.4);
+
+      ctx.fillStyle = (s % 4 === 0) ? "rgba(255, 240, 180, " + sAlpha + ")" : "rgba(255, 255, 255, " + sAlpha + ")";
+      ctx.beginPath();
+      ctx.arc(sx, sy, sSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
   } else if (skinId === "twilightHorizon") {
     const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
     skyGrad.addColorStop(0, "rgba(30, 10, 68, 0.95)");
@@ -40035,7 +41676,143 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       ctx.restore();
     }
 
-  // 22. CRIMSON SILK SWIRL: DẢI LỤA THỦY MẶC ĐỎ TÍM (EPIC 🍷🌸✨ - THEO HÌNH ẢNH NGƯỜI DÙNG TẢI LÊN)
+  // 22. CHROMA VORTEX: VÒNG XOÁY QUANG PHỔ PINWHEEL NEON (EPIC 🌀✨🌈 - THEO HÌNH ẢNH NGƯỜI DÙNG TẢI LÊN)
+  } else if (skinId === "chromaVortex") {
+    // 1. Nền không gian huyền bí đen thẳm (Deep Obsidian Space Void)
+    ctx.fillStyle = "#05010a";
+    ctx.fillRect(0, 0, w, h);
+
+    // Quầng sáng tinh vân tím hồng lan tỏa từ tâm
+    const centerGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.65);
+    centerGlow.addColorStop(0, "rgba(114, 9, 183, 0.45)");
+    centerGlow.addColorStop(0.35, "rgba(247, 37, 133, 0.22)");
+    centerGlow.addColorStop(0.7, "rgba(0, 245, 212, 0.12)");
+    centerGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = centerGlow;
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Tám cánh ruy băng xoắn ốc quang phổ (8 Chromatic Logarithmic Spiral Neon Ribbons)
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const vortexRot = t * 0.00065;
+    const ribbonCount = 8;
+    const maxRadius = Math.min(w, h) * 0.46;
+
+    const ribbonPalettes = [
+      { main: "#00f5d4", secondary: "#00b4d8", core: "#ffffff" }, // Cyan
+      { main: "#0077b6", secondary: "#4361ee", core: "#90e0ef" }, // Cobalt
+      { main: "#7209b7", secondary: "#560bad", core: "#b5179e" }, // Royal Violet
+      { main: "#b5179e", secondary: "#f72585", core: "#ff70a6" }, // Magenta Orchid
+      { main: "#f72585", secondary: "#ff4d6d", core: "#ff9ebb" }, // Hot Pink
+      { main: "#ff4d6d", secondary: "#ff0054", core: "#ff758f" }, // Coral Crimson
+      { main: "#ff7b00", secondary: "#ff5400", core: "#ffb703" }, // Flame Orange
+      { main: "#ffaa00", secondary: "#ffd166", core: "#ffff3f" }  // Golden Amber
+    ];
+
+    for (let r = 0; r < ribbonCount; r++) {
+      const baseAng = r * (Math.PI * 2 / ribbonCount) + vortexRot;
+      const pal = ribbonPalettes[r % ribbonPalettes.length];
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(baseAng);
+
+      // Vẽ cánh ruy băng uốn xoáy dạng cung xoắn ốc mượt mà
+      // Lớp 1: Thân ruy băng phát sáng mềm
+      ctx.beginPath();
+      ctx.moveTo(maxRadius * 0.1, 0);
+      ctx.bezierCurveTo(
+        maxRadius * 0.35, maxRadius * 0.3,
+        maxRadius * 0.65, maxRadius * 0.6,
+        maxRadius * 0.98, maxRadius * 0.35
+      );
+      ctx.bezierCurveTo(
+        maxRadius * 0.75, maxRadius * 0.25,
+        maxRadius * 0.45, maxRadius * 0.15,
+        maxRadius * 0.12, maxRadius * 0.04
+      );
+      ctx.closePath();
+
+      const ribbonGrad = ctx.createLinearGradient(0, 0, maxRadius, maxRadius * 0.4);
+      ribbonGrad.addColorStop(0, pal.main);
+      ribbonGrad.addColorStop(0.5, pal.secondary);
+      ribbonGrad.addColorStop(1, pal.core);
+
+      ctx.fillStyle = ribbonGrad;
+      ctx.globalAlpha = 0.58;
+      ctx.fill();
+
+      // Lớp 2: Đường gân ống ánh sáng neon chạy dọc ruy băng (Neon Tube Piping)
+      ctx.beginPath();
+      ctx.moveTo(maxRadius * 0.1, 0);
+      ctx.bezierCurveTo(
+        maxRadius * 0.35, maxRadius * 0.3,
+        maxRadius * 0.65, maxRadius * 0.6,
+        maxRadius * 0.98, maxRadius * 0.35
+      );
+      ctx.strokeStyle = pal.main;
+      ctx.lineWidth = Math.max(2.0, maxRadius * 0.042);
+      ctx.globalAlpha = 0.88;
+      ctx.stroke();
+
+      // Đường viền trắng chói lòa ở mép ống (White Core Highlight)
+      ctx.beginPath();
+      ctx.moveTo(maxRadius * 0.14, 0);
+      ctx.bezierCurveTo(
+        maxRadius * 0.35, maxRadius * 0.3,
+        maxRadius * 0.65, maxRadius * 0.6,
+        maxRadius * 0.98, maxRadius * 0.35
+      );
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = Math.max(1.0, maxRadius * 0.015);
+      ctx.globalAlpha = 0.95;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // 3. Tâm xoáy hố đen kỳ điểm (Vortex Core Eye)
+    ctx.globalCompositeOperation = "source-over";
+    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxRadius * 0.22);
+    coreGrad.addColorStop(0, "#000000");
+    coreGrad.addColorStop(0.55, "#080110");
+    coreGrad.addColorStop(0.85, "rgba(114, 9, 183, 0.45)");
+    coreGrad.addColorStop(1, "rgba(0, 245, 212, 0)");
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, maxRadius * 0.22, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 4. Hạt bụi sao lấp lánh bay lượn quanh vòng xoáy (Sparkling Cosmic Embers)
+    ctx.globalCompositeOperation = "lighter";
+    const emberCount = 55;
+    for (let i = 0; i < emberCount; i++) {
+      const eDist = (Math.sin(i * 491.7) * 0.5 + 0.5) * maxRadius * 1.35 + maxRadius * 0.08;
+      const eAng = (Math.cos(i * 283.3) * 0.5 + 0.5) * Math.PI * 2 + (t * 0.00045 * (i % 2 === 0 ? 1 : -1));
+      const ex = cx + Math.cos(eAng) * eDist;
+      const ey = cy + Math.sin(eAng) * eDist;
+
+      const twinkle = Math.sin(t * 0.0035 + i * 2.3) * 0.5 + 0.5;
+      const eSize = (1.2 + (i % 4) * 0.9) * (0.7 + twinkle * 0.6);
+      const eAlpha = 0.3 + twinkle * 0.7;
+
+      const eColPalette = ["#00f5d4", "#f72585", "#ffaa00", "#ffffff", "#4361ee"];
+      const eCol = eColPalette[i % eColPalette.length];
+
+      ctx.fillStyle = eCol;
+      ctx.globalAlpha = eAlpha;
+      ctx.beginPath();
+      ctx.arc(ex, ey, eSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (i % 6 === 0 && typeof drawMiniStar4 === "function") {
+        drawMiniStar4(ctx, ex, ey, eSize * 3.2, eSize * 0.8, eCol);
+      }
+    }
+
+    ctx.restore();
+
+  // 21. CRIMSON SILK SWIRL: VŨ ĐIỆU LỤA HUYẾT THỦY MẶC (EPIC 🍷🌸✨ - THEO HÌNH ẢNH NGƯỜI DÙNG TẢI LÊN)
   } else if (skinId === "crimsonSilkSwirl") {
     // 1. Nền không gian hắc diệu huyền bí sâu thẳm (Deep Obsidian Void with Subtle Red-Violet Haze)
     ctx.fillStyle = "#090106";
@@ -40965,27 +42742,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const headPt = segPoints[0];
         const tailPt = segPoints[segCount - 1];
 
-        // 1. Vệt xé gió đa tầng dọc thân (Speed Streaks) giống spawnDashLungeFx
-        if (dashFrac >= 0.05 && dashFrac <= 0.65) {
-          const streakIntensity = Math.sin(((dashFrac - 0.05) / 0.6) * Math.PI);
-          const streakLayers = 5;
-          for (let sl = 0; sl < streakLayers; sl++) {
-            const st = sl / (streakLayers - 1);
-            const easeT = st * st * (3 - 2 * st);
-            skinPreviewCtx.save();
-            skinPreviewCtx.strokeStyle = sl === 0 ? "rgba(255, 248, 230, 0.95)" : "rgba(255, 175, 60, 0.75)";
-            skinPreviewCtx.shadowBlur = 16 * streakIntensity;
-            skinPreviewCtx.shadowColor = "#ff8a1a";
-            skinPreviewCtx.lineWidth = (5.5 - easeT * 3.5) * streakIntensity;
-            skinPreviewCtx.globalAlpha = (1 - easeT * 0.3) * streakIntensity * 0.85;
-            skinPreviewCtx.beginPath();
-            const sy = headPt.y + (sl - 2) * (segSize * 0.22);
-            skinPreviewCtx.moveTo(tailPt.x - (segSize * 1.5) * (1 - easeT * 0.5), sy);
-            skinPreviewCtx.lineTo(headPt.x + segSize * 0.8, sy);
-            skinPreviewCtx.stroke();
-            skinPreviewCtx.restore();
-          }
-        }
+        // Đã xóa bỏ vệt xé gió đa tầng dọc thân (sửa triệt để lỗi tạo vệt sáng cả hàng khi lướt)
 
         // 2. Bóng ma toàn thân lùi lại phía sau (Body Ghost Afterimages)
         for (let g = 1; g <= 4; g++) {
@@ -41264,6 +43021,29 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           if (previewSkinId === "vintageAntique") {
             drawVintageAntiqueBorder(skinPreviewCtx, x, y, segSize, i, t);
           }
+          if (previewSkinId === "mintCloud") {
+            drawMintCloudBorder(skinPreviewCtx, x, y, segSize, i, t);
+            drawMintCloudEssence(skinPreviewCtx, x, y, segSize, i, t);
+            if (isHead) {
+              drawMintCloudHeadHalo(skinPreviewCtx, x, y, segSize, t);
+            }
+          }
+          if (previewSkinId === "chromaVortex") {
+            drawChromaVortexBorder(skinPreviewCtx, x, y, segSize, i, t);
+            drawChromaVortexEssence(skinPreviewCtx, x, y, segSize, i, t);
+            if (isHead) {
+              drawChromaVortexHeadHalo(skinPreviewCtx, x, y, segSize, t);
+            }
+          }
+          if (previewSkinId === "prismNebula") {
+            // Không vẽ vệt footsteps kéo dài trong preview để tránh vệt sáng nối cả hàng
+            drawPrismNebulaBorder(skinPreviewCtx, x, y, segSize, i, t);
+            drawPrismNebulaEssence(skinPreviewCtx, x, y, segSize, i, t);
+            if (isHead) {
+              drawPrismNebulaHeadHalo(skinPreviewCtx, x, y, segSize, t);
+              drawPrismNebulaOrbitingStars(skinPreviewCtx, x + segSize * 0.5, y + segSize * 0.5, segSize, t);
+            }
+          }
           if (previewSkinId === "twilightHorizon") {
             drawTwilightHorizonBorder(skinPreviewCtx, x, y, segSize, i, t);
             drawTwilightHorizonClouds(skinPreviewCtx, x, y, segSize, i, t);
@@ -41536,6 +43316,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function renderSkinPanel() {
+      if (typeof checkRareSkinsMasteryUnlock === "function") checkRareSkinsMasteryUnlock();
+      if (typeof checkEpicSkinsMasteryUnlock === "function") checkEpicSkinsMasteryUnlock();
       const grid = document.getElementById("skin-grid");
       if (!grid) return;
       if (panelSkin && panelSkin.style.display !== "none") {
@@ -41663,7 +43445,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const meta = SKIN_METADATA[skin.id] || { rarity: "CƠ BẢN", rarityClass: "rarity-common" };
 
         const card = document.createElement("div");
-        card.className = "skin-card" + (isUnlocked ? "" : " locked") + (isSelected ? " selected" : "") + (skin.id === previewSkinId ? " previewing" : "") + ((typeof isEpicSkin === "function" && isEpicSkin(skin.id)) ? " is-epic" : "") + (isCelestialFxSkin(skin.id) ? " skin-card-ultra20" : "") + (isUniqueChromaSkin(skin.id) ? " skin-card-chromaunique" : "") + (skin.id === "galacticCore" ? " skin-card-galacticcore" : "") + (skin.id === "cosmicVoid" ? " skin-card-blackhole" : "") + (skin.id === "dimigo" ? " skin-card-dimigo" : "") + (skin.id === "cyberQuantum" ? " skin-card-cyberquantum" : "") + (skin.id === "vintageAntique" ? " skin-card-vintageantique" : "") + (skin.id === "oceanTideGrand" ? " skin-card-oceantidegrand" : "") + (skin.id === "twilightHorizon" ? " skin-card-twilighthorizon" : "") + (skin.id === "sunsetMirage" ? " skin-card-sunsetmirage" : "") + (skin.id === "apexLaser" ? " skin-card-apexlaser" : "") + (skin.id === "celestialMarble" ? " skin-card-celestialmarble" : "") + (skin.id === "obsidianGold" ? " skin-card-obsidiangold" : "") + (skin.id === "soulfireSilk" ? " skin-card-soulfiresilk" : "") + (skin.id === "emeraldAurora" ? " skin-card-emeraldaurora" : "") + (skin.id === "crimsonSilkSwirl" ? " skin-card-crimsonsilkswirl" : "");
+        card.className = "skin-card" + (isUnlocked ? "" : " locked") + (isSelected ? " selected" : "") + (skin.id === previewSkinId ? " previewing" : "") + ((typeof isEpicSkin === "function" && isEpicSkin(skin.id)) ? " is-epic" : "") + (isCelestialFxSkin(skin.id) ? " skin-card-ultra20" : "") + (isUniqueChromaSkin(skin.id) ? " skin-card-chromaunique" : "") + (skin.id === "galacticCore" ? " skin-card-galacticcore" : "") + (skin.id === "cosmicVoid" ? " skin-card-blackhole" : "") + (skin.id === "dimigo" ? " skin-card-dimigo" : "") + (skin.id === "cyberQuantum" ? " skin-card-cyberquantum" : "") + (skin.id === "vintageAntique" ? " skin-card-vintageantique" : "") + (skin.id === "oceanTideGrand" ? " skin-card-oceantidegrand" : "") /* mintCloud để thẻ thường */ + (skin.id === "chromaVortex" ? " skin-card-chromavortex" : "") + (skin.id === "prismNebula" ? " skin-card-prismnebula" : "") + (skin.id === "twilightHorizon" ? " skin-card-twilighthorizon" : "") + (skin.id === "sunsetMirage" ? " skin-card-sunsetmirage" : "") + (skin.id === "apexLaser" ? " skin-card-apexlaser" : "") + (skin.id === "celestialMarble" ? " skin-card-celestialmarble" : "") + (skin.id === "obsidianGold" ? " skin-card-obsidiangold" : "") + (skin.id === "soulfireSilk" ? " skin-card-soulfiresilk" : "") + (skin.id === "emeraldAurora" ? " skin-card-emeraldaurora" : "") + (skin.id === "crimsonSilkSwirl" ? " skin-card-crimsonsilkswirl" : "");
         card.dataset.skin = skin.id;
 
         card.appendChild(buildSkinPreviewEl(skin.id));
@@ -42029,16 +43811,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           else if (typeof el.webkitRequestFullscreen === "function") el.webkitRequestFullscreen();
         }
 
-        if (isMobilePhone()) {
-          enterFullscreenAndLandscapeOnPhone();
-        } else {
+        // Nếu người chơi đang để màn hình dọc: Giữ nguyên chế độ dọc, không ép xoay ngang
+        if (typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait()) {
           try {
-            if (screen.orientation && typeof screen.orientation.lock === "function") {
-              if (window.innerWidth < window.innerHeight) {
-                screen.orientation.lock("landscape").catch(() => {});
-              }
+            if (screen.orientation && typeof screen.orientation.unlock === "function") {
+              screen.orientation.unlock();
             }
           } catch (e) { }
+        } else if (isMobilePhone() && typeof window !== "undefined" && window.innerWidth >= window.innerHeight) {
+          enterFullscreenAndLandscapeOnPhone();
         }
       } else {
         if (typeof exitGameFullscreen === "function") {
@@ -42113,7 +43894,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     const onFullscreenChangeHandler = () => {
       updateAllFullscreenUI();
       if (document.fullscreenElement || document.webkitFullscreenElement) {
-        if (isMobilePhone() && !(typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled)) {
+        const isPortrait = typeof isUserOnMobilePortrait === "function" && isUserOnMobilePortrait();
+        if (isPortrait) {
+          try {
+            if (screen.orientation && typeof screen.orientation.unlock === "function") {
+              screen.orientation.unlock();
+            }
+          } catch (e) { }
+        } else if (isMobilePhone() && typeof window !== "undefined" && window.innerWidth >= window.innerHeight && !(typeof mobilePortraitModeEnabled !== "undefined" && mobilePortraitModeEnabled)) {
           try {
             if (screen.orientation && typeof screen.orientation.lock === "function") {
               screen.orientation.lock("landscape").catch(() => {});
@@ -45984,6 +47772,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               mapChanged = true;
               enteredMapGoingUp = true;
               mapTransitionFxDir = "up";
+              if (isTsunamiMode) {
+                if (typeof addLifetimeTsunamiGatePassed === "function") {
+                  addLifetimeTsunamiGatePassed();
+                }
+              }
               if (gameHeight >= getWinningHeightForDifficulty(currentDifficulty) && currentDifficulty !== "endless") {
                 noteScreenTransitionClearState();
                 triggerGameWin();
@@ -49780,6 +51573,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const nowMsWiggle = performance.now();
       if (skinId === "galacticCore" && !menuModeFlag) drawGalacticDustTrail(targetCtx, bodyList, nowMsWiggle);
       if (skinId === "sunsetMirage" && !menuModeFlag) drawSunsetMirageFootsteps(targetCtx, bodyList, nowMsWiggle);
+/* mintCloud để dạng Rare thường không vẽ footsteps */
+        if (skinId === "chromaVortex" && !menuModeFlag) drawChromaVortexFootsteps(targetCtx, bodyList, nowMsWiggle);
+        if (skinId === "prismNebula" && !menuModeFlag) drawPrismNebulaFootsteps(targetCtx, bodyList, nowMsWiggle);
         if (skinId === "twilightHorizon" && !menuModeFlag) drawTwilightHorizonFootsteps(targetCtx, bodyList, nowMsWiggle);
         if (skinId === "celestialMarble" && !menuModeFlag) drawCelestialMarbleFootsteps(targetCtx, bodyList, nowMsWiggle);
         if (skinId === "obsidianGold" && !menuModeFlag) drawObsidianGoldFootsteps(targetCtx, bodyList, nowMsWiggle);
@@ -50036,6 +51832,35 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         if (skinId === "vintageAntique") {
           drawVintageAntiqueBorder(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+        }
+        if (skinId === "mintCloud") {
+          const isHeadSeg = index === 0;
+          drawMintCloudBorder(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+          drawMintCloudEssence(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+          if (isHeadSeg) {
+            drawMintCloudHeadHalo(targetCtx, segPxX, segPxY, segSize, nowMs);
+          }
+        }
+        if (skinId === "chromaVortex") {
+          const isHeadSeg = index === 0;
+          drawChromaVortexBorder(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+          drawChromaVortexEssence(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+          if (isHeadSeg) {
+            drawChromaVortexHeadHalo(targetCtx, segPxX, segPxY, segSize, nowMs);
+          }
+        }
+        if (skinId === "prismNebula") {
+          const isHeadSeg = index === 0;
+          const isTailSeg = index === bodyList.length - 1;
+          if (isTailSeg && !menuModeFlag) {
+            spawnPrismNebulaFootstep(bodyList, segPxX + segSize / 2, segPxY + segSize / 2, nowMs, wiggleActive);
+          }
+          drawPrismNebulaBorder(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+          drawPrismNebulaEssence(targetCtx, segPxX, segPxY, segSize, index, nowMs);
+          if (isHeadSeg) {
+            drawPrismNebulaHeadHalo(targetCtx, segPxX, segPxY, segSize, nowMs);
+            drawPrismNebulaOrbitingStars(targetCtx, segPxX + segSize / 2, segPxY + segSize / 2, segSize, nowMs);
+          }
         }
         if (skinId === "twilightHorizon") {
           const isHeadSeg = index === 0;
@@ -57503,14 +59328,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           "vintageAntique",  // Top 10: Vintage Antique Imperial ⚜️🏺📜 (Đơn màu - Sáng tinh tuyến vàng đồng hoàng gia)
           "sunsetMirage",   // Top 11: Crimson Sunset Mirage 🌅🌴✨ (Đơn màu - Sáng tinh tuyến mặt trời đỏ rực sa mạc)
           "twilightHorizon", // Top 12: Twilight Horizon 🌆✨🌌 (Mythic - Chân trời hoàng hôn vũ trụ mộng ảo)
-          "apexLaser"        // Top 13: Neon Apex V-Laser 🔻⚡✨ (Mythic - Lăng kính Laser Đỉnh Cao)
+          "apexLaser",       // Top 13: Neon Apex V-Laser 🔻⚡✨ (Mythic - Lăng kính Laser Đỉnh Cao)
+          "prismNebula"      // Top 14: Prism Nebula 🌈✨🌌 (Mythic - Lăng Kính Tinh Vân Quang Phổ)
         ];
         return supported.includes(skinId) ? skinId : null;
       }
 
       // Phân loại nhóm Skin Đa Màu (Gradient vuốt chuột) & Skin Đơn Màu (Sáng tinh tuyến phong cách)
       function isMultiColorMythic(skinId) {
-        return ["chromaUnique", "chromaJewel", "auroraPastel", "cyberQuantum", "twilightHorizon", "apexLaser"].includes(skinId);
+        return ["chromaUnique", "chromaJewel", "auroraPastel", "cyberQuantum", "twilightHorizon", "apexLaser", "prismNebula"].includes(skinId);
       }
       function isSingleColorMythic(skinId) {
         return ["dimigo", "ultra20", "oceanTideGrand", "galacticCore", "cosmicVoid", "vintageAntique", "sunsetMirage"].includes(skinId);
@@ -57610,6 +59436,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           normal: ["#ffffff", "#ff0055", "#ff1744", "#0099ff", "#0066ff", "#030308"],
           shield: ["#ffffff", "#ff80ab", "#ff4081", "#80d8ff", "#00e5ff", "#050515"],
           crazy: ["#ffffff", "#ffff00", "#ff0055", "#00ffff", "#ff007f", "#1a0005"]
+        },
+        // [14] PRISMNEBULA 🌈✨🌌 (MYTHIC: Lăng Kính Tinh Vân Quang Phổ 3 Trạng Thái)
+        prismNebula: {
+          normal: ["#ffffff", "#ffd166", "#ff4d6d", "#d90429", "#00f5d4", "#06d6a0", "#0b1354"],
+          shield: ["#ffffff", "#fff3b0", "#ff758f", "#ff4d6d", "#80ffdb", "#48cae4", "#1d2d44"],
+          crazy:  ["#ffffff", "#ffff3f", "#ff0055", "#ff5400", "#00f5d4", "#7000ff", "#03071e"]
         }
       };
 
@@ -58367,6 +60199,25 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           return;
         }
 
+        // [14] PRISMNEBULA: Bùng nổ hạt lăng kính thái dương vàng rực, hồng ngọc và lam ngọc
+        if (mythicType === "prismNebula") {
+          const pnCols = ["#ffffff", "#ffd166", "#ff4d6d", "#d90429", "#00f5d4", "#06d6a0", "#ffff3f"];
+          const spkTypes = ["star8", "star", "diamond", "star", "circle"];
+          for (let k = 0; k < count; k++) {
+            const spkAngle = (k / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+            const spkSpeed = 3.5 + Math.random() * 5.0;
+            worm.clickSparkles.push({
+              x: x, y: y,
+              vx: Math.cos(spkAngle) * spkSpeed, vy: Math.sin(spkAngle) * spkSpeed,
+              life: 1.0, type: tier <= 1 ? "dot" : spkTypes[k % spkTypes.length],
+              color: pnCols[k % pnCols.length], size: 3.5 + Math.random() * 3.0,
+              rot: enableRot ? Math.random() * Math.PI * 2 : 0,
+              vRot: enableRot ? (Math.random() - 0.5) * 0.35 : 0
+            });
+          }
+          return;
+        }
+
         // [12] TWILIGHTHORIZON: Bùng nổ tinh vân cực quang tím lam & Sao sớm hoàng hôn
         if (mythicType === "twilightHorizon") {
           const thCols = ["#ffffff", "#fde047", "#38bdf8", "#d946ef", "#c084fc", "#f472b6"];
@@ -58740,6 +60591,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               } else if (mythicType === "sunsetMirage") {
                 pType = Math.random() < 0.5 ? "ember" : "star";
                 pCol = Math.random() < 0.5 ? "#ff1744" : "#ffb300";
+              } else if (mythicType === "prismNebula") {
+                pType = Math.random() < 0.5 ? "diamond" : (Math.random() < 0.8 ? "star" : "star8");
+                pCol = Math.random() < 0.35 ? "#00f5d4" : (Math.random() < 0.7 ? "#ffd166" : "#ff4d6d");
               } else if (mythicType === "twilightHorizon") {
                 pType = Math.random() < 0.6 ? "star" : "diamond";
                 pCol = Math.random() < 0.4 ? "#38bdf8" : (Math.random() < 0.7 ? "#d946ef" : "#fde047");
@@ -58832,6 +60686,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             } else if (mythicType === "sunsetMirage") {
               ipType = "ember";
               ipCol = "#ff9100";
+            } else if (mythicType === "prismNebula") {
+              ipType = "diamond";
+              ipCol = Math.random() < 0.5 ? "#00f5d4" : "#ffd166";
             } else if (mythicType === "twilightHorizon") {
               ipType = "star";
               ipCol = Math.random() < 0.5 ? "#38bdf8" : "#d946ef";
@@ -59045,6 +60902,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                   segGrad.addColorStop(0.5, "rgba(255, 255, 255, " + Math.min(1, alpha * 1.5) + ")");
                   segGrad.addColorStop(1, colB);
                 }
+              } else if (mythicType === "prismNebula") {
+                segGrad.addColorStop(0, "rgba(255, 209, 102, " + alpha + ")");
+                segGrad.addColorStop(0.35, "rgba(255, 77, 109, " + alpha + ")");
+                segGrad.addColorStop(0.7, "rgba(217, 4, 41, " + alpha + ")");
+                segGrad.addColorStop(1, "rgba(0, 245, 212, " + alpha + ")");
               } else if (mythicType === "twilightHorizon") {
                 segGrad.addColorStop(0, "rgba(56, 189, 248, " + alpha + ")");
                 segGrad.addColorStop(0.5, "rgba(217, 70, 239, " + alpha + ")");
@@ -59146,6 +61008,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                   auraBeamCol = (i % 2 === 0) ? "rgba(255, 0, 85, " + alpha + ")" : "rgba(0, 153, 255, " + alpha + ")";
                   coreBeamCol = "rgba(255, 255, 255, " + (alpha * 0.98) + ")";
                 }
+              } else if (mythicType === "prismNebula") {
+                auraBeamCol = skinState === "shield"
+                  ? "rgba(0, 245, 212, " + alpha + ")"
+                  : (skinState === "crazy" ? "rgba(255, 255, 63, " + alpha + ")" : "rgba(255, 77, 109, " + alpha + ")");
+                coreBeamCol = "rgba(255, 255, 255, " + (alpha * 0.98) + ")";
               } else if (mythicType === "twilightHorizon") {
                 auraBeamCol = skinState === "shield" ? "rgba(56, 189, 248, " + alpha + ")" : (skinState === "crazy" ? "rgba(253, 224, 71, " + alpha + ")" : "rgba(217, 70, 239, " + alpha + ")");
                 coreBeamCol = "rgba(240, 249, 255, " + (alpha * 0.98) + ")";
@@ -59310,6 +61177,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             else if (mythicType === "cyberQuantum") ripCol = "#00f0ff";
             else if (mythicType === "cosmicVoid") ripCol = "#ff3d00";
             else if (mythicType === "sunsetMirage") ripCol = "#ff1744";
+            else if (mythicType === "prismNebula") ripCol = (skinState === "shield") ? "#00f5d4" : ((skinState === "crazy") ? "#ffff3f" : "#ff4d6d");
             else if (mythicType === "twilightHorizon") ripCol = "#d946ef";
             else if (mythicType === "apexLaser") ripCol = (skinState === "shield") ? "#00e5ff" : ((skinState === "crazy") ? "#ffd600" : "#ff0055");
             else if (isClicking) ripCol = "#ff5722";
@@ -59417,6 +61285,20 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             ctx.stroke();
             if (tier >= 3) {
               drawMiniStar8(ctx, worm.rippleX, worm.rippleY, worm.rippleRadius * 0.75, worm.rippleRadius * 0.28, "#ffffff", "#ffd700", 1.0 * scale);
+            }
+          } else if (mythicType === "prismNebula") {
+            ctx.strokeStyle = "rgba(0, 245, 212, " + (rAlpha * 0.95) + ")";
+            ctx.lineWidth = 2.2 * scale;
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius * 1.3, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = "rgba(255, 77, 109, " + (rAlpha * 0.88) + ")";
+            ctx.lineWidth = 1.4 * scale;
+            ctx.beginPath();
+            ctx.arc(worm.rippleX, worm.rippleY, worm.rippleRadius * 0.82, 0, Math.PI * 2);
+            ctx.stroke();
+            if (isClicking) {
+              drawMiniStar4(ctx, worm.rippleX, worm.rippleY, worm.rippleRadius * 0.6, worm.rippleRadius * 0.18, "#ffd166");
             }
           } else if (mythicType === "twilightHorizon") {
             ctx.strokeStyle = "rgba(56, 189, 248, " + (rAlpha * 0.95) + ")";
@@ -59602,6 +61484,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             ? "rgba(0, 229, 255, 0.88)"
             : (isClicking ? "rgba(255, 0, 85, 0.92)" : "rgba(255, 0, 85, 0.75)");
           auraR = (isHovering ? 34 : (isClicking ? 36 : 30)) * scale;
+        } else if (mythicType === "prismNebula") {
+          auraCenter = "rgba(255, 255, 255, 0.98)";
+          auraColor = isHovering
+            ? "rgba(0, 245, 212, 0.92)"
+            : (isClicking ? "rgba(255, 0, 85, 0.95)" : "rgba(255, 183, 3, 0.82)");
+          auraR = (isHovering ? 34 : (isClicking ? 36 : 28)) * scale;
         } else if (mythicType === "twilightHorizon") {
           auraCenter = "rgba(253, 224, 71, 0.95)";
           auraColor = isHovering ? "rgba(56, 189, 248, 0.9)" : "rgba(217, 70, 239, 0.75)";
@@ -59745,6 +61633,13 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                 blockFill = (i === 0) ? "#ffffff" : ("hsla(" + smHue + ", 100%, " + (56 + Math.sin(nowMs * 0.005 + i) * 15) + "%, 1)");
                 borderLight = "#fff176";
                 borderDark = "#3e000c";
+              } else if (mythicType === "prismNebula") {
+                const pnWave = (i * 0.48 - nowMs * 0.0032);
+                let pnHue = (pnWave * 60) % 360;
+                if (pnHue < 0) pnHue += 360;
+                blockFill = (i === 0) ? "#ffffff" : ("hsla(" + pnHue + ", 95%, 60%, 1)");
+                borderLight = "#ffd166";
+                borderDark = "#00f5d4";
               } else if (mythicType === "twilightHorizon") {
                 const thHue = 270 + Math.sin(nowMs * 0.0035 + i * 0.6) * 35;
                 blockFill = (i === 0) ? "#ffffff" : ("hsla(" + thHue + ", 95%, " + (58 + Math.sin(nowMs * 0.005 + i) * 14) + "%, 1)");
@@ -59884,6 +61779,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               if (tier >= 3) {
                 drawMiniStar4(ctx, 0, 0, sunCoreR * 1.5, sunCoreR * 0.45, "#fff9c4");
               }
+            } else if (mythicType === "prismNebula") {
+              const starR = segW * (skinState === "shield" ? 0.42 : (skinState === "crazy" ? 0.45 : 0.35));
+              drawMiniStar4(ctx, 0, 0, starR * 1.25, starR * 0.35, isClicking ? "#ffff3f" : (isHovering ? "#00f5d4" : "#ffd166"));
             } else if (mythicType === "twilightHorizon") {
               const starR = segW * (skinState === "shield" ? 0.38 : (skinState === "crazy" ? 0.42 : 0.32));
               drawMiniStar4(ctx, 0, 0, starR * 1.25, starR * 0.35, isClicking ? "#fde047" : "#38bdf8");
@@ -59944,7 +61842,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           if (i === 0) {
             // 1. RÂU XÚC GIÁC THEO TỪNG SKIN
             const antLag = Math.sin(worm.crawlCycle) * 1.5 * scale;
-            const antColor = (mythicType === "dimigo" ? "#ff4081" : (mythicType === "oceanTideGrand" ? "#00e5ff" : (mythicType === "cyberQuantum" ? "#00f0ff" : (mythicType === "sunsetMirage" ? "#ff1744" : (mythicType === "twilightHorizon" ? "#d946ef" : (mythicType === "apexLaser" ? "#ff0055" : "#ffffff"))))))
+            const antColor = (mythicType === "dimigo" ? "#ff4081" : (mythicType === "oceanTideGrand" ? "#00e5ff" : (mythicType === "cyberQuantum" ? "#00f0ff" : (mythicType === "prismNebula" ? "#ffd166" : (mythicType === "sunsetMirage" ? "#ff1744" : (mythicType === "twilightHorizon" ? "#d946ef" : (mythicType === "apexLaser" ? "#ff0055" : "#ffffff")))))))
             ctx.fillStyle = antColor;
             ctx.fillRect(half - 1, -half - 2 * scale + antLag, 2 * scale, 2 * scale);
             ctx.fillRect(half + 1 * scale, -half - 3.5 * scale + antLag, 1.8 * scale, 1.8 * scale);
@@ -59956,6 +61854,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               ctx.fillStyle = "#ffd54f";
               ctx.fillRect(half + 2.5 * scale, -half - 4.5 * scale + antLag, 1.8 * scale, 1.8 * scale);
               ctx.fillRect(half + 2.5 * scale, half + 3.0 * scale - antLag, 1.8 * scale, 1.8 * scale);
+            }
+            if (mythicType === "prismNebula") {
+              ctx.fillStyle = "#00f5d4";
+              ctx.fillRect(half + 2.5 * scale, -half - 4.5 * scale + antLag, 1.8 * scale, 1.8 * scale);
+              ctx.fillRect(half + 2.5 * scale, half + 3.0 * scale - antLag, 1.8 * scale, 1.8 * scale);
+              ctx.fillStyle = "#ff4d6d";
+              ctx.fillRect(half + 4.2 * scale, -half - 6.0 * scale + antLag, 2.0 * scale, 2.0 * scale);
+              ctx.fillRect(half + 4.2 * scale, half + 4.5 * scale - antLag, 2.0 * scale, 2.0 * scale);
             }
             if (mythicType === "twilightHorizon") {
               ctx.fillStyle = "#38bdf8";
@@ -60377,7 +62283,48 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               ctx.restore();
             }
 
-            // [12. TWILIGHT HORIZON] 🌆✨🌌 (VƯƠNG MIỆN CỰC QUANG CHÂN TRỜI VŨ TRỤ MYTHIC)
+            // [14] PRISM NEBULA: VƯƠNG MIỆN LĂNG KÍNH TINH VÂN QUANG PHỔ MYTHIC
+            if (mythicType === "prismNebula") {
+              ctx.save();
+              const pnBob = Math.sin(nowMs * 0.0055) * 1.0 * scale;
+              const pnY = -half - 4.2 * scale + pnBob;
+              const crownW = half * (isClicking ? 1.4 : (isHovering ? 1.3 : 1.15));
+
+              // 1. Hào quang lăng kính thái dương tỏa tia
+              const haloGrad = ctx.createRadialGradient(0, pnY, 0, 0, pnY, crownW * 1.5);
+              haloGrad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+              haloGrad.addColorStop(0.35, "rgba(255, 224, 102, 0.75)");
+              haloGrad.addColorStop(0.7, "rgba(255, 77, 109, 0.5)");
+              haloGrad.addColorStop(1, "rgba(0, 245, 212, 0)");
+              ctx.fillStyle = haloGrad;
+              ctx.beginPath();
+              ctx.arc(0, pnY, crownW * 1.5, 0, Math.PI * 2);
+              ctx.fill();
+
+              // 2. Vương miện 3 chóp lăng kính rực rỡ
+              ctx.fillStyle = isClicking ? "#ffff3f" : (isHovering ? "#00f5d4" : "#ffd166");
+              ctx.strokeStyle = "#ffffff";
+              ctx.lineWidth = 1.0 * scale;
+              ctx.beginPath();
+              ctx.moveTo(-crownW * 0.85, pnY + 1 * scale);
+              ctx.lineTo(-crownW * 0.85, pnY - crownW * 0.55);
+              ctx.lineTo(-crownW * 0.4, pnY - crownW * 0.2);
+              ctx.lineTo(0, pnY - crownW * 0.95);
+              ctx.lineTo(crownW * 0.4, pnY - crownW * 0.2);
+              ctx.lineTo(crownW * 0.85, pnY - crownW * 0.55);
+              ctx.lineTo(crownW * 0.85, pnY + 1 * scale);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+
+              // 3. Ba viên ngọc lăng kính trên đỉnh
+              drawMiniStar4(ctx, 0, pnY - crownW * 0.95, 3.2 * scale, 1.0 * scale, "#ffffff");
+              drawMiniStar4(ctx, -crownW * 0.85, pnY - crownW * 0.55, 2.2 * scale, 0.8 * scale, "#ff4d6d");
+              drawMiniStar4(ctx, crownW * 0.85, pnY - crownW * 0.55, 2.2 * scale, 0.8 * scale, "#00f5d4");
+              ctx.restore();
+            }
+
+            // [12] TWILIGHT HORIZON: VƯƠNG MIỆN CỰC QUANG CHÂN TRỜI VŨ TRỤ MYTHIC)
             if (mythicType === "twilightHorizon") {
               ctx.save();
               const thBob = Math.sin(nowMs * 0.005) * 0.8 * scale;
@@ -60806,6 +62753,24 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
                   ctx.fillStyle = "#ffd54f";
                   ctx.fillRect(eyePosX + 1.2 * scale, eyePosY - 1.2 * scale, 1.0 * scale, 1.0 * scale);
                 }
+              } else if (mythicType === "prismNebula") {
+                if (isClicking) {
+                  ctx.strokeStyle = "#00f5d4";
+                  ctx.lineWidth = 1.8 * scale;
+                  ctx.beginPath();
+                  ctx.moveTo(eyePosX + 2.0 * scale, eyePosY);
+                  ctx.lineTo(eyePosX - 2.0 * scale, eyePosY - (side * 2.0 * scale));
+                  ctx.stroke();
+                  ctx.fillStyle = "#ffffff";
+                  ctx.beginPath();
+                  ctx.arc(eyePosX, eyePosY, 1.0 * scale, 0, Math.PI * 2);
+                  ctx.fill();
+                } else if (isHovering) {
+                  ctx.fillStyle = "#ffd166";
+                  ctx.beginPath();
+                  ctx.arc(eyePosX, eyePosY, 1.4 * scale, 0, Math.PI * 2);
+                  ctx.fill();
+                }
               } else if (mythicType === "twilightHorizon") {
                 if (isClicking) {
                   ctx.strokeStyle = "#38bdf8";
@@ -60913,6 +62878,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               ctx.fillStyle = "rgba(255, 109, 0, 0.85)";
               ctx.fillRect(-half * 0.2, -half + 1 * scale, 2.2 * scale, 2.2 * scale);
               ctx.fillRect(-half * 0.2, half - 3.2 * scale, 2.2 * scale, 2.2 * scale);
+            } else if (mythicType === "prismNebula") {
+              ctx.fillStyle = "rgba(0, 245, 212, 0.9)";
+              ctx.fillRect(-half * 0.2, -half + 1 * scale, 2.4 * scale, 2.4 * scale);
+              ctx.fillStyle = "rgba(255, 77, 109, 0.9)";
+              ctx.fillRect(-half * 0.2, half - 3.4 * scale, 2.4 * scale, 2.4 * scale);
             } else if (mythicType === "twilightHorizon") {
               ctx.fillStyle = "rgba(217, 70, 239, 0.85)";
               ctx.fillRect(-half * 0.2, -half + 1 * scale, 2.2 * scale, 2.2 * scale);
