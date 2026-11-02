@@ -26954,11 +26954,9 @@
       if (gameOver || gameWin) return;
       if (bossPerfStats && bossPerfStats.stutterGraceTimer > 0) return;
 
-      const isInsane = (isRaceMode || currentDifficulty === "race")
-        ? (raceDifficulty === "insane")
-        : (currentDifficulty === "insane");
-
-      if (isInsane) {
+      // Trong Boss Rush: mọi va chạm vào thân giun đều quy về applyBossHitToPlayer để hưởng 1.0s i-frames
+      // Tuyệt đối loại bỏ lỗi dính đạn vào thân bị chết luôn (segIndex <= 1)
+      if (isRaceMode || currentDifficulty === "race") {
         applyBossHitToPlayer(sourceName, sourceColor, hitX, hitY);
         return;
       }
@@ -26966,6 +26964,7 @@
       if (worm.isShielded) {
         worm.isShielded = false;
         worm.shieldTimer = 0;
+        worm.tailBiteCooldown = 0.85;
         playSound("shield");
         screenShake = 28;
         spawnBossShockwave(hitX, hitY, 150, "rgba(0, 229, 255, 0.9)");
@@ -26976,15 +26975,17 @@
 
       if (worm.tailBiteCooldown > 0) return;
 
-      if (worm.body.length <= 2 || segIndex <= 1) {
+      if (worm.body.length <= 2) {
         playSound("gameover");
         triggerGameOver();
         return;
       }
 
-      const lostCount = worm.body.length - segIndex;
-      const severedSegments = worm.body.splice(segIndex);
-      worm.tailBiteCooldown = 0.85; // Miễn nhiễm 0.85s để thoát khỏi vùng đạn dày đặc
+      // Giữ tối thiểu 2 đốt thân, không để đạn cắt đốt trước (segIndex <= 1) gây 1-hit kill
+      const safeSegIndex = Math.max(2, Math.min(worm.body.length - 1, segIndex));
+      const lostCount = worm.body.length - safeSegIndex;
+      const severedSegments = worm.body.splice(safeSegIndex);
+      worm.tailBiteCooldown = 0.95; // Miễn nhiễm 0.95s để thoát khỏi vùng đạn dày đặc
 
       screenShake = Math.max(screenShake, 34);
       playSound("eat_blood");
@@ -27029,32 +27030,41 @@
         return false;
       }
 
-      const isInsane = (isRaceMode || currentDifficulty === "race")
-        ? (raceDifficulty === "insane")
-        : (currentDifficulty === "insane");
+      // MIỄN NHIỄM SÁT THƯƠNG (I-FRAMES): Chặn đứng 100% việc dính nhiều đạn cùng lúc gây chết oan!
+      if (worm.tailBiteCooldown > 0) {
+        if (hitX !== undefined && hitY !== undefined) {
+          spawnBossSparks(hitX, hitY, 6, "#00e5ff");
+          spawnBossFloatingText("🛡️ MIỄN NHIỄM!", hitX, hitY - 20, "#00e5ff", 16);
+        }
+        return false;
+      }
 
       if (worm.isShielded) {
         worm.isShielded = false;
         worm.shieldTimer = 0;
+        worm.tailBiteCooldown = 0.95; // Cung cấp 0.95s miễn nhiễm ngay khi vỡ khiên để né các đòn kế tiếp
         playSound("shield");
         screenShake = 32;
         if (hitX !== undefined && hitY !== undefined) {
           spawnBossShockwave(hitX, hitY, 160, "rgba(0, 229, 255, 0.9)");
           spawnBossSparks(hitX, hitY, 18, "#00e5ff");
-          spawnBossFloatingText("🛡️ KHIÊN ĐÃ VỠ!", hitX, hitY - 20, "#00e5ff", 22);
+          spawnBossFloatingText("🛡️ KHIÊN ĐÃ VỠ (MIỄN NHIỄM 1s)!", hitX, hitY - 20, "#00e5ff", 22);
         }
-        showBossRushBanner(`🛡️ KHIÊN ĐÃ VỠ KHI CHẶN [${skillName}]!`, "#00e5ff");
+        showBossRushBanner(`🛡️ KHIÊN ĐÃ VỠ KHI CHẶN [${skillName}]! BẬT 1.0s MIỄN NHIỄM!`, "#00e5ff");
         return false;
       }
 
+      const isInsane = (isRaceMode || currentDifficulty === "race")
+        ? (raceDifficulty === "insane")
+        : (currentDifficulty === "insane");
+
       if (isInsane) {
-        // Trong Insane Boss Rush: dính đạn boss chỉ nhận x2 sát thương (mất 2 đốt thân giun) thay vì chết luôn!
+        // Trong Insane Boss Rush: dính đạn boss nhận x2 sát thương (-2 đốt thân), trao 1.0s miễn nhiễm
         if (isRaceMode || currentDifficulty === "race") {
-          if (worm.tailBiteCooldown > 0) return false;
           if (worm.body.length > 3) {
             worm.body.pop();
             worm.body.pop();
-            worm.tailBiteCooldown = 0.65; // Miễn nhiễm 0.65s tránh đạn cùng lúc
+            worm.tailBiteCooldown = 1.0; // Miễn nhiễm 1.0s chống dính đạn cùng lúc
             playSound("explode");
             screenShake = 38;
             if (hitX !== undefined && hitY !== undefined) {
@@ -27062,7 +27072,21 @@
               spawnBossSparks(hitX, hitY, 24, skillColor || "#ff1744");
               spawnBossFloatingText("💥 TRÚNG ĐẠN (x2 ST: -2 ĐỐT)!", hitX, hitY - 24, "#ff1744", 22);
             }
-            showBossRushBanner(`⚠️ DÍNH [${skillName}]! NHẬN X2 SÁT THƯƠNG (-2 ĐỐT THÂN)! CÒN ${worm.body.length} ĐỐT!`, "#ff1744");
+            showBossRushBanner(`⚠️ DÍNH [${skillName}]! NHẬN X2 SÁT THƯƠNG (-2 ĐỐT THÂN)! CÒN ${worm.body.length} ĐỐT! 🛡️ MIỄN NHIỄM 1.0s!`, "#ff1744");
+            updateBossAmmoUI();
+            return false;
+          } else if (worm.body.length > 1) {
+            // Còn 2-3 đốt: giữ lại 1 đốt thân (Last Stand) trao cơ hội sống sót
+            worm.body.pop();
+            worm.tailBiteCooldown = 1.25; // 1.25s miễn nhiễm cứu mạng
+            playSound("explode");
+            screenShake = 42;
+            if (hitX !== undefined && hitY !== undefined) {
+              spawnBossShockwave(hitX, hitY, 220, "rgba(255, 0, 85, 0.95)");
+              spawnBossSparks(hitX, hitY, 30, "#ff0055");
+              spawnBossFloatingText("⚠️ NGUY CẤP: CÒN 1 ĐỐT THÂN!", hitX, hitY - 26, "#ff0055", 24);
+            }
+            showBossRushBanner(`🚨 NGUY CẤP! CHỈ CÒN ${worm.body.length} ĐỐT THÂN! ĂN THỨC ĂN KHẨN CẤP!`, "#ff0055");
             updateBossAmmoUI();
             return false;
           } else {
@@ -27073,7 +27097,7 @@
               spawnBossSparks(hitX, hitY, 36, "#ff0055");
               spawnBossFloatingText("💀 HẾT ĐỐT THÂN GIUN (INSANE)!", hitX, hitY - 30, "#ff0055", 26);
             }
-            showBossRushBanner(`💀 HẾT ĐỐT THÂN GIUN KHI DÍNH [${skillName}] (X2 SÁT THƯƠNG)! `, "#ff0055");
+            showBossRushBanner(`💀 HẾT ĐỐT THÂN GIUN KHI DÍNH [${skillName}]!`, "#ff0055");
             triggerGameOver();
             return true;
           }
@@ -27085,23 +27109,47 @@
           spawnBossSparks(hitX, hitY, 36, "#ff0055");
           spawnBossFloatingText("💀 TỬ VONG LẬP TỨC (INSANE)!", hitX, hitY - 30, "#ff0055", 26);
         }
-        showBossRushBanner(`💀 CHẾ ĐỘ INSANE (1-HIT KILL): DÍNH [${skillName}] TỬ VONG NGAY LẬP TỨC!`, "#ff0055");
+        showBossRushBanner(`💀 CHẾ ĐỘ INSANE: DÍNH [${skillName}] TỬ VONG NGAY LẬP TỨC!`, "#ff0055");
         triggerGameOver();
         return true;
       }
 
+      // Các độ khó Dễ, Bình Thường, Khó (Easy, Normal, Hard):
+      // Tuyệt đối không chết ngay lập tức! Trừ 1 đốt thân và kích hoạt 1.0s miễn nhiễm toàn diện
       if (worm.body.length > 2) {
         worm.body.pop();
-        playSound("gameover");
-        screenShake = 28;
+        worm.tailBiteCooldown = 1.0; // Miễn nhiễm 1.0s chống dính nhiều đạn cùng lúc
+        playSound("explode");
+        screenShake = 24;
         if (hitX !== undefined && hitY !== undefined) {
-          spawnBossSparks(hitX, hitY, 16, skillColor || "#ff1744");
-          spawnBossFloatingText("💥 TRÚNG ĐÒN (-1 ĐỐT)!", hitX, hitY - 20, skillColor || "#ff1744", 20);
+          spawnBossSparks(hitX, hitY, 18, skillColor || "#ff1744");
+          spawnBossFloatingText("💥 TRÚNG ĐÒN (-1 ĐỐT)! 🛡️", hitX, hitY - 20, skillColor || "#ff1744", 20);
         }
+        showBossRushBanner(`⚠️ DÍNH [${skillName}]! (-1 ĐỐT) CÒN ${worm.body.length} ĐỐT! 🛡️ MIỄN NHIỄM 1.0s!`, skillColor || "#ff6d00");
+        updateBossAmmoUI();
+        return false;
+      } else if (worm.body.length === 2) {
+        // Còn 2 đốt: trúng đòn còn 1 đốt (Last Stand), tăng thời gian miễn nhiễm lên 1.3s
+        worm.body.pop();
+        worm.tailBiteCooldown = 1.3;
+        playSound("explode");
+        screenShake = 32;
+        if (hitX !== undefined && hitY !== undefined) {
+          spawnBossSparks(hitX, hitY, 24, "#ff1744");
+          spawnBossFloatingText("🚨 NGUY CẤP: CÒN 1 ĐỐT!", hitX, hitY - 24, "#ff1744", 22);
+        }
+        showBossRushBanner(`🚨 BÁO ĐỘNG ĐỎ: CHỈ CÒN 1 ĐỐT THÂN DUY NHẤT! MAU ĂN MỒI HỒI MÁU!`, "#ff1744");
         updateBossAmmoUI();
         return false;
       } else {
+        // Khi chỉ còn 1 đốt duy nhất mà trúng tiếp thì mới Game Over
         playSound("gameover");
+        screenShake = 55;
+        if (hitX !== undefined && hitY !== undefined) {
+          spawnBossShockwave(hitX, hitY, 220, "rgba(255, 23, 68, 0.95)");
+          spawnBossFloatingText("💀 HẾT ĐỐT THÂN GIUN!", hitX, hitY - 28, "#ff0055", 26);
+        }
+        showBossRushBanner(`💀 HẾT ĐỐT THÂN GIUN KHI DÍNH [${skillName}]!`, "#ff0055");
         triggerGameOver();
         return true;
       }
@@ -27218,18 +27266,8 @@
       if (!worm.body || !worm.body[0]) return;
       const head = worm.body[0];
       const isInsane = (isRaceMode || currentDifficulty === "race") ? (raceDifficulty === "insane") : (currentDifficulty === "insane");
-      const totalWaves = isInsane ? 6 : 5;
+      const totalWaves = isInsane ? 7 : 5;
       const currentSession = bossRushSessionId;
-
-      // Chuỗi khe né an toàn nhịp điệu luân phiên mượt mà, người chơi cực kỳ dễ đoán
-      const patternCols = [
-        Math.floor(cols * 0.5),
-        Math.floor(cols * 0.28),
-        Math.floor(cols * 0.72),
-        Math.floor(cols * 0.42),
-        Math.floor(cols * 0.60),
-        Math.floor(cols * 0.50)
-      ];
 
       for (let w = 0; w < totalWaves; w++) {
         setTimeout(() => {
@@ -27237,46 +27275,28 @@
           if (!worm.body || !worm.body[0]) return;
           const curHead = worm.body[0];
 
-          // Chọn khe an toàn nhịp nhàng
-          const safeCol = patternCols[w % patternCols.length];
-          const safeRadius = isInsane ? 2.0 : 2.5;
+          // Bắn loạt đạn nhịp điệu luân phiên từ hai mép tường trái / phải uốn lượn ngang màn hình
+          const fromLeft = w % 2 === 0;
+          const sx = fromLeft ? gridSize * 1.5 : (cols - 1.5) * gridSize;
+          const sy = (curHead.y - 6 + (w % 3) * 2.2) * gridSize;
+          const vx = (fromLeft ? 1 : -1) * (isInsane ? 240 : 200);
 
-          // Đăng ký làn an toàn để hệ thống vẽ tia cảnh báo và vùng trống an toàn
-          bossJsbSafeLanes.push({
-            col: safeCol,
-            radiusCols: safeRadius,
-            life: 2.2,
-            maxLife: 2.2,
-            color: "#00f2fe"
+          bossJsbBarrageBullets.push({
+            x: sx,
+            y: sy,
+            vx: vx,
+            vy: (Math.random() - 0.5) * 20,
+            radius: gridSize * 0.62,
+            color: fromLeft ? "#ff007f" : "#00f2fe",
+            life: 4.8,
+            isWaterfall: false
           });
 
-          // Màu đạn luân phiên neon rực rỡ, độ tương phản cực cao
-          const waveColors = ["#ff007f", "#00f2fe", "#ffd600", "#ff007f", "#00f2fe", "#d500f9"];
-          const bulletColor = waveColors[w % waveColors.length];
-          const skyY = (curHead.y - 16) * gridSize;
-          const stepCol = isInsane ? 1.25 : 1.45;
-
-          // Rải đạn khắp bề ngang đấu trường nhưng chừa đúng khe an toàn rộng rãi
-          for (let c = 1.5; c <= cols - 1.5; c += stepCol) {
-            if (Math.abs(c - safeCol) < safeRadius) continue; // Khe an toàn đảm bảo không dính đạn
-
-            bossJsbBarrageBullets.push({
-              x: c * gridSize,
-              y: skyY,
-              vx: 0, // Tuyệt đối không rung lắc ngẫu nhiên - rơi thẳng đứng 100% dễ đoán
-              vy: isInsane ? 180 : 155, // Tốc độ đạn chuẩn mực, người chơi nhìn rõ và né dễ dàng
-              radius: gridSize * 0.62,
-              color: bulletColor,
-              life: 5.5,
-              isWaterfall: false
-            });
-          }
-
-          playSound("pew");
-        }, w * 320);
+          playSound("click");
+        }, w * 220);
       }
       screenShake = 16;
-      showBossRushBanner("⚡ [BARRAGE] ĐẠN NHỊP RƠI TỪ BẦU TRỜI! THEO DÕI TIA DẪN HƯỚNG VÀ NÉ! ⚡", "#00f2fe");
+      showBossRushBanner("🎶 [BARRAGE] ĐẠN NHỊP ĐIỆU BẮN TỪ HAI MÉP TƯỜNG! UỐN LƯỢN QUA LẠI NÉ TRÁNH! ⚡", "#00f2fe");
     }
 
     // 1. CHIÊU MỚI ĐẶC QUYỀN CHẾ ĐỘ KHÓ: SIÊU CẦU NĂNG LƯỢNG HOA THỊ JSAB (Mega Nova Blast Sphere)
@@ -27363,16 +27383,14 @@
       showBossRushBanner("🌀 [HELIX BEAT] DẢI SÓNG BÓNG ĐẠN XOẮN KÉP JSAB! QUAN SÁT TÂM ĐỐI XỨNG! ⚡", "#00f2fe");
     }
 
-    // 3. CHIÊU MỚI ĐẶC QUYỀN CHẾ ĐỘ KHÓ: THÁC ĐẠN DIỆN RỘNG NGUYÊN TỬ (Atomic Waterfall Curtain)
+    // 3. CHIÊU MỚI ĐẶC QUYỀN CHẾ ĐỘ KHÓ: THÁC MƯA ĐẠN NHỊP ĐIỆU RỘNG THOÁNG (Spaced Rhythmic Rain Shower)
     function triggerBossJsbWaterfallCurtain() {
       if (!worm.body || !worm.body[0]) return;
       const head = worm.body[0];
       const isInsane = (isRaceMode || currentDifficulty === "race") ? (raceDifficulty === "insane") : (currentDifficulty === "insane");
-      const waves = isInsane ? 6 : 5;
-      const waveIntervalMs = 320;
+      const waves = isInsane ? 5 : 4;
+      const waveIntervalMs = 380;
       const currentSession = bossRushSessionId;
-
-      let currentSafeCol = Math.max(3.5, Math.min(cols - 3.5, Math.round(head.x)));
 
       for (let w = 0; w < waves; w++) {
         setTimeout(() => {
@@ -27380,44 +27398,34 @@
           if (!worm.body || !worm.body[0]) return;
           const curHead = worm.body[0];
 
-          // Dịch chuyển khe an toàn nhịp nhàng có thể đoán trước
-          const shift = (w % 2 === 0 ? -1.8 : 1.8);
-          currentSafeCol = Math.max(3.5, Math.min(cols - 3.5, currentSafeCol + shift));
+          // Khoảng cách rộng rãi giữa các hạt mưa đạn (4.8 đến 5.2 ô)
+          // Đảm bảo không bao giờ bít kín bầu trời thành 1 khe hẹp duy nhất!
+          // Luôn có 4-5 khoảng trống thênh thang xuyên suốt bề ngang để giun thoải mái luồn lách!
+          const waveColors = ["#ff007f", "#00f2fe", "#ffd600", "#ff007f", "#00f2fe"];
+          const bulletColor = waveColors[w % waveColors.length];
+          const skyY = (curHead.y - 15) * gridSize;
+          const stepCol = isInsane ? 4.4 : 5.0; // Khoảng cách cực kỳ rộng rãi giữa các viên đạn
+          const startColOffset = 2.0 + (w * 1.8) % stepCol; // Đan xen nhịp nhàng từng đợt
 
-          const safeGapRadiusCols = isInsane ? 2.2 : 2.8;
-          const skyY = (curHead.y - 16) * gridSize;
-          const stepCol = isInsane ? 1.05 : 1.25;
-
-          // Đăng ký làn an toàn
-          bossJsbSafeLanes.push({
-            col: currentSafeCol,
-            radiusCols: safeGapRadiusCols,
-            life: 2.2,
-            maxLife: 2.2,
-            color: "#00f2fe"
-          });
-
-          for (let c = 1.2; c <= cols - 1.2; c += stepCol) {
-            if (Math.abs(c - currentSafeCol) < safeGapRadiusCols) continue; // Khe an toàn nhịp điệu
-
+          for (let c = startColOffset; c <= cols - 1.8; c += stepCol) {
             bossJsbBarrageBullets.push({
               x: c * gridSize,
               y: skyY,
-              vx: 0, // Đạn thác rơi thẳng đứng hoàn hảo, không lệch vào khe né
-              vy: isInsane ? 205 : 175, // Tốc độ thác mượt mà, kịp quan sát và lách qua
-              radius: gridSize * 0.60,
-              color: w % 2 === 0 ? "#ff007f" : "#00f2fe",
+              vx: 0,
+              vy: isInsane ? 175 : 150, // Tốc độ rơi êm ái, người chơi dễ dàng quan sát và di chuyển
+              radius: gridSize * 0.58,
+              color: bulletColor,
               isWaterfall: true,
-              life: 4.5
+              life: 5.0
             });
           }
 
           playSound("pew");
-          screenShake = Math.max(screenShake, 16);
+          screenShake = Math.max(screenShake, 12);
         }, w * waveIntervalMs);
       }
 
-      showBossRushBanner("🌊 [WATERFALL] THÁC ĐẠN NGUYÊN TỬ DỘI XUỐNG! LUỒN VÀO LÀN AN TOÀN! ⚡", "#00f2fe");
+      showBossRushBanner("🌧️ [WATERFALL] MƯA ĐẠN NHỊP ĐIỆU RỘNG THOÁNG! TỰ DO UỐN LƯỢN NÉ TRÁNH! ⚡", "#00f2fe");
     }
 
     // 4. CHIÊU MỚI ĐẶC QUYỀN CHẾ ĐỘ KHÓ: VÒNG SÓNG XUNG KÍCH NHỊP ĐIỆU CO NỞ (Expanding Rhythm Shockwave Rings)
@@ -35004,6 +35012,17 @@
       const dy = y - record.lastY;
       const distSq = dx * dx + dy * dy;
 
+      // SỬA TRIỆT ĐỂ LỖI NHÁY VỆT SÁNG KHI QUA MÀN / TELEPORT / DỊCH CHUYỂN:
+      // Nếu bước nhảy tọa độ quá lớn (> 2.2 ô lưới), đây là hiện tượng chuyển màn/wrap/teleport
+      const maxJumpDist = (typeof gridSize !== "undefined" ? gridSize : 30) * 2.2;
+      if (distSq > maxJumpDist * maxJumpDist) {
+        record.points.length = 0; // Xóa sạch các điểm màn cũ, không nối vệt sáng xuyên qua màn hình
+        record.lastTime = nowMs;
+        record.lastX = x;
+        record.lastY = y;
+        return;
+      }
+
       const minInterval = isDash ? 16 : 22;
       if (nowMs - record.lastTime < minInterval && distSq < 16) return;
       if (distSq < 2.5 && !isDash) return;
@@ -35038,10 +35057,18 @@
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
 
+      const maxSegDist = (typeof gridSize !== "undefined" ? gridSize : 30) * 2.2;
+      const maxSegDistSq = maxSegDist * maxSegDist;
+
       // 1. SỢI CHỈ QUANG PHỔ NHỎ GỌN, THANH MẢNH (Petite Delicate Stardust Thread)
       for (let i = pLen - 1; i >= 1; i--) {
         const p1 = pts[i];
         const p0 = pts[i - 1];
+        // Tuyệt đối không nối đường thẳng nếu khoảng cách giữa 2 điểm bị nhảy vọt khi qua màn
+        const dX = p1.x - p0.x;
+        const dY = p1.y - p0.y;
+        if (dX * dX + dY * dY > maxSegDistSq) continue;
+
         const age = nowMs - p1.time;
         if (age >= maxAge) continue;
 
@@ -45634,6 +45661,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function resetGame(isRevive = false) {
+      if (typeof prismNebulaTrailHistory !== "undefined") {
+        prismNebulaTrailHistory.clear();
+      }
       if (isDarkNightMode) {
         cols = DARKNIGHT_WORLD_COLS;
         rows = DARKNIGHT_WORLD_ROWS;
@@ -45712,7 +45742,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         infiniteCamInitialized = true;
       }
       resetChromaBag();
-      worm.body = [makeWormSegment(startX, startY), makeWormSegment(startX, startY + 1), makeWormSegment(startX, startY + 2)];
+      worm.body = isRaceMode
+        ? [makeWormSegment(startX, startY), makeWormSegment(startX, startY + 1), makeWormSegment(startX, startY + 2), makeWormSegment(startX, startY + 3), makeWormSegment(startX, startY + 4)]
+        : [makeWormSegment(startX, startY), makeWormSegment(startX, startY + 1), makeWormSegment(startX, startY + 2)];
       prevWormBody = worm.body.map(c => ({ x: c.x, y: c.y }));
       wormDisplayBody = worm.body.map(c => ({ x: c.x, y: c.y }));
       moveCounter = 0;
@@ -46213,6 +46245,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function noteScreenTransitionClearState() {
+      if (typeof prismNebulaTrailHistory !== "undefined") {
+        prismNebulaTrailHistory.clear();
+      }
       if (isMenuMode) return;
       if (!perfectClearRun) return;
       if (obstacles.length > 0 || foods.length > 0) perfectClearRun = false;
@@ -47846,6 +47881,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         if (worm.shieldTimer <= 0) {
           worm.isShielded = false;
         }
+      }
+      if (worm && worm.tailBiteCooldown > 0) {
+        worm.tailBiteCooldown = Math.max(0, worm.tailBiteCooldown - dt);
       }
       checkImmortalCleanTracking();
       if (transitionTimer > 0) {
@@ -52268,16 +52306,24 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const wormDisplayBodyForThisCall = displayCache || wormDisplayBody;
       const prevWormShieldFlag = wormIsShieldedFlag;
       wormIsShieldedFlag = isShielded;
-      const isGhostActive = !menuModeFlag && bodyList === (typeof worm !== "undefined" && worm ? worm.body : null) && worm && worm.isGhost;
-      if (isGhostActive) {
-        targetCtx.save();
-        targetCtx.globalAlpha = 0.45;
-      }
       if (isUniqueChromaSkin(skinId)) ensureBodyChromaHues();
       const hasGlide = Array.isArray(prevBodyList) && prevBodyList.length > 0 && typeof moveT === "number";
       const glideT = hasGlide ? Math.max(0, Math.min(1, moveT)) : 1;
       const wiggleActive = isMoving !== false;
       const nowMsWiggle = performance.now();
+
+      const origAlpha = targetCtx.globalAlpha;
+      const isInvulnerableActive = !menuModeFlag && bodyList === (typeof worm !== "undefined" && worm ? worm.body : null) && worm && worm.tailBiteCooldown > 0;
+      if (isInvulnerableActive) {
+        // Nhấp nháy mờ/rõ nhịp nhàng trong thời gian i-frames miễn nhiễm
+        const iAlpha = Math.floor(nowMsWiggle / 80) % 2 === 0 ? 0.35 : 0.88;
+        targetCtx.globalAlpha = origAlpha * iAlpha;
+      }
+      const isGhostActive = !menuModeFlag && bodyList === (typeof worm !== "undefined" && worm ? worm.body : null) && worm && worm.isGhost;
+      if (isGhostActive) {
+        targetCtx.save();
+        targetCtx.globalAlpha = 0.45;
+      }
       if (skinId === "galacticCore" && !menuModeFlag) drawGalacticDustTrail(targetCtx, bodyList, nowMsWiggle);
       if (skinId === "sunsetMirage" && !menuModeFlag) drawSunsetMirageFootsteps(targetCtx, bodyList, nowMsWiggle);
 /* mintCloud để dạng Rare thường không vẽ footsteps */
@@ -52710,6 +52756,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (isGhostActive) {
         targetCtx.restore();
       }
+      targetCtx.globalAlpha = origAlpha;
       wormIsShieldedFlag = prevWormShieldFlag;
     }
 
