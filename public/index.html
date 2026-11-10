@@ -1066,6 +1066,250 @@
         transform: scale(1.12) !important;
         transform-origin: bottom left !important;
       }
+
+      /* === THIẾT KẾ MÀN HÌNH CHỌN LEVEL / ĐỘ KHÓ DỌC ĐIỆN THOẠI PHÙ HỢP NHƯ MÀN HÌNH NGANG === */
+      #main-menu {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 6px 0 max(16px, env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Khi mở subpanel (chọn level, chế độ khác, 1 mins) trên màn hình dọc điện thoại: ẩn bớt logo to để dồn 100% diện tích cho nút bấm */
+      #main-menu.subpanel-active .logo-wrapper,
+      #main-menu:has(.menu-panel:not(#panel-root)[style*="flex"]) .logo-wrapper {
+        display: none !important;
+      }
+
+      /* MÀN HÌNH CHỌN LEVEL / ĐỘ KHÓ TRÊN ĐIỆN THOẠI DỌC: 2 CỘT NẰM NGANG CẠNH NHAU NHƯ MÀN HÌNH NGANG */
+      #panel-difficulty {
+        width: 95vw !important;
+        max-width: 400px !important;
+        max-height: 92vh !important;
+        max-height: 92dvh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 8px 8px 14px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 5px !important;
+        border-radius: 14px !important;
+        background: rgba(10, 14, 24, 0.96) !important;
+        box-shadow: 0 0 28px rgba(0, 229, 255, 0.28), inset 0 0 16px rgba(0, 0, 0, 0.85) !important;
+      }
+
+      #panel-difficulty .diff-map-columns {
+        display: flex !important;
+        flex-direction: row !important; /* 2 cột xếp ngang song song */
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        width: 100% !important;
+        gap: 8px !important;
+        margin-bottom: 4px !important;
+      }
+
+      #panel-difficulty .diff-column,
+      #panel-difficulty .map-column {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 48.5% !important;
+        flex: 1 1 48% !important;
+        gap: 4.5px !important;
+      }
+
+      #panel-difficulty .menu-section-label {
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.8px !important;
+        text-align: center !important;
+        margin: 0 0 2px 0 !important;
+        padding: 2px 0 !important;
+        color: #00e5ff !important;
+        text-shadow: 0 0 8px rgba(0, 229, 255, 0.6) !important;
+      }
+
+      #panel-difficulty .map-column .menu-section-label {
+        color: #ffab00 !important;
+        text-shadow: 0 0 8px rgba(255, 171, 0, 0.6) !important;
+      }
+
+      #panel-difficulty .diff-choice-btn,
+      #panel-difficulty .map-size-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 6.5px 4px !important;
+        font-size: 10px !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+        border-radius: 8px !important;
+        min-height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+      }
+
+      #panel-difficulty .diff-choice-btn.active-setting,
+      #panel-difficulty .map-size-btn.active-setting {
+        outline: 2px solid #ffffff !important;
+        box-shadow: 0 0 14px rgba(255, 255, 255, 0.75), inset 0 0 8px rgba(255, 255, 255, 0.35) !important;
+        transform: scale(1.02) !important;
+      }
+
+      /* Nút BẮT ĐẦU to nổi bật, đặt ngay trong tầm với ngón tay */
+      #panel-difficulty #btn-start-game {
+        width: 98% !important;
+        max-width: 360px !important;
+        padding: 11px 16px !important;
+        font-size: 13.5px !important;
+        font-weight: 900 !important;
+        letter-spacing: 1.5px !important;
+        border-radius: 12px !important;
+        margin: 6px 0 3px !important;
+        box-shadow: 0 0 24px rgba(0, 230, 118, 0.65) !important;
+        background: linear-gradient(135deg, #00c853 0%, #76ff03 100%) !important;
+        color: #0d2800 !important;
+        min-height: 44px !important;
+      }
+
+      #panel-difficulty .back-btn {
+        width: 98% !important;
+        max-width: 260px !important;
+        padding: 7px 12px !important;
+        font-size: 10.5px !important;
+        border-radius: 8px !important;
+        margin: 2px 0 0 !important;
+        min-height: 32px !important;
+      }
+
+      /* MÀN HÌNH CHỌN CHẾ ĐỘ 1 MINS (BEAT DASH) TRÊN ĐIỆN THOẠI DỌC */
+      #panel-onemin {
+        width: 95vw !important;
+        max-width: 400px !important;
+        max-height: 92vh !important;
+        max-height: 92dvh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 10px 8px 14px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 6px !important;
+        border-radius: 14px !important;
+        background: rgba(14, 10, 22, 0.97) !important;
+      }
+
+      #panel-onemin .onemin-title {
+        font-size: 13.5px !important;
+      }
+
+      #panel-onemin .onemin-desc {
+        font-size: 9.5px !important;
+        line-height: 1.3 !important;
+        margin-bottom: 2px !important;
+      }
+
+      #panel-onemin .diff-map-columns {
+        width: 100% !important;
+      }
+
+      #panel-onemin .diff-column {
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 5px !important;
+      }
+
+      #panel-onemin .diff-choice-btn {
+        width: 100% !important;
+        padding: 7px 8px !important;
+        font-size: 10.5px !important;
+        min-height: 36px !important;
+        border-radius: 8px !important;
+      }
+
+      #panel-onemin #btn-start-onemin {
+        width: 98% !important;
+        max-width: 360px !important;
+        padding: 11px 16px !important;
+        font-size: 13px !important;
+        font-weight: 900 !important;
+        letter-spacing: 1px !important;
+        border-radius: 12px !important;
+        margin-top: 6px !important;
+        min-height: 44px !important;
+      }
+
+      #panel-onemin .back-btn {
+        width: 98% !important;
+        max-width: 260px !important;
+        padding: 7px 12px !important;
+        font-size: 10.5px !important;
+        min-height: 32px !important;
+      }
+
+      /* MÀN HÌNH CHẾ ĐỘ CHƠI KHÁC (#panel-map) TRÊN ĐIỆN THOẠI DỌC: 2 CỘT TIỆN LỢI */
+      #panel-map {
+        width: 95vw !important;
+        max-width: 420px !important;
+        max-height: 92vh !important;
+        max-height: 92dvh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 10px 6px 14px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 6px !important;
+        border-radius: 14px !important;
+      }
+
+      #panel-map .menu-section-label {
+        flex-basis: 100% !important;
+        font-size: 11.5px !important;
+        text-align: center !important;
+        margin: 0 0 2px !important;
+      }
+
+      #panel-map #nav-race,
+      #panel-map #nav-onemin,
+      #panel-map #nav-tsunami,
+      #panel-map #nav-darknight,
+      #panel-map #nav-endless {
+        width: 48% !important;
+        flex: 1 1 47% !important;
+        min-width: 135px !important;
+        max-width: 175px !important;
+        padding: 7px 5px !important;
+        min-height: 46px !important;
+        font-size: 10.5px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+      }
+
+      #panel-map .back-btn {
+        flex-basis: 100% !important;
+        width: 92% !important;
+        max-width: 260px !important;
+        padding: 7px 12px !important;
+        font-size: 10.5px !important;
+        min-height: 32px !important;
+        margin-top: 5px !important;
+      }
     }
 
     #main-menu {
@@ -18875,7 +19119,7 @@
 
     const panelSkin = document.getElementById("panel-skin");
 
-    const ALL_MENU_PANELS = () => [panelRoot, panelDifficulty, panelMap, panelEndless, panelRace, panelTsunami, panelDarkNight, panel2p, panelSettings, panelSkin];
+    const ALL_MENU_PANELS = () => [panelRoot, panelDifficulty, panelMap, panelEndless, panelRace, panelTsunami, panelDarkNight, panelOneMin, panel2p, panelSettings, panelSkin];
 
     function showOnlyPanel(targetPanel) {
       ALL_MENU_PANELS().forEach(p => {
@@ -23464,6 +23708,8 @@
       isInfiniteMapMode = false;
       isTsunamiMode = false;
       isDarkNightMode = false;
+      isOneMinMode = false;
+      if (typeof stopOneMinMode === "function") stopOneMinMode();
       document.body.classList.remove("race-mode", "darknight-active", "tsunami-hud-shift");
       const bBtn = document.getElementById("m-btn-boss-attack");
       if (bBtn) bBtn.style.display = "none";
@@ -64846,30 +65092,60 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   ["easy", "normal", "hard", "insane"].forEach(d => {
     const b = document.getElementById("btn-onemin-" + d);
     if (b) {
-      b.addEventListener("click", () => {
+      let touchHandled = false;
+      const handleDiffPick = (e) => {
+        if (e.type === "click" && touchHandled) { touchHandled = false; return; }
+        if (e.cancelable && e.type !== "click") e.preventDefault();
         initAudio();
         playSound("click");
         selectOneMinDifficultyChoice(d);
+      };
+      b.addEventListener("click", handleDiffPick);
+      b.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "touch") {
+          touchHandled = true;
+          handleDiffPick(e);
+        }
       });
     }
   });
 
   const navOneMinEl = document.getElementById("nav-onemin");
   if (navOneMinEl) {
-    navOneMinEl.addEventListener("click", () => {
+    let touchHandled = false;
+    const handleNavOneMin = (e) => {
+      if (e.type === "click" && touchHandled) { touchHandled = false; return; }
+      if (e.cancelable && e.type !== "click") e.preventDefault();
       initAudio();
       playSound("click");
       selectOneMinDifficultyChoice(pendingOneMinDifficultyChoice || "normal");
       switchPanel(panelMap, panelOneMin, "in", "map");
+    };
+    navOneMinEl.addEventListener("click", handleNavOneMin);
+    navOneMinEl.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch") {
+        touchHandled = true;
+        handleNavOneMin(e);
+      }
     });
   }
 
   const btnStartOneMinEl = document.getElementById("btn-start-onemin");
   if (btnStartOneMinEl) {
-    btnStartOneMinEl.addEventListener("click", () => {
+    let touchHandled = false;
+    const handleOneMinStart = (e) => {
+      if (e.type === "click" && touchHandled) { touchHandled = false; return; }
+      if (e.cancelable && e.type !== "click") e.preventDefault();
       initAudio();
       playSound("click");
       startOneMinMode();
+    };
+    btnStartOneMinEl.addEventListener("click", handleOneMinStart);
+    btnStartOneMinEl.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "touch") {
+        touchHandled = true;
+        handleOneMinStart(e);
+      }
     });
   }
 
