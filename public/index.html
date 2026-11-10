@@ -1081,13 +1081,16 @@
         display: none !important;
       }
 
-      /* Quy tắc bảo vệ tuyệt đối: khi menu-panel bị ẩn thì KHÔNG BAO GIỜ hiển thị đè lên nhau */
-      .menu-panel[style*="display: none"] {
+      /* Quy tắc bảo vệ tuyệt đối: Menu panel mặc định ẩn, CHỈ hiển thị khi có [style*="display: flex"] */
+      .menu-panel {
         display: none !important;
+      }
+      .menu-panel[style*="display: flex"] {
+        display: flex !important;
       }
 
       /* MÀN HÌNH CHỌN LEVEL / ĐỘ KHÓ TRÊN ĐIỆN THOẠI DỌC: 2 CỘT NẰM NGANG CẠNH NHAU NHƯ MÀN HÌNH NGANG */
-      #panel-difficulty:not([style*="display: none"]) {
+      #panel-difficulty[style*="display: flex"] {
         width: 95vw !important;
         max-width: 400px !important;
         max-height: 92vh !important;
@@ -1193,7 +1196,7 @@
       }
 
       /* MÀN HÌNH CHỌN CHẾ ĐỘ 1 MINS (BEAT DASH) TRÊN ĐIỆN THOẠI DỌC */
-      #panel-onemin:not([style*="display: none"]) {
+      #panel-onemin[style*="display: flex"] {
         width: 95vw !important;
         max-width: 400px !important;
         max-height: 92vh !important;
@@ -1260,7 +1263,7 @@
       }
 
       /* MÀN HÌNH CHẾ ĐỘ CHƠI KHÁC (#panel-map) TRÊN ĐIỆN THOẠI DỌC: 2 CỘT TIỆN LỢI */
-      #panel-map:not([style*="display: none"]) {
+      #panel-map[style*="display: flex"] {
         width: 95vw !important;
         max-width: 420px !important;
         max-height: 92vh !important;
@@ -17367,7 +17370,7 @@
         <div class="logo-subtitle">(expeditional)</div>
         <div class="logo-edition">Expeditional World</div>
       </div>
-      <div id="panel-root" class="menu-panel">
+      <div id="panel-root" class="menu-panel" style="display: flex;">
         <button id="nav-difficulty" class="menu-btn quick-play-btn zoom-rotate-item">🎮 CHỌN ĐỘ KHÓ (CHƠI BÌNH
           THƯỜNG)</button>
         <button id="nav-map" class="menu-btn">🕹️ Chế Độ Chơi Khác</button>
@@ -17375,7 +17378,7 @@
         <button id="nav-skin" class="menu-btn">🎨 Chọn Skin</button>
         <button id="nav-settings" class="menu-btn">⚙️ Cài Đặt</button>
       </div>
-      <div id="panel-difficulty" class="menu-panel">
+      <div id="panel-difficulty" class="menu-panel" style="display: none;">
         <div class="diff-map-columns">
           <div class="diff-column">
             <div class="menu-section-label slide-up-item">Độ Khó</div>
@@ -17395,7 +17398,7 @@
         <button id="btn-start-game" class="menu-btn slide-up-item">▶ BẮT ĐẦU</button>
         <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
       </div>
-      <div id="panel-map" class="menu-panel">
+      <div id="panel-map" class="menu-panel" style="display: none;">
         <div class="menu-section-label zoom-rotate-item">Chế Độ Chơi Khác</div>
         <button id="nav-race" class="menu-btn hot-mode-btn zoom-rotate-item" aria-label="Boss Rush Mode">
           <span class="hot-badge-boss">🔥 BOSS BATTLE</span>
@@ -17504,7 +17507,7 @@
         </div>
         <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
       </div>
-      <div id="panel-tsunami" class="menu-panel">
+      <div id="panel-tsunami" class="menu-panel" style="display: none;">
         <div class="menu-section-label zoom-rotate-item">🌊 Chế Độ Sóng Thần</div>
         <div class="endless-desc zoom-rotate-item">10 giây sau khi bắt đầu, một cơn sóng thần sẽ dâng lên từ đáy màn
           hình . Mỗi màn hình đều có cổng khóa phía trên (vị trí đổi ngẫu
@@ -17531,7 +17534,7 @@
         <button id="btn-start-tsunami" class="menu-btn zoom-rotate-item">▶ BẮT ĐẦU</button>
         <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
       </div>
-      <div id="panel-endless" class="menu-panel">
+      <div id="panel-endless" class="menu-panel" style="display: none;">
         <div class="menu-section-label zoom-rotate-item">🚀 Tăng Tốc Vô Tận</div>
         <div class="endless-desc zoom-rotate-item">Tốc độ tự tăng dần liên tục theo thời gian, không giới hạn. Sống sót
           càng lâu, game càng khó</div>
@@ -17546,7 +17549,7 @@
         <button id="btn-start-endless" class="menu-btn zoom-rotate-item">▶ BẮT ĐẦU</button>
         <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
       </div>
-      <div id="panel-race" class="menu-panel">
+      <div id="panel-race" class="menu-panel" style="display: none;">
         <div class="menu-section-label zoom-rotate-item"
           style="color: #ff3d00; font-weight: 900; font-size: 15px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 8px;">
           <span
@@ -17697,7 +17700,7 @@
         <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
       </div>
       
-      <div id="panel-onemin" class="menu-panel">
+      <div id="panel-onemin" class="menu-panel" style="display: none;">
         <div class="menu-section-label slide-up-item" style="color: #ff3366; font-weight: 900; font-size: 14px; letter-spacing: 2px;">⚡ CHẾ ĐỘ 1 MINS · HOW A STAR EXPLODES ⚡</div>
         <div class="endless-desc slide-up-item" style="font-size: 10px; max-width: 560px; line-height: 1.45; margin: 0 0 6px; text-align: center; color: #fce4ec;">
           Phong cách Just Shapes &amp; Beats: Giun KHÔNG tự di chuyển mà chỉ di chuyển khi bấm phím/chạm. Nhấn Space (hoặc nút Dash) để LƯỚT (Bất tử trong 0.22s)! Sống sót qua 10 giai đoạn nhịp điệu của ngôi sao phát nổ trong 67s và nhặt Lõi Chiến Thắng!
@@ -17714,7 +17717,7 @@
         <button id="btn-start-onemin" class="menu-btn slide-up-item">▶ BẮT ĐẦU (ĐẾM NGƯỢC 5S)</button>
         <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
       </div>
-<div id="panel-darknight" class="menu-panel">
+<div id="panel-darknight" class="menu-panel" style="display: none;">
         <div class="menu-section-label slide-up-item"
           style="color: #e040fb; font-weight: 900; font-size: 13px; letter-spacing: 2px;">🌑 Chế Độ Màn Đêm Tối</div>
         <div class="endless-desc slide-up-item"
@@ -17739,7 +17742,7 @@
         <button id="btn-start-darknight" class="menu-btn slide-up-item disabled">▶ BẮT ĐẦU</button>
         <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
       </div>
-      <div id="panel-2p" class="menu-panel">
+      <div id="panel-2p" class="menu-panel" style="display: none;">
 
         <div id="lan-mode-select-view" class="lan-view">
           <div class="menu-section-label slide-up-item">👥 CHỌN CHẾ ĐỘ 2 NGƯỜI CHƠI</div>
@@ -18036,7 +18039,7 @@
         </div>
       </div>
 
-      <div id="panel-settings" class="menu-panel">
+      <div id="panel-settings" class="menu-panel" style="display: none;">
         <div class="settings-lux-frame">
 
           <div class="settings-lux-header">
@@ -48269,6 +48272,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     function update(dt) {
       if (isPaused) return;
+      // Chế độ 1 Mins (Beat Dash): Vòng lặp đếm ngược và nhịp điệu luôn được cập nhật độc lập ở mọi khung hình!
+      if (isOneMinMode && !isMenuMode && !gameOver && !gameWin) {
+        updateOneMinMode(dt);
+      }
       if (startObjectiveGuideActive) {
         if (!objectiveGuideEnabled || isMenuMode || gameOver || gameWin) {
           startObjectiveGuideActive = false;
@@ -48453,7 +48460,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
       updateRollFabState();
       updateRollBuffHud();
-      if (!hasStartedMoving && !isMenuMode) return;
+      if (!hasStartedMoving && !isMenuMode && !isOneMinMode) return;
       if (!isMenuMode) {
         playTime += dt;
       }
@@ -48509,9 +48516,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         applyEndlessSpeedFromLevel();
       }
-      if (isOneMinMode && !isMenuMode && !gameOver && !gameWin) {
-        updateOneMinMode(dt);
-      }
+
       if (isDarkNightMode && !isMenuMode && !gameOver && !gameWin) {
         updateDarkNightMode(dt);
       }
@@ -48567,10 +48572,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         const proposedDir = worm.nextDir;
         const curDir = worm.dir;
-        const isReverse = (curDir.x !== 0 || curDir.y !== 0) && proposedDir.x === -curDir.x && proposedDir.y === -curDir.y;
-        const wouldHitNeck = worm.body.length > 1 && (worm.body[0].x + proposedDir.x === worm.body[1].x) && (worm.body[0].y + proposedDir.y === worm.body[1].y);
-        if (!isReverse && !wouldHitNeck && (proposedDir.x !== 0 || proposedDir.y !== 0)) {
-          worm.dir = proposedDir;
+        if (isOneMinMode) {
+          // Chế độ 1 Mins: Tự do đổi hướng 360 độ ngay lập tức để né đạn, không bị cản bởi thân
+          if (proposedDir.x !== 0 || proposedDir.y !== 0) {
+            worm.dir = proposedDir;
+          }
+        } else {
+          const isReverse = (curDir.x !== 0 || curDir.y !== 0) && proposedDir.x === -curDir.x && proposedDir.y === -curDir.y;
+          const wouldHitNeck = worm.body.length > 1 && (worm.body[0].x + proposedDir.x === worm.body[1].x) && (worm.body[0].y + proposedDir.y === worm.body[1].y);
+          if (!isReverse && !wouldHitNeck && (proposedDir.x !== 0 || proposedDir.y !== 0)) {
+            worm.dir = proposedDir;
+          }
         }
         timePerGrid = 1.0 / safeSpeed;
         lastTimePerGrid = timePerGrid;
@@ -48580,6 +48592,16 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           y: worm.body[0].y + worm.dir.y,
           chromaHue: takeUniqueChromaHue()
         };
+        if (isOneMinMode) {
+          // Đấu trường 16:9 khép kín: Giới hạn đầu giun bên trong tường đấu trường co rút, không cắn thân/rơi map
+          const padCols = Math.floor(cols * oneMinWallContractFrac);
+          const padRows = Math.floor(rows * oneMinWallContractFrac);
+          head.x = Math.max(padCols + 1, Math.min(cols - 2 - padCols, head.x));
+          head.y = Math.max(padRows + 1, Math.min(rows - 2 - padRows, head.y));
+          worm.body.unshift(head);
+          worm.body.pop();
+          continue;
+        }
         if (isTsunamiMode && !isMenuMode && head.y <= 0) {
           if (!isTsunamiColumnInGate(head.x) || !isTsunamiGateOpen()) {
             moveCounter = 0;
@@ -65248,6 +65270,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   // Direction & Dash Handlers (Manual movement - JS&B style)
   function updateOneMinDirection(dx, dy) {
     if (!isOneMinMode || isMenuMode || gameOver || gameWin || isPaused) return;
+    hasStartedMoving = true;
     if (dx === 0 && dy === 0) {
       oneMinMoving = false;
       worm.dir = { x: 0, y: 0 };
@@ -65384,6 +65407,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       { x: midX - 3, y: midY },
       { x: midX - 4, y: midY }
     ];
+    hasStartedMoving = true;
     worm.dir = { x: 0, y: 0 };
     worm.nextDir = { x: 0, y: 0 };
     prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
