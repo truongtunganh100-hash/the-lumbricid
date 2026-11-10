@@ -18766,8 +18766,7 @@
 
     let renderScale = 1;
     let isDarkNightMode = false;
-      isOneMinMode = false;
-      if (typeof stopOneMinMode === "function") stopOneMinMode(); // khai báo sớm vì applyCanvasResolution() dùng khi khởi động
+    let isOneMinMode = false; // khai báo sớm vì applyCanvasResolution() dùng khi khởi động
     const INFINITE_MAP_VIEW_COLS = 83;
     const INFINITE_MAP_VIEW_ROWS = 47;
     let isInfiniteMapMode = false; // khai báo sớm cùng lý do như isDarkNightMode ở trên
@@ -20953,12 +20952,12 @@
     let rollUnlockRemaining = 0;
 
     const ROLL_COOLDOWN_BY_DIFF = {
-      easy: 0,
-      normal: 6.5,
-      hard: 15,
-      insane: 30,
-      endless: 6.5,
-      race: 6.5
+      easy: 8,
+      normal: 16,
+      hard: 28,
+      insane: 45,
+      endless: 16,
+      race: 16
     };
 
     let isTsunamiMode = false;
@@ -48193,7 +48192,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         } else if (oneMinDashTimer > 0) {
           finalCalculatedSpeed = 38;
         } else {
-          finalCalculatedSpeed = 16;
+          const spdBoost = (typeof oneMinSpeedMultiplier !== "undefined" ? oneMinSpeedMultiplier : 1.0) * (worm.speedMultiplier || 1.0);
+          finalCalculatedSpeed = 16 * spdBoost;
         }
       }
       const safeSpeed = finalCalculatedSpeed > 0 ? finalCalculatedSpeed : 1;
@@ -55863,6 +55863,196 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       apply: () => {
         triggerChaosRoulette();
       }
+    }, {
+      id: "level_score_surge",
+      icon: "⚡",
+      name: "Đột Phá Cấp Độ",
+      desc: "Nhận điểm thưởng tăng mạnh theo Level và tăng 20% tốc độ trong 5s",
+      color: "#ffd600",
+      kind: "buff",
+      minLevel: 1,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        const bonus = 100 + lvl * 80;
+        score += bonus;
+        worm.speedMultiplier = 1.2;
+        startBuffTimer(5, `⚡ Đột Phá Cấp ${lvl} (+${bonus}đ)`, "#ffd600");
+        playSound("eat_gold");
+      }
+    }, {
+      id: "level_resonance_magnet",
+      icon: "🧲",
+      name: "Cộng Hưởng Lõi Từ",
+      desc: "Sóng từ trường hút toàn bộ mồi & lõi năng lượng trong phạm vi rộng liên tục 8 giây",
+      color: "#00e5ff",
+      kind: "buff",
+      minLevel: 2,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        magnetizeFoods();
+        worm.magneticResonanceTimer = 8;
+        startBuffTimer(8, `🧲 Lõi Từ Cấp ${lvl}`, "#00e5ff");
+        playSound("eat_speed");
+      }
+    }, {
+      id: "level_kinetic_barrier",
+      icon: "🛡️",
+      name: "Khiên Động Năng Cấp Độ",
+      desc: "Bất tử với thời gian kéo dài theo Cấp Độ hiện tại",
+      color: "#00ffff",
+      kind: "buff",
+      minLevel: 3,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        const dur = 3.5 + lvl * 0.6;
+        addLifetimeShieldBuffEaten();
+        worm.isShielded = true;
+        worm.shieldTimer = Math.max(worm.shieldTimer, dur);
+        if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+          oneMinInvincibleTimer = Math.max(oneMinInvincibleTimer, dur);
+        }
+        startBuffTimer(dur, `🛡️ Khiên Cấp ${lvl} (${dur.toFixed(1)}s)`, "#00ffff");
+        playSound("shield_up");
+      }
+    }, {
+      id: "level_quantum_overdrive",
+      icon: "🌠",
+      name: "Lướt Lượng Tử Siêu Âm",
+      desc: "Lướt không tốn hồi chiêu, cự ly lướt xa hơn trong thời gian tăng theo cấp",
+      color: "#18ffff",
+      kind: "buff",
+      minLevel: 4,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        const dur = 4.0 + lvl * 0.5;
+        dashCooldownTimer = 0;
+        worm.dashFreeCooldown = true;
+        worm.dashExtraSteps = 6;
+        if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+          oneMinDashCooldown = 0;
+        }
+        startBuffTimer(dur, `🌠 Siêu Lướt Cấp ${lvl} (${dur.toFixed(1)}s)`, "#18ffff");
+        playSound("dash");
+      }
+    }, {
+      id: "level_prismatic_shockwave",
+      icon: "💎",
+      name: "Sóng Lăng Kính Thanh Tẩy",
+      desc: "Phóng xung năng lượng quét sạch đá & đạn trong bán kính rộng, mọc thêm đốt thân",
+      color: "#e040fb",
+      kind: "buff",
+      minLevel: 4,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        const r = 4 + Math.min(6, Math.floor(lvl * 0.8));
+        clearNearbyObstacles(r);
+        growWormBy(2);
+        if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+          const hx = (worm.body[0].x + 0.5) * gridSize;
+          const hy = (worm.body[0].y + 0.5) * gridSize;
+          const clearRad = (r + 2) * gridSize;
+          oneMinBullets = oneMinBullets.filter(b => Math.hypot(b.x - hx, b.y - hy) > clearRad);
+          oneMinShockwaves.push({
+            cx: hx, cy: hy,
+            radius: 0,
+            maxRadius: clearRad,
+            speed: 280,
+            thickness: 8,
+            color: "#e040fb",
+            alpha: 1.0
+          });
+        }
+        screenShake = Math.max(screenShake, 20);
+        startBuffTimer(4, `💎 Sóng Lăng Kính (Bán kính ${r} ô)`, "#e040fb");
+        playSound("roll_reveal");
+      }
+    }, {
+      id: "level_chronos_stasis",
+      icon: "⏳",
+      name: "Thời Khắc Ngưng Đọng",
+      desc: "Làm chậm đạn & chướng ngại vật 50% trong thời gian tăng theo cấp (Bullet Time)",
+      color: "#69f0ae",
+      kind: "buff",
+      minLevel: 5,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        const dur = 5.0 + lvl * 0.5;
+        worm.bulletTimeTimer = dur;
+        startBuffTimer(dur, `⏳ Ngưng Đọng Cấp ${lvl} (${dur.toFixed(1)}s)`, "#69f0ae");
+        playSound("magic");
+      }
+    }, {
+      id: "level_phoenix_aegis",
+      icon: "🦅",
+      name: "Hộ Thể Phượng Hoàng",
+      desc: "Kích hoạt 1 tầng hồi sinh hộ mệnh khi gặp đòn chí mạng, kèm bão lửa thiêu rụi hiểm họa",
+      color: "#ff3d00",
+      kind: "buff",
+      minLevel: 6,
+      apply: () => {
+        worm.phoenixAegisCharges = (worm.phoenixAegisCharges || 0) + 1;
+        startBuffTimer(15, "🦅 Hộ Thể Phượng Hoàng (Đang sẵn sàng)", "#ff3d00");
+        playSound("shield_up");
+      }
+    }, {
+      id: "level_vitality_infusion",
+      icon: "🧪",
+      name: "Thần Dược Sinh Khí",
+      desc: "Mọc thêm nhiều đốt thân theo cấp và hồi 1 HP (trong chế độ 1 Mins)",
+      color: "#00e676",
+      kind: "buff",
+      minLevel: 7,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        const segs = 4 + Math.floor(lvl * 0.8);
+        growWormBy(segs);
+        if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+          const diffCfg = (typeof ONE_MIN_DIFF_CONFIG !== "undefined" && ONE_MIN_DIFF_CONFIG[oneMinDifficulty]) ? ONE_MIN_DIFF_CONFIG[oneMinDifficulty] : { maxHp: 4 };
+          oneMinHp = Math.min(diffCfg.maxHp, oneMinHp + 1);
+        }
+        startBuffTimer(4, `🧪 Sinh Khí (+${segs} khúc thân & +1 HP)`, "#00e676");
+        playSound("eat_gold");
+      }
+    }, {
+      id: "level_cosmic_harvester",
+      icon: "🌟",
+      name: "Triệu Hồi Tinh Tú",
+      desc: "Triệu hồi ngay 1 Cục Bất Tử hoặc Cục Đỏ Điên Loạn rơi xuống ngay trước mặt giun",
+      color: "#ffd700",
+      kind: "buff",
+      minLevel: 8,
+      apply: () => {
+        triggerSpawnSpecialCoreNearWorm();
+        score += 150;
+        startBuffTimer(5, "🌟 Triệu Hồi Tinh Tú (+150đ)", "#ffd700");
+        playSound("roll_reveal");
+      }
+    }, {
+      id: "level_supernova_transcendence",
+      icon: "☀️",
+      name: "Thăng Hoa Siêu Tân Tinh",
+      desc: "Bất tử 7s + Tăng tốc 60% + Sóng thanh tẩy quét sạch hiểm họa + thưởng lớn!",
+      color: "#ff007f",
+      kind: "buff",
+      minLevel: 9,
+      apply: () => {
+        const lvl = getCurrentGameLevel();
+        const bonus = 500 + lvl * 100;
+        score += bonus;
+        addLifetimeShieldBuffEaten();
+        worm.isShielded = true;
+        worm.shieldTimer = Math.max(worm.shieldTimer, 7.0);
+        worm.speedMultiplier = 1.6;
+        if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+          oneMinInvincibleTimer = Math.max(oneMinInvincibleTimer, 7.0);
+          oneMinBullets = [];
+          oneMinScreenFlash = 1.0;
+        }
+        clearNearbyObstacles(10);
+        screenShake = 35;
+        startBuffTimer(7, `☀️ Thăng Hoa Tân Tinh (+${bonus}đ)`, "#ff007f");
+        playSound("supernova_blast");
+      }
     }];
 
     const ROLL_BUFFS_2P_EXTRA = [{
@@ -57044,9 +57234,89 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
     ];
 
+    function getCurrentGameLevel() {
+      if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+        return Math.max(1, Math.min(10, (typeof oneMinStageIdx !== "undefined" ? oneMinStageIdx : 0) + 1));
+      }
+      if (typeof isEndlessMode !== "undefined" && isEndlessMode) {
+        return Math.max(1, Math.min(10, (typeof endlessSpeedLevel !== "undefined" ? endlessSpeedLevel : 1)));
+      }
+      if (typeof isRaceMode !== "undefined" && isRaceMode) {
+        if (raceDifficulty === "easy") return 2;
+        if (raceDifficulty === "normal") return 4;
+        if (raceDifficulty === "hard") return 7;
+        if (raceDifficulty === "insane") return 10;
+        return 4;
+      }
+      if (typeof gameHeight !== "undefined" && gameHeight) {
+        const lvlFromHeight = Math.floor(Math.abs(gameHeight) / 100) + 1;
+        return Math.max(1, Math.min(10, lvlFromHeight));
+      }
+      if (typeof score !== "undefined" && score) {
+        const lvlFromScore = Math.floor(score / 150) + 1;
+        return Math.max(1, Math.min(10, lvlFromScore));
+      }
+      return 1;
+    }
+
+    function triggerSpawnSpecialCoreNearWorm() {
+      const type = Math.random() < 0.5 ? "shield" : "blood";
+      if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+        if (worm.body && worm.body[0]) {
+          const hx = (worm.body[0].x + 0.5) * gridSize;
+          const hy = (worm.body[0].y + 0.5) * gridSize;
+          const offsetDist = 90;
+          const px = Math.max(60, Math.min(cols * gridSize - 60, hx + (worm.dir.x || 1) * offsetDist));
+          const py = Math.max(60, Math.min(rows * gridSize - 60, hy + (worm.dir.y || 0) * offsetDist));
+          if (typeof oneMinPickups !== "undefined" && Array.isArray(oneMinPickups)) {
+            oneMinPickups.push({
+              id: Math.random(),
+              type: type === "blood" ? "berserk" : "shield",
+              x: px,
+              y: py,
+              radius: 18,
+              life: 14.0,
+              maxLife: 14.0,
+              pulse: 0,
+              floatPhase: 0
+            });
+          }
+        }
+      } else {
+        const hx = worm.body && worm.body[0] ? worm.body[0].x : 10;
+        const hy = worm.body && worm.body[0] ? worm.body[0].y : 10;
+        const fx = Math.max(1, Math.min(cols - 2, hx + (worm.dir.x || 0) * 2));
+        const fy = Math.max(4, Math.min(rows - 2, hy + (worm.dir.y || -1) * 2));
+        if (typeof foods !== "undefined" && Array.isArray(foods)) {
+          foods.push({
+            x: fx,
+            y: fy,
+            type: type,
+            size: type === "blood" ? 3 : 1
+          });
+        }
+      }
+    }
+
+    const BUGGY_ROLL_BUFF_IDS = new Set([
+      "blackout_vision", "self_blind", "mind_fog",
+      "self_reverse", "shattered_mirror", "storm_veil",
+      "self_immobilize", "static_pulse", "worm_reverse_head",
+      "stone_prison", "self_obstacle_storm", "heavy_burden",
+      "dash_jam", "rusty_gears", "self_dash_lock"
+    ]);
+
     function getRollBuffs() {
+      const curLevel = getCurrentGameLevel();
+      // Loại bỏ các buff/debuff gây lỗi game và giới hạn theo cấp độ (Level-Gating)
+      let pool = ROLL_BUFFS_BASE.filter(b => {
+        if (BUGGY_ROLL_BUFF_IDS.has(b.id)) return false;
+        if (b.minLevel && b.minLevel > curLevel) return false;
+        return true;
+      });
+
       if (isRaceMode || currentDifficulty === "race") {
-        const filteredBase = ROLL_BUFFS_BASE.filter(b =>
+        pool = pool.filter(b =>
           b.id !== "teleport_lucky" &&
           b.id !== "cosmic_leap" &&
           b.id !== "double_leap" &&
@@ -57059,6 +57329,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           !(b.desc && b.desc.toLowerCase().includes("nam châm"))
         );
         const filteredBossRush = (typeof ROLL_BUFFS_BOSS_RUSH !== "undefined" ? ROLL_BUFFS_BOSS_RUSH : []).filter(b =>
+          !BUGGY_ROLL_BUFF_IDS.has(b.id) &&
+          (!b.minLevel || b.minLevel <= curLevel) &&
           !b.id.includes("teleport") &&
           !b.id.includes("magnet") &&
           !b.name.toLowerCase().includes("dịch chuyển") &&
@@ -57066,17 +57338,19 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           !(b.desc && b.desc.toLowerCase().includes("dịch chuyển")) &&
           !(b.desc && b.desc.toLowerCase().includes("nam châm"))
         );
-        return filteredBase.concat(filteredBossRush);
+        return pool.concat(filteredBossRush);
       }
       if (isDarkNightMode) {
-        const baseNoBlackout = ROLL_BUFFS_BASE.filter(b => b.id !== "blackout_vision");
-        return baseNoBlackout.concat(ROLL_BUFFS_DARKNIGHT);
+        const darkNightPool = (typeof ROLL_BUFFS_DARKNIGHT !== "undefined" ? ROLL_BUFFS_DARKNIGHT : []).filter(b =>
+          !BUGGY_ROLL_BUFF_IDS.has(b.id) && (!b.minLevel || b.minLevel <= curLevel)
+        );
+        return pool.concat(darkNightPool);
       }
       if (isTwoPlayerFrame) {
-        const nonScoreBase = ROLL_BUFFS_BASE.filter(b => b.id !== "jackpot" && b.id !== "high_stakes");
+        const nonScoreBase = pool.filter(b => b.id !== "jackpot" && b.id !== "high_stakes");
         return nonScoreBase.concat(ROLL_BUFFS_2P_EXTRA);
       }
-      return ROLL_BUFFS_BASE;
+      return pool;
     }
 
     function recordRolledBuffForGalacticSkin(id) {
@@ -57613,7 +57887,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (!free) rollUsedThisRun = true;
       isRolling = true;
       isPaused = true;
-      const effectiveRollDiff = (isRaceMode || currentDifficulty === "race") ? raceDifficulty : currentDifficulty;
+      const effectiveRollDiff = (typeof isOneMinMode !== "undefined" && isOneMinMode) ? (oneMinDifficulty || "normal") : ((isRaceMode || currentDifficulty === "race") ? raceDifficulty : currentDifficulty);
       rollCooldownRemaining = ROLL_COOLDOWN_BY_DIFF[effectiveRollDiff] !== undefined ? ROLL_COOLDOWN_BY_DIFF[effectiveRollDiff] : (ROLL_COOLDOWN_BY_DIFF.normal || 6.5);
       updateRollFabState();
       if (!free) {
@@ -63970,7 +64244,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   /* =========================================================================
    * CHẾ ĐỘ 1 MINS: HOW A STAR EXPLODES (JUST SHAPES & BEATS DELUXE EDITION)
    * ========================================================================= */
-  let isOneMinMode = false;
+  isOneMinMode = false;
   let oneMinDifficulty = "normal"; // easy, normal, hard, insane
   let oneMinState = "idle"; // "countdown", "playing", "core_spawned", "victory"
   let oneMinCountdownTimer = 5.0;
@@ -63996,6 +64270,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   let oneMinLastBeatStep = -1;
   let oneMinWallContractFrac = 0;
   let oneMinIdlePhase = 0;
+  let oneMinPickups = []; // { id, type: 'shield'|'berserk', x, y, radius, life, maxLife, pulse, floatPhase }
+  let oneMinPickupSpawnTimer = 8.0;
+  let oneMinSpeedBoostTimer = 0;
+  let oneMinSpeedMultiplier = 1.0;
+  let oneMinFloatingBanners = []; // { text, color, x, y, life, maxLife }
 
   // Difficulty Presets
   const ONE_MIN_DIFF_CONFIG = {
@@ -64210,7 +64489,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   // ENRICHED PROCEDURAL CHIPTUNE / EDM SYNTHESIZER
   // Polyphonic lead, Arpeggiator, Pumping Sub-bass, Kick, Snare, Hi-hat, Risers
   // =========================================================================
-  const oneMinSynth = {
+  var oneMinSynth = {
     audioCtx: null,
     masterGain: null,
     voiceGain: null,
@@ -64708,6 +64987,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     oneMinScreenFlash = 0;
     oneMinLastBeatStep = -1;
     oneMinWallContractFrac = 0;
+    oneMinPickups = [];
+    oneMinPickupSpawnTimer = 8.0;
+    oneMinSpeedBoostTimer = 0;
+    oneMinSpeedMultiplier = 1.0;
+    oneMinFloatingBanners = [];
+    controlsReverseTimer = 0;
 
     isMenuMode = false;
     document.body.classList.add("in-game");
@@ -64745,12 +65030,18 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
   function stopOneMinMode() {
     isOneMinMode = false;
-    oneMinSynth.stop();
+    if (typeof oneMinSynth !== 'undefined' && oneMinSynth && typeof oneMinSynth.stop === 'function') {
+      oneMinSynth.stop();
+    }
     oneMinBullets = [];
     oneMinLasers = [];
     oneMinShockwaves = [];
+    oneMinPickups = [];
+    oneMinFloatingBanners = [];
     oneMinVictoryCore = null;
     oneMinWallContractFrac = 0;
+    oneMinSpeedBoostTimer = 0;
+    oneMinSpeedMultiplier = 1.0;
   }
 
   // =========================================================================
@@ -65091,6 +65382,32 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     if (oneMinDashCooldown > 0) oneMinDashCooldown = Math.max(0, oneMinDashCooldown - dt);
     if (oneMinScreenFlash > 0) oneMinScreenFlash = Math.max(0, oneMinScreenFlash - dt * 3.5);
 
+    // Speed boost timer from Berserk Core (Cục Đỏ Điên Loạn: CHỈ TĂNG TỐC, KHÔNG ĐẢO CHIỀU)
+    if (oneMinSpeedBoostTimer > 0) {
+      oneMinSpeedBoostTimer = Math.max(0, oneMinSpeedBoostTimer - dt);
+      if (oneMinSpeedBoostTimer <= 0) {
+        oneMinSpeedMultiplier = 1.0;
+        if (worm) worm.speedMultiplier = 1.0;
+      }
+    }
+
+    // Trailing crimson flame particles behind worm head when Berserk Speed Boost is active
+    if (oneMinSpeedBoostTimer > 0 && oneMinMoving && worm.body && worm.body[0]) {
+      const hx = (worm.body[0].x + 0.5) * gridSize;
+      const hy = (worm.body[0].y + 0.5) * gridSize;
+      if (Math.random() < 0.65) {
+        oneMinGrazeParticles.push({
+          x: hx + (Math.random() * 10 - 5),
+          y: hy + (Math.random() * 10 - 5),
+          vx: (Math.random() * 40 - 20) - (worm.dir.x || 0) * 50,
+          vy: (Math.random() * 40 - 20) - (worm.dir.y || 0) * 50,
+          size: 2.8 + Math.random() * 2.0,
+          color: Math.random() < 0.5 ? "#ff1744" : "#ff9100",
+          alpha: 0.95
+        });
+      }
+    }
+
     // Afterimages fade
     for (let i = oneMinDashAfterimages.length - 1; i >= 0; i--) {
       oneMinDashAfterimages[i].alpha -= dt * 4.2;
@@ -65141,12 +65458,35 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         spawnOneMinStageAttack(oneMinStageIdx, beatStep, arenaW, arenaH);
       }
 
+      // Spawn special Cores: Cục Bất Tử & Cục Đỏ Điên Loạn
+      oneMinPickupSpawnTimer -= dt;
+      if (oneMinPickupSpawnTimer <= 0) {
+        oneMinPickupSpawnTimer = 13.0 + Math.random() * 5.0; // Spawns every 13-18 seconds
+        const pType = Math.random() < 0.5 ? "shield" : "berserk";
+        const marginX = Math.max(90, arenaW * 0.15);
+        const marginY = Math.max(90, arenaH * 0.18);
+        const px = marginX + Math.random() * (arenaW - marginX * 2);
+        const py = marginY + Math.random() * (arenaH - marginY * 2);
+        oneMinPickups.push({
+          id: Date.now() + Math.random(),
+          type: pType,
+          x: px,
+          y: py,
+          radius: 17,
+          life: 14.0,
+          maxLife: 14.0,
+          pulse: Math.random() * Math.PI,
+          floatPhase: Math.random() * Math.PI * 2
+        });
+      }
+
       // End of music -> Spawn Victory Core
       if (oneMinPlayTime >= 67.0) {
         oneMinState = "core_spawned";
         oneMinBullets = [];
         oneMinLasers = [];
         oneMinShockwaves = [];
+        oneMinPickups = [];
         oneMinWallContractFrac = 0;
         oneMinVictoryCore = {
           x: arenaW / 2,
@@ -65174,6 +65514,70 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
     }
 
+    // Update Pickups & Check Collision
+    for (let i = oneMinPickups.length - 1; i >= 0; i--) {
+      const p = oneMinPickups[i];
+      p.life -= dt;
+      p.pulse += dt * 3.8;
+      p.floatPhase += dt * 2.5;
+
+      if (worm.body && worm.body[0]) {
+        const hx = (worm.body[0].x + 0.5) * gridSize;
+        const hy = (worm.body[0].y + 0.5) * gridSize;
+        const dist = Math.hypot(hx - p.x, hy - p.y);
+        if (dist <= p.radius + 15) {
+          if (p.type === "shield") {
+            // CỤC BẤT TỬ: Cho 5s bất tử tuyệt đối
+            oneMinInvincibleTimer = Math.max(oneMinInvincibleTimer, 5.0);
+            worm.isShielded = true;
+            worm.shieldTimer = Math.max(worm.shieldTimer, 5.0);
+            playSound("shield_up");
+            oneMinFloatingBanners.push({
+              text: "🛡️ BẤT TỬ! (Khiên 5.0s)",
+              color: "#00e5ff",
+              x: p.x,
+              y: p.y - 12,
+              life: 1.6,
+              maxLife: 1.6
+            });
+            spawnOneMinGrazeSpark(p.x, p.y, "#00e5ff", 18);
+            screenShake = Math.max(screenShake, 14);
+          } else if (p.type === "berserk") {
+            // CỤC ĐỎ ĐIÊN LOẠN: KHÔNG LÀM MẤT KIỂM SOÁT, CHỈ ĐI NHANH HƠN
+            controlsReverseTimer = 0; // Tuyệt đối KHÔNG đảo ngược điều khiển
+            oneMinSpeedMultiplier = 1.65;
+            oneMinSpeedBoostTimer = 5.0;
+            worm.speedMultiplier = 1.65;
+            playSound("eat_blood");
+            oneMinFloatingBanners.push({
+              text: "🔥 ĐIÊN LOẠN CUỒNG TỐC! (+65% SPD)",
+              color: "#ff1744",
+              x: p.x,
+              y: p.y - 12,
+              life: 1.6,
+              maxLife: 1.6
+            });
+            spawnOneMinGrazeSpark(p.x, p.y, "#ff1744", 22);
+            screenShake = Math.max(screenShake, 16);
+          }
+          oneMinPickups.splice(i, 1);
+          continue;
+        }
+      }
+
+      if (p.life <= 0) {
+        oneMinPickups.splice(i, 1);
+      }
+    }
+
+    // Update Floating Banners
+    for (let i = oneMinFloatingBanners.length - 1; i >= 0; i--) {
+      const b = oneMinFloatingBanners[i];
+      b.life -= dt;
+      b.y -= dt * 26;
+      if (b.life <= 0) oneMinFloatingBanners.splice(i, 1);
+    }
+
     // Update Lasers
     for (let i = oneMinLasers.length - 1; i >= 0; i--) {
       const l = oneMinLasers[i];
@@ -65189,7 +65593,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const hy = (worm.body[0].y + 0.5) * gridSize;
           const d = distToSegment({ x: hx, y: hy }, { x: l.x1, y: l.y1 }, { x: l.x2, y: l.y2 });
           if (d <= l.width / 2 + 7) {
-            if (oneMinDashTimer > 0) {
+            if (oneMinDashTimer > 0 || oneMinInvincibleTimer > 0) {
               spawnOneMinGrazeSpark(hx, hy);
             } else {
               oneMinTakeDamage();
@@ -65212,7 +65616,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const hy = (worm.body[0].y + 0.5) * gridSize;
         const dist = Math.hypot(hx - s.cx, hy - s.cy);
         if (Math.abs(dist - s.radius) <= s.thickness + 5) {
-          if (oneMinDashTimer > 0) {
+          if (oneMinDashTimer > 0 || oneMinInvincibleTimer > 0) {
             spawnOneMinGrazeSpark(hx, hy);
           } else {
             oneMinTakeDamage();
@@ -65259,8 +65663,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
 
         if (hit) {
-          if (oneMinDashTimer > 0) {
-            spawnOneMinGrazeSpark(b.x, b.y);
+          if (oneMinDashTimer > 0 || oneMinInvincibleTimer > 0) {
+            spawnOneMinGrazeSpark(b.x, b.y, "#00e5ff", 6);
             oneMinBullets.splice(i, 1);
             continue;
           } else {
@@ -65286,16 +65690,18 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
   }
 
-  function spawnOneMinGrazeSpark(x, y) {
-    for (let i = 0; i < 5; i++) {
+  function spawnOneMinGrazeSpark(x, y, color = "#00e5ff", count = 6) {
+    const isGfxLow = (graphicsQuality === "ultralow" || graphicsQuality === "low");
+    const effCount = isGfxLow ? Math.min(3, count) : count;
+    for (let i = 0; i < effCount; i++) {
       const a = Math.random() * Math.PI * 2;
-      const spd = 50 + Math.random() * 100;
+      const spd = 50 + Math.random() * 120;
       oneMinGrazeParticles.push({
         x: x, y: y,
         vx: Math.cos(a) * spd,
         vy: Math.sin(a) * spd,
-        size: 2.8,
-        color: "#00e5ff",
+        size: 2.8 + Math.random() * 1.5,
+        color: color,
         alpha: 1.0
       });
     }
@@ -65317,39 +65723,58 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     const gh = rows * gridSize;
     const stage = ONE_MIN_STAGES[oneMinStageIdx];
 
-    // Background Gradient with stage color tint
-    const bgGrad = targetCtx.createLinearGradient(0, 0, 0, gh);
-    bgGrad.addColorStop(0, "#080a10");
-    bgGrad.addColorStop(1, "#030406");
-    targetCtx.fillStyle = bgGrad;
-    targetCtx.fillRect(0, 0, gw, gh);
+    // Multi-tier Graphics Optimization
+    const isGfxUltraLow = (graphicsQuality === "ultralow");
+    const isGfxLow = (graphicsQuality === "low" || isGfxUltraLow);
+    const isGfxMedium = (graphicsQuality === "medium");
+    const isGfxHigh = (graphicsQuality === "high" || (!isGfxLow && !isGfxMedium));
 
-    // Subtle Oscilloscope Wave in background
-    targetCtx.save();
-    targetCtx.strokeStyle = stage.color + "28";
-    targetCtx.lineWidth = 2.2;
-    targetCtx.beginPath();
-    const wavePlotW = gw * 0.88;
-    const waveStartX = gw * 0.06;
-    const waveMidY = gh * 0.52;
-    for (let i = 0; i <= 80; i++) {
-      const xVal = (i / 80) * 4;
-      const yVal = evalOneMinStageWave(oneMinStageIdx, xVal);
-      const px = waveStartX + (i / 80) * wavePlotW;
-      const py = waveMidY + (0.5 - yVal) * 125;
-      if (i === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
+    // Background Gradient with stage color tint
+    if (isGfxUltraLow) {
+      targetCtx.fillStyle = "#080a10";
+      targetCtx.fillRect(0, 0, gw, gh);
+    } else {
+      const bgGrad = targetCtx.createLinearGradient(0, 0, 0, gh);
+      bgGrad.addColorStop(0, "#080a10");
+      bgGrad.addColorStop(1, "#030406");
+      targetCtx.fillStyle = bgGrad;
+      targetCtx.fillRect(0, 0, gw, gh);
     }
-    targetCtx.stroke();
-    targetCtx.restore();
+
+    // Oscilloscope Wave in background (optimized by graphics tier)
+    if (!isGfxUltraLow) {
+      targetCtx.save();
+      targetCtx.strokeStyle = stage.color + "28";
+      targetCtx.lineWidth = isGfxLow ? 1.6 : 2.2;
+      targetCtx.beginPath();
+      const wavePlotW = gw * 0.88;
+      const waveStartX = gw * 0.06;
+      const waveMidY = gh * 0.52;
+      const waveSegments = isGfxLow ? 24 : 80;
+      for (let i = 0; i <= waveSegments; i++) {
+        const xVal = (i / waveSegments) * 4;
+        const yVal = evalOneMinStageWave(oneMinStageIdx, xVal);
+        const px = waveStartX + (i / waveSegments) * wavePlotW;
+        const py = waveMidY + (0.5 - yVal) * 125;
+        if (i === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
+      }
+      targetCtx.stroke();
+      targetCtx.restore();
+    }
 
     // Arena Boundaries with Contracting Walls
     const padX = gw * oneMinWallContractFrac;
     const padY = gh * oneMinWallContractFrac;
     targetCtx.save();
     targetCtx.strokeStyle = stage.color;
-    targetCtx.shadowColor = stage.color;
-    targetCtx.shadowBlur = 15;
-    targetCtx.lineWidth = 3.2;
+    if (isGfxHigh) {
+      targetCtx.shadowColor = stage.color;
+      targetCtx.shadowBlur = 15;
+    } else if (isGfxMedium) {
+      targetCtx.shadowColor = stage.color;
+      targetCtx.shadowBlur = 5;
+    }
+    targetCtx.lineWidth = isGfxLow ? 2.4 : 3.2;
     targetCtx.strokeRect(padX + 2, padY + 2, gw - padX * 2 - 4, gh - padY * 2 - 4);
     targetCtx.restore();
 
@@ -65373,20 +65798,27 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         targetCtx.fillText("⚠ BEAM ALERT ⚠", midLx, midLy - 6);
       } else {
         targetCtx.strokeStyle = l.color;
-        targetCtx.shadowColor = l.color;
-        targetCtx.shadowBlur = 22;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = l.color;
+          targetCtx.shadowBlur = 22;
+        } else if (isGfxMedium) {
+          targetCtx.shadowColor = l.color;
+          targetCtx.shadowBlur = 6;
+        }
         targetCtx.lineWidth = l.width;
         targetCtx.beginPath();
         targetCtx.moveTo(l.x1, l.y1);
         targetCtx.lineTo(l.x2, l.y2);
         targetCtx.stroke();
 
-        targetCtx.strokeStyle = "#ffffff";
-        targetCtx.lineWidth = l.width * 0.45;
-        targetCtx.beginPath();
-        targetCtx.moveTo(l.x1, l.y1);
-        targetCtx.lineTo(l.x2, l.y2);
-        targetCtx.stroke();
+        if (!isGfxLow) {
+          targetCtx.strokeStyle = "#ffffff";
+          targetCtx.lineWidth = l.width * 0.45;
+          targetCtx.beginPath();
+          targetCtx.moveTo(l.x1, l.y1);
+          targetCtx.lineTo(l.x2, l.y2);
+          targetCtx.stroke();
+        }
       }
       targetCtx.restore();
     });
@@ -65395,8 +65827,13 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     oneMinShockwaves.forEach(s => {
       targetCtx.save();
       targetCtx.strokeStyle = s.color;
-      targetCtx.shadowColor = s.color;
-      targetCtx.shadowBlur = 14;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = s.color;
+        targetCtx.shadowBlur = 14;
+      } else if (isGfxMedium) {
+        targetCtx.shadowColor = s.color;
+        targetCtx.shadowBlur = 4;
+      }
       targetCtx.globalAlpha = s.alpha;
       targetCtx.lineWidth = s.thickness;
       targetCtx.beginPath();
@@ -65411,8 +65848,13 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.translate(b.x, b.y);
       if (b.rot) targetCtx.rotate(b.rot);
 
-      targetCtx.shadowColor = b.glow || b.color;
-      targetCtx.shadowBlur = 12;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = b.glow || b.color;
+        targetCtx.shadowBlur = 12;
+      } else if (isGfxMedium) {
+        targetCtx.shadowColor = b.glow || b.color;
+        targetCtx.shadowBlur = 4;
+      }
 
       if (b.shape === "saw") {
         const teeth = b.teeth || 8;
@@ -65462,108 +65904,175 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const r = b.radius;
         targetCtx.fillStyle = b.color;
         targetCtx.beginPath();
-        for (let i = 0; i < 4; i++) {
-          const a1 = i * Math.PI / 2;
-          const a2 = a1 + Math.PI / 4;
-          targetCtx.lineTo(Math.cos(a1) * r * 1.35, Math.sin(a1) * r * 1.35);
-          targetCtx.lineTo(Math.cos(a2) * r * 0.42, Math.sin(a2) * r * 0.42);
+        for (let k = 0; k < 4; k++) {
+          const a = (k * Math.PI) / 2;
+          const ax = Math.cos(a) * r * 1.35;
+          const ay = Math.sin(a) * r * 1.35;
+          const bx = Math.cos(a + 0.45) * r * 0.45;
+          const by = Math.sin(a + 0.45) * r * 0.45;
+          if (k === 0) targetCtx.moveTo(ax, ay); else targetCtx.lineTo(ax, ay);
+          targetCtx.lineTo(bx, by);
         }
         targetCtx.closePath();
         targetCtx.fill();
 
-        targetCtx.fillStyle = "#ffffff";
+        targetCtx.fillStyle = "#0c1017";
         targetCtx.beginPath();
-        targetCtx.arc(0, 0, r * 0.26, 0, Math.PI * 2);
+        targetCtx.arc(0, 0, r * 0.35, 0, Math.PI * 2);
         targetCtx.fill();
 
       } else if (b.shape === "needle") {
-        const r = b.radius;
+        const len = b.radius * 2.6;
+        const wid = 3.2;
         targetCtx.fillStyle = b.color;
-        targetCtx.beginPath();
-        targetCtx.moveTo(0, -r * 1.6);
-        targetCtx.lineTo(r * 0.7, r * 0.9);
-        targetCtx.lineTo(0, r * 0.5);
-        targetCtx.lineTo(-r * 0.7, r * 0.9);
-        targetCtx.closePath();
-        targetCtx.fill();
-
+        targetCtx.fillRect(-len / 2, -wid / 2, len, wid);
         targetCtx.fillStyle = "#ffffff";
-        targetCtx.beginPath();
-        targetCtx.arc(0, -r * 0.3, r * 0.3, 0, Math.PI * 2);
-        targetCtx.fill();
+        targetCtx.fillRect(-len * 0.3, -wid * 0.3, len * 0.6, wid * 0.6);
 
       } else {
+        // Standard high-speed projectile
         targetCtx.fillStyle = b.color;
         targetCtx.beginPath();
         targetCtx.arc(0, 0, b.radius, 0, Math.PI * 2);
         targetCtx.fill();
 
+        if (!isGfxLow) {
+          targetCtx.fillStyle = "#ffffff";
+          targetCtx.beginPath();
+          targetCtx.arc(0, 0, b.radius * 0.45, 0, Math.PI * 2);
+          targetCtx.fill();
+        }
+      }
+      targetCtx.restore();
+    });
+
+    // Special Cores (Cục Bất Tử & Cục Đỏ Điên Loạn)
+    oneMinPickups.forEach(p => {
+      const bobY = Math.sin(p.floatPhase) * 4.5;
+      const pAlpha = p.life < 2.0 ? (p.life / 2.0) : 1.0;
+      targetCtx.save();
+      targetCtx.globalAlpha = Math.max(0, pAlpha);
+      targetCtx.translate(p.x, p.y + bobY);
+
+      if (p.type === "shield") {
+        // CỤC BẤT TỬ: Cyan / Gold Glowing Core with rotating hex shield ring
+        const pulseScale = 1.0 + Math.sin(p.pulse) * 0.15;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = "#00e5ff";
+          targetCtx.shadowBlur = 18;
+        } else if (isGfxMedium) {
+          targetCtx.shadowColor = "#00e5ff";
+          targetCtx.shadowBlur = 6;
+        }
+
+        // Outer rotating shield ring
+        targetCtx.save();
+        targetCtx.rotate(p.pulse * 0.8);
+        targetCtx.strokeStyle = "#00e5ff";
+        targetCtx.lineWidth = 2.4;
+        targetCtx.beginPath();
+        for (let k = 0; k < 6; k++) {
+          const ang = (k / 6) * Math.PI * 2;
+          const rx = Math.cos(ang) * (p.radius + 6) * pulseScale;
+          const ry = Math.sin(ang) * (p.radius + 6) * pulseScale;
+          if (k === 0) targetCtx.moveTo(rx, ry);
+          else targetCtx.lineTo(rx, ry);
+        }
+        targetCtx.closePath();
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // Inner glowing core
         targetCtx.fillStyle = "#ffffff";
         targetCtx.beginPath();
-        targetCtx.arc(0, 0, b.radius * 0.45, 0, Math.PI * 2);
+        targetCtx.arc(0, 0, p.radius * 0.65 * pulseScale, 0, Math.PI * 2);
         targetCtx.fill();
+
+        targetCtx.fillStyle = "#00e5ff";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, p.radius * 0.45 * pulseScale, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        // Shield glyph
+        targetCtx.font = "bold 13px sans-serif";
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        targetCtx.fillText("🛡️", 0, 0);
+
+      } else if (p.type === "berserk") {
+        // CỤC ĐỎ ĐIÊN LOẠN: Fiery Crimson Glowing Core with orbiting flame shards
+        // (LƯU Ý QUAN TRỌNG: KHÔNG khiến giun mất kiểm soát, CHỈ ĐI NHANH HƠN)
+        const pulseScale = 1.0 + Math.sin(p.pulse * 1.5) * 0.18;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = "#ff1744";
+          targetCtx.shadowBlur = 22;
+        } else if (isGfxMedium) {
+          targetCtx.shadowColor = "#ff1744";
+          targetCtx.shadowBlur = 6;
+        }
+
+        // Orbiting fiery crystals
+        targetCtx.save();
+        targetCtx.rotate(-p.pulse * 1.3);
+        targetCtx.strokeStyle = "#ff5252";
+        targetCtx.lineWidth = 2.0;
+        targetCtx.beginPath();
+        for (let k = 0; k < 4; k++) {
+          const ang = (k / 4) * Math.PI * 2;
+          const rx = Math.cos(ang) * (p.radius + 7) * pulseScale;
+          const ry = Math.sin(ang) * (p.radius + 7) * pulseScale;
+          targetCtx.strokeRect(rx - 3, ry - 3, 6, 6);
+        }
+        targetCtx.restore();
+
+        // Flaming core
+        targetCtx.fillStyle = "#ff1744";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, p.radius * 0.75 * pulseScale, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        targetCtx.fillStyle = "#ffebee";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, p.radius * 0.45 * pulseScale, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        // Flame glyph
+        targetCtx.font = "bold 13px sans-serif";
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        targetCtx.fillText("🔥", 0, 0);
       }
+      targetCtx.restore();
+    });
+
+    // Floating Banners Rendering (Pickups Toast / Status)
+    oneMinFloatingBanners.forEach(b => {
+      targetCtx.save();
+      const alpha = Math.min(1.0, b.life / 0.4);
+      targetCtx.globalAlpha = Math.max(0, alpha);
+      targetCtx.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
+      targetCtx.textAlign = "center";
+      targetCtx.fillStyle = b.color;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = b.color;
+        targetCtx.shadowBlur = 14;
+      }
+      targetCtx.fillText(b.text, b.x, b.y);
       targetCtx.restore();
     });
 
     // Dash Afterimages
-    oneMinDashAfterimages.forEach(img => {
+    const maxAfterimages = isGfxUltraLow ? 1 : (isGfxLow ? 2 : (isGfxMedium ? 4 : 8));
+    const activeAfterimages = oneMinDashAfterimages.slice(-maxAfterimages);
+    activeAfterimages.forEach(img => {
       targetCtx.save();
-      targetCtx.globalAlpha = img.alpha * 0.65;
+      targetCtx.globalAlpha = img.alpha * 0.55;
       targetCtx.fillStyle = img.color;
-      img.segments.forEach((seg, idx) => {
-        const sx = (seg.x + 0.5) * gridSize;
-        const sy = (seg.y + 0.5) * gridSize;
-        const r = Math.max(3, 9 - idx * 0.9);
-        targetCtx.beginPath();
-        targetCtx.arc(sx, sy, r, 0, Math.PI * 2);
-        targetCtx.fill();
+      img.segments.forEach(seg => {
+        targetCtx.fillRect(seg.x * gridSize, seg.y * gridSize, gridSize - 1, gridSize - 1);
       });
       targetCtx.restore();
     });
-
-    // Player Worm Body with JS&B Neon Styling
-    if (worm && worm.body && worm.body.length > 0) {
-      targetCtx.save();
-      const isInvincible = oneMinInvincibleTimer > 0;
-      const isDashing = oneMinDashTimer > 0;
-      const flicker = isInvincible ? (Math.floor(Date.now() / 60) % 2 === 0) : false;
-
-      if (!flicker) {
-        worm.body.forEach((seg, idx) => {
-          const sx = (seg.x + 0.5) * gridSize;
-          const sy = (seg.y + 0.5) * gridSize;
-          const idleScale = (!oneMinMoving) ? (1 + 0.08 * Math.sin(oneMinIdlePhase + idx * 0.5)) : 1;
-          const r = Math.max(4, (9 - idx * 0.6) * idleScale);
-
-          targetCtx.beginPath();
-          targetCtx.arc(sx, sy, r, 0, Math.PI * 2);
-
-          if (isDashing) {
-            targetCtx.fillStyle = "#ffffff";
-            targetCtx.shadowColor = "#00e5ff";
-            targetCtx.shadowBlur = 20;
-          } else if (idx === 0) {
-            targetCtx.fillStyle = "#00e5ff";
-            targetCtx.shadowColor = "#00e5ff";
-            targetCtx.shadowBlur = 16;
-          } else {
-            targetCtx.fillStyle = "#ff007f";
-            targetCtx.shadowColor = "#ff007f";
-            targetCtx.shadowBlur = 10;
-          }
-          targetCtx.fill();
-
-          if (idx === 0) {
-            targetCtx.fillStyle = "#ffffff";
-            targetCtx.beginPath();
-            targetCtx.arc(sx, sy, 2.5, 0, Math.PI * 2);
-            targetCtx.fill();
-          }
-        });
-      }
-      targetCtx.restore();
-    }
 
     // Graze Spark Particles
     oneMinGrazeParticles.forEach(p => {
@@ -65593,8 +66102,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.fill();
 
       targetCtx.fillStyle = "#ffffff";
-      targetCtx.shadowColor = "#ffea00";
-      targetCtx.shadowBlur = 26;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = "#ffea00";
+        targetCtx.shadowBlur = 26;
+      }
       targetCtx.beginPath();
       const points = 8;
       for (let i = 0; i < points * 2; i++) {
@@ -65610,19 +66121,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.fillStyle = "#ffffff";
       targetCtx.font = "bold 15px sans-serif";
       targetCtx.textAlign = "center";
-      targetCtx.shadowColor = "#ffea00";
-      targetCtx.shadowBlur = 12;
       targetCtx.fillText("★ CHẠM VÀO LÕI ĐỂ CHIẾN THẮNG! ★", vc.x, vc.y + pulseR + 30);
       targetCtx.restore();
     }
 
-    // Top HUD Bar: Stage, Formula, Timer, HP, Dash
+    // Top HUD Bar: Stage, Formula, Timer, HP, Dash & Buffs
     targetCtx.save();
     targetCtx.fillStyle = "rgba(10, 12, 18, 0.88)";
-    targetCtx.fillRect(10, 8, gw - 20, 50);
+    targetCtx.fillRect(10, 8, gw - 20, 52);
     targetCtx.strokeStyle = stage.color;
     targetCtx.lineWidth = 1.6;
-    targetCtx.strokeRect(10, 8, gw - 20, 50);
+    targetCtx.strokeRect(10, 8, gw - 20, 52);
 
     // Stage Pill & Formula
     targetCtx.fillStyle = stage.color;
@@ -65630,9 +66139,25 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     targetCtx.textAlign = "left";
     targetCtx.fillText(`[STAGE ${String(oneMinStageIdx + 1).padStart(2, '0')}/10] ${stage.status}`, 20, 26);
 
-    targetCtx.fillStyle = "#e2e8f0";
-    targetCtx.font = "10px monospace";
-    targetCtx.fillText(`${stage.formula} · ${stage.caption}`, 20, 46);
+    // Active Core Badges (Shield / Berserk Speed Boost)
+    let badgeOffset = 20;
+    if (oneMinInvincibleTimer > 0) {
+      targetCtx.fillStyle = "#00e5ff";
+      targetCtx.font = "bold 10px monospace";
+      targetCtx.fillText(`🛡️ BẤT TỬ: ${oneMinInvincibleTimer.toFixed(1)}s`, 20, 46);
+      badgeOffset += 130;
+    }
+    if (oneMinSpeedBoostTimer > 0) {
+      targetCtx.fillStyle = "#ff1744";
+      targetCtx.font = "bold 10px monospace";
+      targetCtx.fillText(`🔥 CUỒNG TỐC: ${oneMinSpeedBoostTimer.toFixed(1)}s (+65%)`, badgeOffset, 46);
+      badgeOffset += 160;
+    }
+    if (oneMinInvincibleTimer <= 0 && oneMinSpeedBoostTimer <= 0) {
+      targetCtx.fillStyle = "#e2e8f0";
+      targetCtx.font = "10px monospace";
+      targetCtx.fillText(`${stage.formula} · ${stage.caption}`, 20, 46);
+    }
 
     // Timer Readout & Progress
     targetCtx.textAlign = "right";
@@ -65674,14 +66199,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.scale(scale, scale);
 
       targetCtx.fillStyle = sec > 2 ? "#00e5ff" : sec === 2 ? "#ffaa00" : "#ff1744";
-      targetCtx.shadowColor = targetCtx.fillStyle;
-      targetCtx.shadowBlur = 30;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = targetCtx.fillStyle;
+        targetCtx.shadowBlur = 30;
+      }
       targetCtx.font = "900 80px sans-serif";
       targetCtx.fillText(String(sec), 0, 15);
 
       targetCtx.font = "bold 14px monospace";
       targetCtx.fillStyle = "#ffffff";
-      targetCtx.shadowBlur = 10;
       targetCtx.fillText("PREPARE TO DODGE (WASD / TOUCH · SPACE TO DASH)", 0, 56);
       targetCtx.restore();
     }
@@ -65693,9 +66219,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.fillRect(0, 0, gw, gh);
       targetCtx.restore();
     }
-  }
-
-  </script>
+  }</script>
 
 </body>
 
