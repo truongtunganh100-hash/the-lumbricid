@@ -44882,7 +44882,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         dpadContainer.style.display = "none";
         showMobileActionBtns(false);
         bgMusic.pause();
-        if (isOneMinMode && typeof oneMinSynth !== "undefined" && oneMinSynth) oneMinSynth.pause();
+        if (isOneMinMode) {
+          if (typeof oneMinSynth !== "undefined" && oneMinSynth) oneMinSynth.pause();
+          if (typeof oneMinAudio !== "undefined" && oneMinAudio && !oneMinAudio.paused) {
+            try { oneMinAudio.pause(); } catch (_) {}
+          }
+        }
       } else {
         btnPause.textContent = "⏸";
         pauseOverlay.style.display = "none";
@@ -44890,8 +44895,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         moveCounter = 0;
         applyControlUI();
         showMobileActionBtns(true);
-        bgMusic.play().catch(() => { });
-        if (isOneMinMode && typeof oneMinSynth !== "undefined" && oneMinSynth) oneMinSynth.resume();
+        if (isOneMinMode) {
+          if (oneMinState === "playing" && typeof oneMinAudio !== "undefined" && oneMinAudio && oneMinAudio.paused) {
+            oneMinAudio.play().catch(() => {});
+          }
+          if (typeof oneMinSynth !== "undefined" && oneMinSynth) oneMinSynth.resume();
+        } else {
+          bgMusic.play().catch(() => { });
+        }
       }
       if (isTwoPlayerFrame) lanSend({
         type: "pause",
@@ -65199,6 +65210,41 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
   };
 
+  // =========================================================================
+  // AUTHENTIC SOUNDTRACK INTEGRATION ("HOW A STAR EXPLODES")
+  // Plays the extracted stereo master audio from the video, with procedural fallback
+  // =========================================================================
+  var oneMinAudio = null;
+  function getOneMinAudio() {
+    if (!oneMinAudio) {
+      oneMinAudio = new Audio("audio/how_a_star_explodes.mp3");
+      oneMinAudio.preload = "auto";
+      oneMinAudio.addEventListener("ended", () => {
+        if (isOneMinMode && oneMinState === "playing") {
+          oneMinState = "core_spawned";
+          oneMinBullets = [];
+          oneMinLasers = [];
+          oneMinShockwaves = [];
+          oneMinPickups = [];
+          oneMinWallContractFrac = 0;
+          oneMinVictoryCore = {
+            x: (cols * gridSize) / 2,
+            y: (rows * gridSize) / 2,
+            radius: 28,
+            pulse: 0,
+            glow: 1.0
+          };
+          screenShake = 34;
+          playSound("win");
+        }
+      });
+      oneMinAudio.addEventListener("error", (e) => {
+        console.warn("1 Mins authentic audio load error, fallback to synth:", e);
+      });
+    }
+    return oneMinAudio;
+  }
+
   // Menu Selection Handlers
   function selectOneMinDifficultyChoice(diff) {
     pendingOneMinDifficultyChoice = diff;
@@ -65317,6 +65363,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   function triggerOneMinVictory() {
     if (oneMinState === "victory") return;
     oneMinState = "victory";
+    if (oneMinAudio) {
+      try { oneMinAudio.pause(); } catch (_) {}
+    }
     screenShake = 52;
     playSound("win");
     stopOneMinMode();
@@ -65390,9 +65439,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     controlsReverseTimer = 0;
 
     isMenuMode = false;
+    isPaused = false;
+    gameOver = false;
+    gameWin = false;
     document.body.classList.add("in-game");
     mainMenu.classList.remove("menu-appear");
-    setTimeout(() => { mainMenu.style.display = "none"; }, 500);
+    mainMenu.style.display = "none";
 
     resetAllStats();
     resetGame(false);
@@ -65411,10 +65463,18 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     worm.dir = { x: 0, y: 0 };
     worm.nextDir = { x: 0, y: 0 };
     prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
+    wormDisplayBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     obstacles = [];
     foods = [];
 
-    // Pause default background music to let procedural synth play
+    // Cue authentic audio track
+    try {
+      const audio = getOneMinAudio();
+      audio.pause();
+      audio.currentTime = 0;
+    } catch (_) {}
+
+    // Pause default background music
     if (bgMusic && typeof bgMusic.pause === "function") {
       bgMusic.pause();
     }
@@ -65441,6 +65501,13 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
   function stopOneMinMode() {
     isOneMinMode = false;
+    oneMinState = "idle";
+    if (oneMinAudio) {
+      try {
+        oneMinAudio.pause();
+        oneMinAudio.currentTime = 0;
+      } catch (_) {}
+    }
     if (joystickZone) {
       joystickZone.style.left = "";
       joystickZone.style.bottom = "";
@@ -65849,17 +65916,43 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (oneMinCountdownTimer <= 0) {
         oneMinState = "playing";
         oneMinPlayTime = 0;
-        oneMinSynth.start();
         oneMinScreenFlash = 1.0;
         screenShake = 26;
+
+        // Bắt đầu bản nhạc chuẩn xác từ video (có dự phòng bằng synthesizer quy trình)
+        let audioStarted = false;
+        try {
+          const audio = getOneMinAudio();
+          audio.currentTime = 0;
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              audioStarted = true;
+            }).catch(err => {
+              console.warn("Autoplay blocked or failed, falling back to synth:", err);
+              if (typeof oneMinSynth !== 'undefined' && oneMinSynth.start) oneMinSynth.start();
+            });
+          } else {
+            audioStarted = true;
+          }
+        } catch (err) {
+          console.warn("Audio play exception:", err);
+          if (typeof oneMinSynth !== 'undefined' && oneMinSynth.start) oneMinSynth.start();
+        }
       }
-      // Không return ở đây để giun vẫn di chuyển và lướt tự do kiểm tra nút bấm ngay trong 5s đếm ngược!
     }
 
     // 2. PLAYING STATE (0s to 67s)
     if (oneMinState === "playing") {
-      oneMinPlayTime += dt;
-      oneMinSynth.update(oneMinPlayTime, dt);
+      // Đồng bộ thời gian nhịp điệu với bản nhạc chính gốc từ video
+      if (oneMinAudio && !oneMinAudio.paused && !oneMinAudio.ended && oneMinAudio.currentTime > 0) {
+        oneMinPlayTime = oneMinAudio.currentTime;
+      } else {
+        oneMinPlayTime += dt;
+        if (typeof oneMinSynth !== 'undefined' && oneMinSynth.update) {
+          oneMinSynth.update(oneMinPlayTime, dt);
+        }
+      }
 
       oneMinStageIdx = Math.min(9, Math.floor(oneMinPlayTime / 6.7));
       oneMinStageProgress = (oneMinPlayTime % 6.7) / 6.7;
@@ -66142,6 +66235,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     const gw = cols * gridSize;
     const gh = rows * gridSize;
     const stage = ONE_MIN_STAGES[oneMinStageIdx];
+    const cx = gw / 2;
+    const cy = gh / 2;
 
     // Multi-tier Graphics Optimization
     const isGfxUltraLow = (graphicsQuality === "ultralow");
@@ -66149,40 +66244,308 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     const isGfxMedium = (graphicsQuality === "medium");
     const isGfxHigh = (graphicsQuality === "high" || (!isGfxLow && !isGfxMedium));
 
-    // Background Gradient with stage color tint
+    // 1. Deep Space Observatory Background
     if (isGfxUltraLow) {
-      targetCtx.fillStyle = "#080a10";
+      targetCtx.fillStyle = "#05020a";
       targetCtx.fillRect(0, 0, gw, gh);
     } else {
-      const bgGrad = targetCtx.createLinearGradient(0, 0, 0, gh);
-      bgGrad.addColorStop(0, "#080a10");
-      bgGrad.addColorStop(1, "#030406");
+      const bgGrad = targetCtx.createRadialGradient(cx, cy, 20, cx, cy, Math.max(gw, gh) * 0.72);
+      bgGrad.addColorStop(0, "#0c0618");
+      bgGrad.addColorStop(0.55, "#06030c");
+      bgGrad.addColorStop(1.0, "#020106");
       targetCtx.fillStyle = bgGrad;
       targetCtx.fillRect(0, 0, gw, gh);
     }
 
-    // Oscilloscope Wave in background (optimized by graphics tier)
+    // 2. Observatory HUD Reticle & Grid
     if (!isGfxUltraLow) {
       targetCtx.save();
-      targetCtx.strokeStyle = stage.color + "28";
-      targetCtx.lineWidth = isGfxLow ? 1.6 : 2.2;
+      targetCtx.strokeStyle = "rgba(0, 229, 255, 0.04)";
+      targetCtx.lineWidth = 1;
+      const step = 40;
       targetCtx.beginPath();
-      const wavePlotW = gw * 0.88;
-      const waveStartX = gw * 0.06;
-      const waveMidY = gh * 0.52;
-      const waveSegments = isGfxLow ? 24 : 80;
-      for (let i = 0; i <= waveSegments; i++) {
-        const xVal = (i / waveSegments) * 4;
-        const yVal = evalOneMinStageWave(oneMinStageIdx, xVal);
-        const px = waveStartX + (i / waveSegments) * wavePlotW;
-        const py = waveMidY + (0.5 - yVal) * 125;
-        if (i === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
+      for (let x = step; x < gw; x += step) {
+        targetCtx.moveTo(x, 0); targetCtx.lineTo(x, gh);
       }
+      for (let y = step; y < gh; y += step) {
+        targetCtx.moveTo(0, y); targetCtx.lineTo(gw, y);
+      }
+      targetCtx.stroke();
+
+      // Observatory Reticle Circles & Tick Marks
+      targetCtx.strokeStyle = "rgba(0, 229, 255, 0.08)";
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, 140, 0, Math.PI * 2);
+      targetCtx.arc(cx, cy, 210, 0, Math.PI * 2);
+      targetCtx.stroke();
+
+      // Reticle Crosshairs
+      targetCtx.strokeStyle = "rgba(255, 51, 102, 0.12)";
+      targetCtx.beginPath();
+      targetCtx.moveTo(cx - 240, cy); targetCtx.lineTo(cx - 150, cy);
+      targetCtx.moveTo(cx + 150, cy); targetCtx.lineTo(cx + 240, cy);
+      targetCtx.moveTo(cx, cy - 170); targetCtx.lineTo(cx, cy - 120);
+      targetCtx.moveTo(cx, cy + 120); targetCtx.lineTo(cx, cy + 170);
       targetCtx.stroke();
       targetCtx.restore();
     }
 
-    // Arena Boundaries with Contracting Walls
+    // 3. THE GIANT EVOLVING STAR (FROM VIDEO)
+    targetCtx.save();
+    const starMaxR = Math.min(gw, gh) * 0.36;
+    const pulseT = oneMinIdlePhase * 1.5;
+
+    if (oneMinStageIdx < 7) {
+      // Concentric fusion shells from outside to inside:
+      // Shell 6: Hydrogen (H)
+      // Shell 5: Helium (He)
+      // Shell 4: Carbon (C)
+      // Shell 3: Neon (Ne)
+      // Shell 2: Oxygen (O)
+      // Shell 1: Silicon (Si)
+      // Inner Core: Iron (Fe)
+      const shells = [
+        { name: "H", r: starMaxR * 0.88, color: "#00e5ff", glow: "#33f6ff", stageIdx: 0 },
+        { name: "He", r: starMaxR * 0.74, color: "#ff8800", glow: "#ffaa33", stageIdx: 1 },
+        { name: "C", r: starMaxR * 0.61, color: "#ffdd00", glow: "#ffee55", stageIdx: 2 },
+        { name: "Ne", r: starMaxR * 0.49, color: "#00e676", glow: "#69f0ae", stageIdx: 3 },
+        { name: "O", r: starMaxR * 0.38, color: "#00b0ff", glow: "#40c4ff", stageIdx: 4 },
+        { name: "Si", r: starMaxR * 0.27, color: "#b388ff", glow: "#d1c4e9", stageIdx: 5 },
+        { name: "Fe", r: starMaxR * 0.16, color: "#ff1744", glow: "#ff5252", stageIdx: 6 }
+      ];
+
+      // Draw concentric shells
+      shells.forEach((sh) => {
+        const isActive = (oneMinStageIdx === sh.stageIdx);
+        const pulse = isActive ? Math.sin(pulseT * 2.8) * 3.5 : 0;
+        const currentR = sh.r + pulse;
+
+        // Shell Fill with gradient
+        if (!isGfxUltraLow) {
+          const grad = targetCtx.createRadialGradient(cx, cy, currentR * 0.65, cx, cy, currentR);
+          grad.addColorStop(0, sh.color + (isActive ? "35" : "12"));
+          grad.addColorStop(1, sh.color + (isActive ? "65" : "25"));
+          targetCtx.fillStyle = grad;
+          targetCtx.beginPath();
+          targetCtx.arc(cx, cy, currentR, 0, Math.PI * 2);
+          targetCtx.fill();
+        }
+
+        // Shell Outline
+        targetCtx.strokeStyle = sh.color + (isActive ? "ff" : "55");
+        targetCtx.lineWidth = isActive ? (isGfxLow ? 2.5 : 3.5) : 1.2;
+        if (isActive && isGfxHigh) {
+          targetCtx.shadowColor = sh.glow;
+          targetCtx.shadowBlur = 18;
+        } else {
+          targetCtx.shadowBlur = 0;
+        }
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, currentR, 0, Math.PI * 2);
+        targetCtx.stroke();
+
+        // Active Corona Prominences / Flares
+        if (isActive && !isGfxUltraLow) {
+          const flareCount = isGfxLow ? 6 : 14;
+          targetCtx.strokeStyle = sh.glow + "bb";
+          targetCtx.lineWidth = 2.0;
+          for (let f = 0; f < flareCount; f++) {
+            const angle = (f / flareCount) * Math.PI * 2 + pulseT * 0.2;
+            const flareLen = 12 + Math.sin(pulseT * 3.0 + f * 1.5) * 8;
+            targetCtx.beginPath();
+            targetCtx.moveTo(cx + Math.cos(angle) * currentR, cy + Math.sin(angle) * currentR);
+            targetCtx.lineTo(cx + Math.cos(angle) * (currentR + flareLen), cy + Math.sin(angle) * (currentR + flareLen));
+            targetCtx.stroke();
+          }
+        }
+      });
+
+      // Dense glowing Iron / Energy Core at center
+      const coreR = starMaxR * 0.16;
+      const coreGrad = targetCtx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+      coreGrad.addColorStop(0, "#ffffff");
+      coreGrad.addColorStop(0.4, "#ffffbb");
+      coreGrad.addColorStop(1.0, "#ff3d00");
+      targetCtx.fillStyle = coreGrad;
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, coreR, 0, Math.PI * 2);
+      targetCtx.fill();
+
+    } else if (oneMinStageIdx === 7) {
+      // Stage 8: CHANDRASEKHAR LIMIT (Iron core exceeds 1.44 Suns)
+      // Core trembles aggressively with critical mass alarms
+      const trembleX = (Math.random() - 0.5) * (isGfxLow ? 2 : 5);
+      const trembleY = (Math.random() - 0.5) * (isGfxLow ? 2 : 5);
+      const scx = cx + trembleX;
+      const scy = cy + trembleY;
+
+      // Pulsing red hazard warning perimeter
+      const warnR = starMaxR * 0.70 + Math.sin(pulseT * 6.0) * 8;
+      targetCtx.strokeStyle = "rgba(255, 23, 68, 0.75)";
+      targetCtx.lineWidth = 2.8;
+      targetCtx.setLineDash([12, 8]);
+      targetCtx.beginPath();
+      targetCtx.arc(scx, scy, warnR, 0, Math.PI * 2);
+      targetCtx.stroke();
+      targetCtx.setLineDash([]);
+
+      // Overloaded Iron Core
+      const coreR = starMaxR * 0.28 + Math.sin(pulseT * 8.0) * 4;
+      const coreGrad = targetCtx.createRadialGradient(scx, scy, 0, scx, scy, coreR);
+      coreGrad.addColorStop(0, "#ffffff");
+      coreGrad.addColorStop(0.3, "#ff5252");
+      coreGrad.addColorStop(1.0, "#b71c1c");
+      targetCtx.fillStyle = coreGrad;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = "#ff1744";
+        targetCtx.shadowBlur = 30;
+      }
+      targetCtx.beginPath();
+      targetCtx.arc(scx, scy, coreR, 0, Math.PI * 2);
+      targetCtx.fill();
+
+      // Telemetry Text
+      targetCtx.font = "900 11px monospace";
+      targetCtx.fillStyle = "#ff1744";
+      targetCtx.textAlign = "center";
+      targetCtx.fillText("⚠ CHANDRASEKHAR LIMIT: M > 1.44 M☉ CRITICAL ⚠", scx, scy - warnR - 10);
+
+    } else if (oneMinStageIdx === 8) {
+      // Stage 9: CORE COLLAPSE (70,000 km/s - Free Fall into a neutron star)
+      const collapseProg = Math.min(1.0, oneMinStageProgress);
+      const collapseR = starMaxR * Math.max(0.08, Math.pow(1.0 - collapseProg * 0.92, 1.6));
+
+      // Inward Gravitational Suction Lines
+      if (!isGfxUltraLow) {
+        const streakCount = isGfxLow ? 12 : 28;
+        targetCtx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+        targetCtx.lineWidth = 1.6;
+        for (let s = 0; s < streakCount; s++) {
+          const a = (s / streakCount) * Math.PI * 2 + pulseT * 0.5;
+          const outerR = starMaxR * 0.95;
+          const innerR = collapseR + 8;
+          const streakT = (oneMinPlayTime * 4.5 + s * 0.2) % 1.0;
+          const p1 = outerR - streakT * (outerR - innerR);
+          const p2 = Math.max(innerR, p1 - 25);
+          targetCtx.beginPath();
+          targetCtx.moveTo(cx + Math.cos(a) * p1, cy + Math.sin(a) * p1);
+          targetCtx.lineTo(cx + Math.cos(a) * p2, cy + Math.sin(a) * p2);
+          targetCtx.stroke();
+        }
+      }
+
+      // Collapsing Singularity Core
+      const singGrad = targetCtx.createRadialGradient(cx, cy, 0, cx, cy, collapseR);
+      singGrad.addColorStop(0, "#ffffff");
+      singGrad.addColorStop(0.5, "#80d8ff");
+      singGrad.addColorStop(1.0, "#000000");
+      targetCtx.fillStyle = singGrad;
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, collapseR, 0, Math.PI * 2);
+      targetCtx.fill();
+
+      // Telemetry Text
+      targetCtx.font = "900 11px monospace";
+      targetCtx.fillStyle = "#00e5ff";
+      targetCtx.textAlign = "center";
+      targetCtx.fillText("⚡ CORE COLLAPSE: 70,000 km/s FREE FALL ⚡", cx, cy - starMaxR * 0.85);
+
+    } else if (oneMinStageIdx === 9) {
+      // Stage 10: SUPERNOVA (Blast Wave grows like t^(2/5))
+      const waveProg = Math.min(1.0, oneMinStageProgress);
+      const blastR = (gw * 0.65) * Math.pow(Math.max(0.04, waveProg), 0.40);
+
+      // Multi-layer Remnant Planetary Nebula Clouds
+      if (!isGfxUltraLow) {
+        const nebulaGrad = targetCtx.createRadialGradient(cx, cy, blastR * 0.15, cx, cy, blastR);
+        nebulaGrad.addColorStop(0, "rgba(255, 255, 255, 0.45)");
+        nebulaGrad.addColorStop(0.25, "rgba(224, 64, 251, 0.28)"); // Magenta
+        nebulaGrad.addColorStop(0.55, "rgba(0, 229, 255, 0.22)");  // Cyan
+        nebulaGrad.addColorStop(0.85, "rgba(255, 171, 0, 0.18)");  // Gold
+        nebulaGrad.addColorStop(1.0, "rgba(124, 77, 255, 0.0)");   // Violet outer
+        targetCtx.fillStyle = nebulaGrad;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, blastR, 0, Math.PI * 2);
+        targetCtx.fill();
+      }
+
+      // Relativistic Blast Shockwave Ring
+      targetCtx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+      targetCtx.lineWidth = isGfxLow ? 3.0 : 4.5;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = "#ffffff";
+        targetCtx.shadowBlur = 24;
+      }
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, blastR, 0, Math.PI * 2);
+      targetCtx.stroke();
+
+      // Central Neutron Star Pulsar with Twin Relativistic Energy Jets
+      const jetAngle = pulseT * 2.2;
+      const jetLen = 90;
+      targetCtx.strokeStyle = "rgba(0, 229, 255, 0.85)";
+      targetCtx.lineWidth = 3.0;
+      targetCtx.beginPath();
+      targetCtx.moveTo(cx - Math.cos(jetAngle) * jetLen, cy - Math.sin(jetAngle) * jetLen);
+      targetCtx.lineTo(cx + Math.cos(jetAngle) * jetLen, cy + Math.sin(jetAngle) * jetLen);
+      targetCtx.stroke();
+
+      // Pulsar Core
+      targetCtx.fillStyle = "#ffffff";
+      if (isGfxHigh) {
+        targetCtx.shadowColor = "#00e5ff";
+        targetCtx.shadowBlur = 28;
+      }
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, 14, 0, Math.PI * 2);
+      targetCtx.fill();
+
+      // Telemetry Text
+      targetCtx.font = "900 11px monospace";
+      targetCtx.fillStyle = "#ff4081";
+      targetCtx.textAlign = "center";
+      targetCtx.fillText("💥 SUPERNOVA BLAST WAVE: t^(2/5) EXPANSION 💥", cx, cy - blastR * 0.75 - 12);
+    }
+    targetCtx.restore();
+
+    // 4. Oscilloscope Wave in background (optimized by graphics tier)
+    if (!isGfxUltraLow) {
+      targetCtx.save();
+      targetCtx.strokeStyle = stage.color + (isGfxHigh ? "60" : "40");
+      targetCtx.lineWidth = isGfxLow ? 1.8 : 2.5;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = stage.color;
+        targetCtx.shadowBlur = 8;
+      }
+      targetCtx.beginPath();
+      const wavePlotW = gw * 0.88;
+      const waveStartX = gw * 0.06;
+      const waveMidY = gh * 0.52;
+      const waveSegments = isGfxLow ? 36 : 96;
+      for (let i = 0; i <= waveSegments; i++) {
+        const xVal = (i / waveSegments) * 4;
+        const yVal = evalOneMinStageWave(oneMinStageIdx, xVal);
+        const px = waveStartX + (i / waveSegments) * wavePlotW;
+        const py = waveMidY + (0.5 - yVal) * 115;
+        if (i === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
+      }
+      targetCtx.stroke();
+
+      // Scanning Probe Bead tracking active beat progress
+      const probeX = waveStartX + oneMinStageProgress * wavePlotW;
+      const probeY = waveMidY + (0.5 - evalOneMinStageWave(oneMinStageIdx, oneMinStageProgress * 4)) * 115;
+      targetCtx.fillStyle = "#ffffff";
+      if (isGfxHigh) {
+        targetCtx.shadowColor = "#ffffff";
+        targetCtx.shadowBlur = 14;
+      }
+      targetCtx.beginPath();
+      targetCtx.arc(probeX, probeY, 4.5, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+    }
+
+    // 5. Arena Boundaries with Contracting Walls
     const padX = gw * oneMinWallContractFrac;
     const padY = gh * oneMinWallContractFrac;
     targetCtx.save();
@@ -66198,7 +66561,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     targetCtx.strokeRect(padX + 2, padY + 2, gw - padX * 2 - 4, gh - padY * 2 - 4);
     targetCtx.restore();
 
-    // Lasers (Warning & Firing with JSAB chevrons)
+    // 6. Lasers (Warning & Firing with JSAB chevrons)
     oneMinLasers.forEach(l => {
       targetCtx.save();
       if (l.state === "warning") {
@@ -66231,383 +66594,343 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         targetCtx.lineTo(l.x2, l.y2);
         targetCtx.stroke();
 
-        if (!isGfxLow) {
-          targetCtx.strokeStyle = "#ffffff";
-          targetCtx.lineWidth = l.width * 0.45;
-          targetCtx.beginPath();
-          targetCtx.moveTo(l.x1, l.y1);
-          targetCtx.lineTo(l.x2, l.y2);
-          targetCtx.stroke();
-        }
+        targetCtx.strokeStyle = "#ffffff";
+        targetCtx.lineWidth = l.width * 0.38;
+        targetCtx.beginPath();
+        targetCtx.moveTo(l.x1, l.y1);
+        targetCtx.lineTo(l.x2, l.y2);
+        targetCtx.stroke();
       }
       targetCtx.restore();
     });
 
-    // Shockwaves (Notched Sonic Rings)
-    oneMinShockwaves.forEach(s => {
+    // 7. Shockwaves
+    oneMinShockwaves.forEach(sw => {
       targetCtx.save();
-      targetCtx.strokeStyle = s.color;
+      targetCtx.strokeStyle = sw.color;
+      targetCtx.lineWidth = 3.2;
       if (isGfxHigh) {
-        targetCtx.shadowColor = s.color;
+        targetCtx.shadowColor = sw.color;
         targetCtx.shadowBlur = 14;
-      } else if (isGfxMedium) {
-        targetCtx.shadowColor = s.color;
-        targetCtx.shadowBlur = 4;
       }
-      targetCtx.globalAlpha = s.alpha;
-      targetCtx.lineWidth = s.thickness;
       targetCtx.beginPath();
-      targetCtx.arc(s.cx, s.cy, s.radius, 0, Math.PI * 2);
+      targetCtx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
       targetCtx.stroke();
       targetCtx.restore();
     });
 
-    // Diverse JSAB / Pixel-Art Hazards Rendering
+    // 8. Danmaku Bullets (Saws, Shurikens, Diamonds, Darts)
     oneMinBullets.forEach(b => {
       targetCtx.save();
       targetCtx.translate(b.x, b.y);
-      if (b.rot) targetCtx.rotate(b.rot);
-
-      if (isGfxHigh) {
-        targetCtx.shadowColor = b.glow || b.color;
+      if (b.rot !== undefined) targetCtx.rotate(b.rot);
+      targetCtx.fillStyle = b.color;
+      if (isGfxHigh && b.glow) {
+        targetCtx.shadowColor = b.glow;
         targetCtx.shadowBlur = 12;
-      } else if (isGfxMedium) {
-        targetCtx.shadowColor = b.glow || b.color;
-        targetCtx.shadowBlur = 4;
       }
 
       if (b.shape === "saw") {
+        targetCtx.beginPath();
         const teeth = b.teeth || 8;
-        const outerR = b.radius;
-        const innerR = b.radius * 0.62;
-        targetCtx.fillStyle = b.color;
-        targetCtx.beginPath();
-        for (let t = 0; t < teeth; t++) {
-          const a1 = (t * Math.PI * 2) / teeth;
-          const a2 = a1 + (Math.PI / teeth);
-          targetCtx.lineTo(Math.cos(a1) * outerR, Math.sin(a1) * outerR);
-          targetCtx.lineTo(Math.cos(a2) * innerR, Math.sin(a2) * innerR);
+        const rOut = b.radius;
+        const rIn = b.radius * 0.58;
+        for (let t = 0; t < teeth * 2; t++) {
+          const a = (t * Math.PI) / teeth;
+          const r = t % 2 === 0 ? rOut : rIn;
+          if (t === 0) targetCtx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+          else targetCtx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
         }
         targetCtx.closePath();
         targetCtx.fill();
-
-        targetCtx.fillStyle = "#11141c";
-        targetCtx.beginPath();
-        targetCtx.arc(0, 0, innerR * 0.48, 0, Math.PI * 2);
-        targetCtx.fill();
         targetCtx.fillStyle = "#ffffff";
         targetCtx.beginPath();
-        targetCtx.arc(0, 0, innerR * 0.22, 0, Math.PI * 2);
+        targetCtx.arc(0, 0, b.radius * 0.28, 0, Math.PI * 2);
         targetCtx.fill();
-
-      } else if (b.shape === "diamond") {
-        const r = b.radius;
-        targetCtx.fillStyle = b.color;
-        targetCtx.beginPath();
-        targetCtx.moveTo(0, -r * 1.25);
-        targetCtx.lineTo(r * 1.25, 0);
-        targetCtx.lineTo(0, r * 1.25);
-        targetCtx.lineTo(-r * 1.25, 0);
-        targetCtx.closePath();
-        targetCtx.fill();
-
-        targetCtx.fillStyle = "#ffffff";
-        targetCtx.beginPath();
-        targetCtx.moveTo(0, -r * 0.55);
-        targetCtx.lineTo(r * 0.55, 0);
-        targetCtx.lineTo(0, r * 0.55);
-        targetCtx.lineTo(-r * 0.55, 0);
-        targetCtx.closePath();
-        targetCtx.fill();
-
       } else if (b.shape === "shuriken") {
-        const r = b.radius;
-        targetCtx.fillStyle = b.color;
         targetCtx.beginPath();
-        for (let k = 0; k < 4; k++) {
-          const a = (k * Math.PI) / 2;
-          const ax = Math.cos(a) * r * 1.35;
-          const ay = Math.sin(a) * r * 1.35;
-          const bx = Math.cos(a + 0.45) * r * 0.45;
-          const by = Math.sin(a + 0.45) * r * 0.45;
-          if (k === 0) targetCtx.moveTo(ax, ay); else targetCtx.lineTo(ax, ay);
-          targetCtx.lineTo(bx, by);
+        for (let p = 0; p < 4; p++) {
+          const a = (p * Math.PI) / 2;
+          targetCtx.lineTo(Math.cos(a) * b.radius, Math.sin(a) * b.radius);
+          const aMid = a + Math.PI / 4;
+          targetCtx.lineTo(Math.cos(aMid) * (b.radius * 0.32), Math.sin(aMid) * (b.radius * 0.32));
         }
         targetCtx.closePath();
         targetCtx.fill();
-
-        targetCtx.fillStyle = "#0c1017";
+      } else if (b.shape === "diamond") {
         targetCtx.beginPath();
-        targetCtx.arc(0, 0, r * 0.35, 0, Math.PI * 2);
+        targetCtx.moveTo(0, -b.radius * 1.2);
+        targetCtx.lineTo(b.radius * 0.8, 0);
+        targetCtx.lineTo(0, b.radius * 1.2);
+        targetCtx.lineTo(-b.radius * 0.8, 0);
+        targetCtx.closePath();
         targetCtx.fill();
-
-      } else if (b.shape === "needle") {
-        const len = b.radius * 2.6;
-        const wid = 3.2;
-        targetCtx.fillStyle = b.color;
-        targetCtx.fillRect(-len / 2, -wid / 2, len, wid);
-        targetCtx.fillStyle = "#ffffff";
-        targetCtx.fillRect(-len * 0.3, -wid * 0.3, len * 0.6, wid * 0.6);
-
       } else {
-        // Standard high-speed projectile
-        targetCtx.fillStyle = b.color;
         targetCtx.beginPath();
         targetCtx.arc(0, 0, b.radius, 0, Math.PI * 2);
         targetCtx.fill();
-
-        if (!isGfxLow) {
-          targetCtx.fillStyle = "#ffffff";
-          targetCtx.beginPath();
-          targetCtx.arc(0, 0, b.radius * 0.45, 0, Math.PI * 2);
-          targetCtx.fill();
-        }
       }
       targetCtx.restore();
     });
 
-    // Special Cores (Cục Bất Tử & Cục Đỏ Điên Loạn)
-    oneMinPickups.forEach(p => {
-      const bobY = Math.sin(p.floatPhase) * 4.5;
-      const pAlpha = p.life < 2.0 ? (p.life / 2.0) : 1.0;
+    // 9. Dash Afterimages
+    oneMinDashAfterimages.forEach(af => {
       targetCtx.save();
-      targetCtx.globalAlpha = Math.max(0, pAlpha);
-      targetCtx.translate(p.x, p.y + bobY);
-
-      if (p.type === "shield") {
-        // CỤC BẤT TỬ: Cyan / Gold Glowing Core with rotating hex shield ring
-        const pulseScale = 1.0 + Math.sin(p.pulse) * 0.15;
-        if (isGfxHigh) {
-          targetCtx.shadowColor = "#00e5ff";
-          targetCtx.shadowBlur = 18;
-        } else if (isGfxMedium) {
-          targetCtx.shadowColor = "#00e5ff";
-          targetCtx.shadowBlur = 6;
-        }
-
-        // Outer rotating shield ring
-        targetCtx.save();
-        targetCtx.rotate(p.pulse * 0.8);
-        targetCtx.strokeStyle = "#00e5ff";
-        targetCtx.lineWidth = 2.4;
-        targetCtx.beginPath();
-        for (let k = 0; k < 6; k++) {
-          const ang = (k / 6) * Math.PI * 2;
-          const rx = Math.cos(ang) * (p.radius + 6) * pulseScale;
-          const ry = Math.sin(ang) * (p.radius + 6) * pulseScale;
-          if (k === 0) targetCtx.moveTo(rx, ry);
-          else targetCtx.lineTo(rx, ry);
-        }
-        targetCtx.closePath();
-        targetCtx.stroke();
-        targetCtx.restore();
-
-        // Inner glowing core
-        targetCtx.fillStyle = "#ffffff";
-        targetCtx.beginPath();
-        targetCtx.arc(0, 0, p.radius * 0.65 * pulseScale, 0, Math.PI * 2);
-        targetCtx.fill();
-
-        targetCtx.fillStyle = "#00e5ff";
-        targetCtx.beginPath();
-        targetCtx.arc(0, 0, p.radius * 0.45 * pulseScale, 0, Math.PI * 2);
-        targetCtx.fill();
-
-        // Shield glyph
-        targetCtx.font = "bold 13px sans-serif";
-        targetCtx.textAlign = "center";
-        targetCtx.textBaseline = "middle";
-        targetCtx.fillText("🛡️", 0, 0);
-
-      } else if (p.type === "berserk") {
-        // CỤC ĐỎ ĐIÊN LOẠN: Fiery Crimson Glowing Core with orbiting flame shards
-        // (LƯU Ý QUAN TRỌNG: KHÔNG khiến giun mất kiểm soát, CHỈ ĐI NHANH HƠN)
-        const pulseScale = 1.0 + Math.sin(p.pulse * 1.5) * 0.18;
-        if (isGfxHigh) {
-          targetCtx.shadowColor = "#ff1744";
-          targetCtx.shadowBlur = 22;
-        } else if (isGfxMedium) {
-          targetCtx.shadowColor = "#ff1744";
-          targetCtx.shadowBlur = 6;
-        }
-
-        // Orbiting fiery crystals
-        targetCtx.save();
-        targetCtx.rotate(-p.pulse * 1.3);
-        targetCtx.strokeStyle = "#ff5252";
-        targetCtx.lineWidth = 2.0;
-        targetCtx.beginPath();
-        for (let k = 0; k < 4; k++) {
-          const ang = (k / 4) * Math.PI * 2;
-          const rx = Math.cos(ang) * (p.radius + 7) * pulseScale;
-          const ry = Math.sin(ang) * (p.radius + 7) * pulseScale;
-          targetCtx.strokeRect(rx - 3, ry - 3, 6, 6);
-        }
-        targetCtx.restore();
-
-        // Flaming core
-        targetCtx.fillStyle = "#ff1744";
-        targetCtx.beginPath();
-        targetCtx.arc(0, 0, p.radius * 0.75 * pulseScale, 0, Math.PI * 2);
-        targetCtx.fill();
-
-        targetCtx.fillStyle = "#ffebee";
-        targetCtx.beginPath();
-        targetCtx.arc(0, 0, p.radius * 0.45 * pulseScale, 0, Math.PI * 2);
-        targetCtx.fill();
-
-        // Flame glyph
-        targetCtx.font = "bold 13px sans-serif";
-        targetCtx.textAlign = "center";
-        targetCtx.textBaseline = "middle";
-        targetCtx.fillText("🔥", 0, 0);
-      }
-      targetCtx.restore();
-    });
-
-    // Floating Banners Rendering (Pickups Toast / Status)
-    oneMinFloatingBanners.forEach(b => {
-      targetCtx.save();
-      const alpha = Math.min(1.0, b.life / 0.4);
-      targetCtx.globalAlpha = Math.max(0, alpha);
-      targetCtx.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
-      targetCtx.textAlign = "center";
-      targetCtx.fillStyle = b.color;
-      if (isGfxHigh) {
-        targetCtx.shadowColor = b.color;
-        targetCtx.shadowBlur = 14;
-      }
-      targetCtx.fillText(b.text, b.x, b.y);
-      targetCtx.restore();
-    });
-
-    // Dash Afterimages
-    const maxAfterimages = isGfxUltraLow ? 1 : (isGfxLow ? 2 : (isGfxMedium ? 4 : 8));
-    const activeAfterimages = oneMinDashAfterimages.slice(-maxAfterimages);
-    activeAfterimages.forEach(img => {
-      targetCtx.save();
-      targetCtx.globalAlpha = img.alpha * 0.55;
-      targetCtx.fillStyle = img.color;
-      img.segments.forEach(seg => {
-        targetCtx.fillRect(seg.x * gridSize, seg.y * gridSize, gridSize - 1, gridSize - 1);
+      targetCtx.globalAlpha = Math.max(0, af.alpha);
+      targetCtx.fillStyle = af.color;
+      af.segments.forEach(seg => {
+        targetCtx.fillRect(seg.x * gridSize + 2, seg.y * gridSize + 2, gridSize - 4, gridSize - 4);
       });
       targetCtx.restore();
     });
 
-    // Graze Spark Particles
-    oneMinGrazeParticles.forEach(p => {
+    // 10. Worm Character Rendering
+    if (worm && worm.body && worm.body.length > 0) {
       targetCtx.save();
-      targetCtx.fillStyle = p.color;
-      targetCtx.globalAlpha = p.alpha;
-      targetCtx.beginPath();
-      targetCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      targetCtx.fill();
+      const isInv = (oneMinInvincibleTimer > 0);
+      const isDashing = (oneMinDashTimer > 0);
+      const isBerserk = (oneMinSpeedBoostTimer > 0);
+
+      worm.body.forEach((seg, idx) => {
+        const isHead = (idx === 0);
+        const px = seg.x * gridSize;
+        const py = seg.y * gridSize;
+
+        if (isInv && Math.floor(Date.now() / 80) % 2 === 0) {
+          targetCtx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        } else if (isDashing) {
+          targetCtx.fillStyle = "#ffffff";
+          if (isGfxHigh) {
+            targetCtx.shadowColor = "#00e5ff";
+            targetCtx.shadowBlur = 18;
+          }
+        } else if (isBerserk) {
+          targetCtx.fillStyle = isHead ? "#ff1744" : "#ff5252";
+          if (isGfxHigh) {
+            targetCtx.shadowColor = "#ff1744";
+            targetCtx.shadowBlur = 14;
+          }
+        } else {
+          targetCtx.fillStyle = isHead ? "#00e5ff" : "#00838f";
+        }
+
+        targetCtx.fillRect(px + 2, py + 2, gridSize - 4, gridSize - 4);
+
+        if (isHead) {
+          targetCtx.fillStyle = "#ffffff";
+          const eyeOffX = oneMinFacingDir.x * 3;
+          const eyeOffY = oneMinFacingDir.y * 3;
+          targetCtx.fillRect(px + gridSize / 2 - 3 + eyeOffX, py + gridSize / 2 - 3 + eyeOffY, 6, 6);
+        }
+      });
+
+      // Invincible Shield Bubble (when active)
+      if (worm.isShielded || oneMinInvincibleTimer > 0) {
+        const h = worm.body[0];
+        targetCtx.strokeStyle = "#00e5ff";
+        targetCtx.lineWidth = 2.0;
+        targetCtx.beginPath();
+        targetCtx.arc((h.x + 0.5) * gridSize, (h.y + 0.5) * gridSize, gridSize * 1.25, 0, Math.PI * 2);
+        targetCtx.stroke();
+      }
+      targetCtx.restore();
+    }
+
+    // 11. Pickups: Cục Bất Tử & Cục Đỏ Điên Loạn
+    oneMinPickups.forEach(p => {
+      targetCtx.save();
+      const floatY = Math.sin(p.floatPhase) * 4;
+      const py = p.y + floatY;
+      const pulseScale = 1.0 + Math.sin(p.pulse) * 0.12;
+
+      targetCtx.translate(p.x, py);
+      targetCtx.scale(pulseScale, pulseScale);
+
+      if (p.type === "shield") {
+        targetCtx.fillStyle = "rgba(0, 229, 255, 0.28)";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, p.radius, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        targetCtx.strokeStyle = "#00e5ff";
+        targetCtx.lineWidth = 3.0;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = "#00e5ff";
+          targetCtx.shadowBlur = 20;
+        }
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, p.radius, 0, Math.PI * 2);
+        targetCtx.stroke();
+
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.font = "bold 15px sans-serif";
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        targetCtx.fillText("🛡", 0, 1);
+
+        targetCtx.font = "bold 10px sans-serif";
+        targetCtx.fillStyle = "#00e5ff";
+        targetCtx.fillText("BẤT TỬ", 0, p.radius + 14);
+      } else {
+        targetCtx.fillStyle = "rgba(255, 23, 68, 0.28)";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, p.radius, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        targetCtx.strokeStyle = "#ff1744";
+        targetCtx.lineWidth = 3.0;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = "#ff1744";
+          targetCtx.shadowBlur = 20;
+        }
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, p.radius, 0, Math.PI * 2);
+        targetCtx.stroke();
+
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.font = "bold 15px sans-serif";
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        targetCtx.fillText("⚡", 0, 1);
+
+        targetCtx.font = "bold 10px sans-serif";
+        targetCtx.fillStyle = "#ff1744";
+        targetCtx.fillText("TỐC ĐỘ", 0, p.radius + 14);
+      }
       targetCtx.restore();
     });
 
-    // Victory Core (When Spawned)
+    // 12. Floating Text Banners
+    oneMinFloatingBanners.forEach(fb => {
+      targetCtx.save();
+      const alpha = Math.max(0, fb.life / fb.maxLife);
+      targetCtx.globalAlpha = alpha;
+      targetCtx.font = "900 16px sans-serif";
+      targetCtx.fillStyle = fb.color;
+      targetCtx.textAlign = "center";
+      if (isGfxHigh) {
+        targetCtx.shadowColor = fb.color;
+        targetCtx.shadowBlur = 15;
+      }
+      targetCtx.fillText(fb.text, fb.x, fb.y);
+      targetCtx.restore();
+    });
+
+    // 13. Victory Core (When Spawned)
     if (oneMinState === "core_spawned" && oneMinVictoryCore) {
       targetCtx.save();
       const vc = oneMinVictoryCore;
-      const pulseR = vc.radius + Math.sin(vc.pulse) * 4.5;
+      const pulseR = vc.radius + Math.sin(vc.pulse) * 6;
 
-      const coreGrad = targetCtx.createRadialGradient(vc.x, vc.y, 4, vc.x, vc.y, pulseR * 2.3);
-      coreGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
-      coreGrad.addColorStop(0.35, "rgba(255, 215, 0, 0.75)");
-      coreGrad.addColorStop(0.7, "rgba(255, 51, 102, 0.38)");
-      coreGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-      targetCtx.fillStyle = coreGrad;
+      const grad = targetCtx.createRadialGradient(vc.x, vc.y, 4, vc.x, vc.y, pulseR * 1.6);
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.35, "#ff007f");
+      grad.addColorStop(0.7, "#00e5ff");
+      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+      targetCtx.fillStyle = grad;
       targetCtx.beginPath();
-      targetCtx.arc(vc.x, vc.y, pulseR * 2.3, 0, Math.PI * 2);
+      targetCtx.arc(vc.x, vc.y, pulseR * 1.6, 0, Math.PI * 2);
       targetCtx.fill();
 
-      targetCtx.fillStyle = "#ffffff";
+      targetCtx.strokeStyle = "#ffffff";
+      targetCtx.lineWidth = 3.5;
       if (isGfxHigh) {
-        targetCtx.shadowColor = "#ffea00";
-        targetCtx.shadowBlur = 26;
+        targetCtx.shadowColor = "#00e5ff";
+        targetCtx.shadowBlur = 28;
       }
       targetCtx.beginPath();
-      const points = 8;
-      for (let i = 0; i < points * 2; i++) {
-        const a = (i * Math.PI / points) + vc.pulse * 0.55;
-        const dist = (i % 2 === 0) ? pulseR * 1.35 : pulseR * 0.68;
-        const px = vc.x + Math.cos(a) * dist;
-        const py = vc.y + Math.sin(a) * dist;
-        if (i === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
-      }
-      targetCtx.closePath();
-      targetCtx.fill();
+      targetCtx.arc(vc.x, vc.y, pulseR, 0, Math.PI * 2);
+      targetCtx.stroke();
 
+      targetCtx.font = "900 15px sans-serif";
       targetCtx.fillStyle = "#ffffff";
-      targetCtx.font = "bold 15px sans-serif";
       targetCtx.textAlign = "center";
-      targetCtx.fillText("★ CHẠM VÀO LÕI ĐỂ CHIẾN THẮNG! ★", vc.x, vc.y + pulseR + 30);
+      targetCtx.fillText("🌟 LÕI CHIẾN THẮNG 🌟", vc.x, vc.y - pulseR - 12);
+      targetCtx.font = "bold 12px sans-serif";
+      targetCtx.fillStyle = "#00e5ff";
+      targetCtx.fillText("CHẠM ĐỂ HOÀN THÀNH MÀN CHƠI!", vc.x, vc.y + pulseR + 22);
       targetCtx.restore();
     }
 
-    // Top HUD Bar: Gọn gàng, tinh tế, chừa không gian an toàn bên phải cho nút tạm dừng/thoát (#control-panel)
-    const hudW = gw - 110;
-    const hudH = 46;
+    // 14. 10 LED Stage Status Indicator Lamps (Bottom of Arena)
+    const lampCount = 10;
+    const lampW = Math.min(46, (gw * 0.88) / lampCount - 5);
+    const lampH = 12;
+    const totalLampsW = lampCount * lampW + (lampCount - 1) * 5;
+    const startLampX = (gw - totalLampsW) / 2;
+    const lampY = gh - (padY + 18);
+    const STAGE_TAGS = ["H", "He", "C", "Ne", "O", "Si", "Fe", "1.44M☉", "COLLAPSE", "SUPERNOVA"];
+
     targetCtx.save();
-    targetCtx.fillStyle = "rgba(10, 12, 18, 0.88)";
-    targetCtx.fillRect(10, 8, hudW, hudH);
-    targetCtx.strokeStyle = stage.color;
-    targetCtx.lineWidth = 1.6;
-    targetCtx.strokeRect(10, 8, hudW, hudH);
+    for (let i = 0; i < lampCount; i++) {
+      const lx = startLampX + i * (lampW + 5);
+      const isPast = (i < oneMinStageIdx);
+      const isCurrent = (i === oneMinStageIdx);
+      const stColor = ONE_MIN_STAGES[i] ? ONE_MIN_STAGES[i].color : "#00e5ff";
 
-    // Stage Pill (Tên màn chơi phong cách JSAB thanh thoát, không có công thức rườm rà)
-    targetCtx.fillStyle = stage.color;
-    targetCtx.font = "bold 12px monospace";
-    targetCtx.textAlign = "left";
-    targetCtx.fillText(`[MÀN ${String(oneMinStageIdx + 1).padStart(2, '0')}/10] ${stage.name || stage.status}`, 20, 26);
-
-    // Huy hiệu Buffs (Bất tử & Cuồng tốc)
-    let badgeOffset = 20;
-    if (oneMinInvincibleTimer > 0) {
-      targetCtx.fillStyle = "#00e5ff";
-      targetCtx.font = "bold 10px monospace";
-      targetCtx.fillText(`🛡️ BẤT TỬ: ${oneMinInvincibleTimer.toFixed(1)}s`, badgeOffset, 42);
-      badgeOffset += 115;
-    }
-    if (oneMinSpeedBoostTimer > 0) {
-      targetCtx.fillStyle = "#ff1744";
-      targetCtx.font = "bold 10px monospace";
-      targetCtx.fillText(`🔥 CUỒNG TỐC: ${oneMinSpeedBoostTimer.toFixed(1)}s`, badgeOffset, 42);
-      badgeOffset += 125;
-    }
-
-    // Trạng thái Lướt Dash gọn gàng ở góc trái dưới
-    if (badgeOffset === 20) {
-      targetCtx.font = "bold 10px monospace";
-      if (oneMinDashCooldown <= 0) {
-        targetCtx.fillStyle = "#00e5ff";
-        targetCtx.fillText("⚡ LƯỚT: SẴN SÀNG", 20, 42);
+      if (isCurrent) {
+        targetCtx.fillStyle = stColor;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = stColor;
+          targetCtx.shadowBlur = 12;
+        }
+        targetCtx.fillRect(lx, lampY, lampW, lampH);
+        targetCtx.strokeStyle = "#ffffff";
+        targetCtx.lineWidth = 1.8;
+        targetCtx.strokeRect(lx, lampY, lampW, lampH);
+      } else if (isPast) {
+        targetCtx.fillStyle = stColor + "66";
+        targetCtx.shadowBlur = 0;
+        targetCtx.fillRect(lx, lampY, lampW, lampH);
       } else {
-        targetCtx.fillStyle = "#94a3b8";
-        const pct = Math.floor((1 - oneMinDashCooldown / oneMinDashCooldownMax) * 100);
-        targetCtx.fillText(`⚡ LƯỚT HỒI: ${pct}%`, 20, 42);
+        targetCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        targetCtx.shadowBlur = 0;
+        targetCtx.fillRect(lx, lampY, lampW, lampH);
+        targetCtx.strokeStyle = "rgba(255, 255, 255, 0.20)";
+        targetCtx.lineWidth = 1.0;
+        targetCtx.strokeRect(lx, lampY, lampW, lampH);
       }
+
+      targetCtx.font = "bold 8px monospace";
+      targetCtx.fillStyle = isCurrent ? "#000000" : isPast ? "#ffffff" : "rgba(255, 255, 255, 0.45)";
+      targetCtx.textAlign = "center";
+      targetCtx.fillText(STAGE_TAGS[i], lx + lampW / 2, lampY + 9);
     }
-
-    // Timer đếm ngược nhạc (Nằm an toàn trong thanh HUD)
-    targetCtx.textAlign = "right";
-    targetCtx.fillStyle = "#ffea00";
-    targetCtx.font = "bold 12px monospace";
-    targetCtx.fillText(`${oneMinPlayTime.toFixed(1).padStart(4, '0')}s / 67.0s`, hudW - 85, 26);
-
-    // HP Hearts (Nằm ở rìa phải bên trong thanh HUD, không bao giờ bị nút Pause che khuất)
-    let hearts = "";
-    for (let h = 0; h < oneMinHp; h++) hearts += "❤️";
-    for (let h = oneMinHp; h < oneMinMaxHp; h++) hearts += "🖤";
-    targetCtx.font = "12px sans-serif";
-    targetCtx.fillText(hearts, hudW - 8, 26);
-
     targetCtx.restore();
 
-    // 5-Second Countdown Overlay Display
+    // 15. HUD Display (Observatory Header)
+    targetCtx.save();
+    targetCtx.font = "900 12px monospace";
+    targetCtx.fillStyle = stage.color;
+    targetCtx.textAlign = "left";
+    const stageNum = String(oneMinStageIdx + 1).padStart(2, "0");
+    targetCtx.fillText(`[MÀN ${stageNum}/10] ${stage.status}`, padX + 14, padY + 22);
+
+    targetCtx.textAlign = "right";
+    const timeFormatted = oneMinPlayTime.toFixed(1).padStart(4, "0") + "s / 67.0s";
+    let hpStr = "";
+    for (let i = 0; i < oneMinMaxHp; i++) {
+      hpStr += (i < oneMinHp ? "❤" : "🖤");
+    }
+    targetCtx.fillText(`${timeFormatted}  ${hpStr}`, gw - padX - 14, padY + 22);
+
+    // Dash indicator in HUD
+    targetCtx.textAlign = "left";
+    targetCtx.font = "bold 10px monospace";
+    if (oneMinDashCooldown > 0) {
+      const frac = 1 - (oneMinDashCooldown / oneMinDashCooldownMax);
+      targetCtx.fillStyle = "#ffaa00";
+      targetCtx.fillText(`⚡ LƯỚT HỒI: ${Math.floor(frac * 100)}%`, padX + 14, padY + 38);
+    } else {
+      targetCtx.fillStyle = "#00e5ff";
+      targetCtx.fillText("⚡ LƯỚT: SẴN SÀNG (SPACE / NÚT LƯỚT)", padX + 14, padY + 38);
+    }
+    targetCtx.restore();
+
+    // 16. 5-Second Countdown Overlay Display
     if (oneMinState === "countdown") {
       targetCtx.save();
-      targetCtx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      targetCtx.fillStyle = "rgba(0, 0, 0, 0.50)";
       targetCtx.fillRect(0, 0, gw, gh);
 
       const sec = Math.ceil(Math.max(0, oneMinCountdownTimer));
@@ -66623,16 +66946,19 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         targetCtx.shadowColor = targetCtx.fillStyle;
         targetCtx.shadowBlur = 30;
       }
-      targetCtx.font = "900 80px sans-serif";
+      targetCtx.font = "900 85px sans-serif";
       targetCtx.fillText(String(sec), 0, 15);
 
-      targetCtx.font = "bold 14px sans-serif";
+      targetCtx.font = "bold 16px sans-serif";
+      targetCtx.fillStyle = "#ffffff";
+      targetCtx.fillText("CHUẨN BỊ NÉ ĐẠN!", 0, 58);
+      targetCtx.font = "12px sans-serif";
       targetCtx.fillStyle = "#00e5ff";
-      targetCtx.fillText("CHUẨN BỊ NÉ ĐẠN!", 0, 56);
+      targetCtx.fillText("WASD / JOYSTICK · SPACE / NÚT LƯỚT", 0, 80);
       targetCtx.restore();
     }
 
-    // Full Screen Flash effect
+    // 17. Full Screen Flash effect
     if (oneMinScreenFlash > 0) {
       targetCtx.save();
       targetCtx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, oneMinScreenFlash)})`;
