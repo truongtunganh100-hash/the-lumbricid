@@ -1081,8 +1081,13 @@
         display: none !important;
       }
 
+      /* Quy tắc bảo vệ tuyệt đối: khi menu-panel bị ẩn thì KHÔNG BAO GIỜ hiển thị đè lên nhau */
+      .menu-panel[style*="display: none"] {
+        display: none !important;
+      }
+
       /* MÀN HÌNH CHỌN LEVEL / ĐỘ KHÓ TRÊN ĐIỆN THOẠI DỌC: 2 CỘT NẰM NGANG CẠNH NHAU NHƯ MÀN HÌNH NGANG */
-      #panel-difficulty {
+      #panel-difficulty:not([style*="display: none"]) {
         width: 95vw !important;
         max-width: 400px !important;
         max-height: 92vh !important;
@@ -1188,7 +1193,7 @@
       }
 
       /* MÀN HÌNH CHỌN CHẾ ĐỘ 1 MINS (BEAT DASH) TRÊN ĐIỆN THOẠI DỌC */
-      #panel-onemin {
+      #panel-onemin:not([style*="display: none"]) {
         width: 95vw !important;
         max-width: 400px !important;
         max-height: 92vh !important;
@@ -1255,7 +1260,7 @@
       }
 
       /* MÀN HÌNH CHẾ ĐỘ CHƠI KHÁC (#panel-map) TRÊN ĐIỆN THOẠI DỌC: 2 CỘT TIỆN LỢI */
-      #panel-map {
+      #panel-map:not([style*="display: none"]) {
         width: 95vw !important;
         max-width: 420px !important;
         max-height: 92vh !important;
@@ -2462,6 +2467,77 @@
       font-weight: 900 !important;
     }
 
+
+    /* === TỐI ƯU HÓA GIAO DIỆN MÀN HÌNH NGANG (LANDSCAPE) CHO ĐIỆN THOẠI === */
+    @media (orientation: landscape) and (max-height: 560px),
+           (orientation: landscape) and (max-width: 960px) {
+      #panel-onemin {
+        width: 94vw !important;
+        max-width: 580px !important;
+        max-height: 95vh !important;
+        max-height: 95dvh !important;
+        overflow-y: auto !important;
+        padding: 8px 12px 10px !important;
+        gap: 4px !important;
+        box-sizing: border-box !important;
+      }
+
+      #panel-onemin .onemin-title {
+        font-size: 13px !important;
+        margin: 0 0 2px !important;
+      }
+
+      #panel-onemin .endless-desc {
+        font-size: 9px !important;
+        line-height: 1.25 !important;
+        max-width: 540px !important;
+        margin: 0 0 4px !important;
+      }
+
+      #panel-onemin .diff-map-columns {
+        width: 100% !important;
+        margin: 0 !important;
+      }
+
+      #panel-onemin .diff-column {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 5px !important;
+        width: 100% !important;
+        max-width: 520px !important;
+      }
+
+      #panel-onemin .diff-column .menu-section-label {
+        grid-column: span 2 !important;
+        font-size: 10px !important;
+        margin: 0 0 2px !important;
+      }
+
+      #panel-onemin .diff-choice-btn {
+        width: 100% !important;
+        padding: 6px 4px !important;
+        font-size: 9.5px !important;
+        min-height: 32px !important;
+        line-height: 1.2 !important;
+      }
+
+      #panel-onemin #btn-start-onemin {
+        width: 92% !important;
+        max-width: 320px !important;
+        padding: 8px 16px !important;
+        font-size: 12px !important;
+        min-height: 38px !important;
+        margin: 4px 0 2px !important;
+      }
+
+      #panel-onemin .back-btn {
+        width: 92% !important;
+        max-width: 220px !important;
+        padding: 4px 12px !important;
+        font-size: 9.5px !important;
+        min-height: 28px !important;
+      }
+    }
 #panel-darknight {
         gap: 3px !important;
         max-width: 620px !important;
@@ -45185,15 +45261,24 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const touch = e.changedTouches[i];
         if (touch.identifier === joystickTouchId) {
           e.preventDefault();
-          const deltaX = touch.clientX - joystickStartX;
-          const deltaY = touch.clientY - joystickStartY;
+          let deltaX = touch.clientX - joystickStartX;
+          let deltaY = touch.clientY - joystickStartY;
+          if (isOneMinMode && joystickZone) {
+            const zRect = joystickZone.getBoundingClientRect();
+            const zCx = zRect.left + zRect.width / 2;
+            const zCy = zRect.top + zRect.height / 2;
+            if (Math.hypot(touch.clientX - zCx, touch.clientY - zCy) < 140) {
+              deltaX = touch.clientX - zCx;
+              deltaY = touch.clientY - zCy;
+            }
+          }
           let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
           const angle = Math.atan2(deltaY, deltaX);
-          if (distance > maxRadius) distance = maxRadius;
-          const stickX = Math.cos(angle) * distance;
-          const stickY = Math.sin(angle) * distance;
+          const clampedDist = Math.min(distance, maxRadius);
+          const stickX = Math.cos(angle) * clampedDist;
+          const stickY = Math.sin(angle) * clampedDist;
           joystickStick.style.transform = `translate(${stickX}px, ${stickY}px)`;
-          if (distance > 12) {
+          if (distance > 10) {
             const nextDir = resolveJoystickAngle(angle, joystickCurrentDir.dx, joystickCurrentDir.dy);
             joystickCurrentDir.dx = nextDir.dx;
             joystickCurrentDir.dy = nextDir.dy;
@@ -45216,11 +45301,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           if (isOneMinMode) updateOneMinDirection(0, 0);
           joystickStick.classList.add("joystick-releasing");
           joystickStick.style.transform = `translate(0px, 0px)`;
-          joystickZone.classList.remove("joystick-visible");
-          setTimeout(() => {
-            joystickZone.style.display = "none";
-            joystickStick.classList.remove("joystick-releasing");
-          }, 220);
+          if (isOneMinMode) {
+            joystickZone.style.opacity = "0.78";
+          } else {
+            joystickZone.classList.remove("joystick-visible");
+            setTimeout(() => {
+              if (!joystickActive && !isOneMinMode) {
+                joystickZone.style.display = "none";
+                joystickStick.classList.remove("joystick-releasing");
+              }
+            }, 220);
+          }
           break;
         }
       }
@@ -45900,6 +45991,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         if (activeDpadBtn) {
           activeDpadBtn.classList.remove("pressed");
           activeDpadBtn = null;
+        }
+        if (typeof isOneMinMode !== "undefined" && isOneMinMode) {
+          updateOneMinDirection(0, 0);
         }
       }
       function handleCenterDash(e) {
@@ -57621,9 +57715,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
       if (shouldHide) return;
 
-      const isDisabled = (worm.body.length - ROLL_COST < 1);
+      const isDisabled = isOneMinMode ? false : (worm.body.length - ROLL_COST < 1);
       const lockRemaining = Math.max(rollUnlockRemaining, rollCooldownRemaining);
       const effectiveDisabled = isDisabled || (lockRemaining > 0);
+      const costBadge = rollFab.querySelector(".roll-fab-cost");
+      if (costBadge) costBadge.style.display = isOneMinMode ? "none" : "";
       if (effectiveDisabled !== _lastRollFabDisabled) {
         _lastRollFabDisabled = effectiveDisabled;
         rollFab.classList.toggle("roll-fab-disabled", effectiveDisabled);
@@ -58119,7 +58215,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           }
           return;
         }
-        if (worm.body.length - ROLL_COST < 1) {
+        if (!isOneMinMode && (worm.body.length - ROLL_COST < 1)) {
           if (rollFab) {
             rollFab.classList.add("roll-fab-shake");
             setTimeout(() => rollFab.classList.remove("roll-fab-shake"), 400);
@@ -58136,7 +58232,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const effectiveRollDiff = (typeof isOneMinMode !== "undefined" && isOneMinMode) ? (oneMinDifficulty || "normal") : ((isRaceMode || currentDifficulty === "race") ? raceDifficulty : currentDifficulty);
       rollCooldownRemaining = ROLL_COOLDOWN_BY_DIFF[effectiveRollDiff] !== undefined ? ROLL_COOLDOWN_BY_DIFF[effectiveRollDiff] : (ROLL_COOLDOWN_BY_DIFF.normal || 6.5);
       updateRollFabState();
-      if (!free) {
+      if (!free && !isOneMinMode) {
         for (let k = 0; k < ROLL_COST; k++) {
           if (worm.body.length > 1) worm.body.pop();
         }
@@ -65301,11 +65397,35 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     applyControlUI();
     showMobileActionBtns(true);
+    // Hiển thị cụm Joystick ảo rõ ràng góc dưới bên trái cho điện thoại màn hình ngang
+    const isTouchUser = (typeof isMobileDevice !== "undefined" && isMobileDevice) ||
+      (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0) ||
+      ("ontouchstart" in window) ||
+      (window.innerWidth <= 1024);
+    if (isTouchUser && controlMode !== "dpad" && joystickZone) {
+      joystickZone.style.position = "fixed";
+      joystickZone.style.left = "32px";
+      joystickZone.style.bottom = "28px";
+      joystickZone.style.top = "auto";
+      joystickZone.style.display = "flex";
+      joystickZone.style.opacity = "0.78";
+      joystickZone.classList.add("joystick-visible");
+      if (joystickStick) joystickStick.style.transform = "translate(0px, 0px)";
+    }
     oneMinSynth.playCountdownBeep(440, 0.16);
   }
 
   function stopOneMinMode() {
     isOneMinMode = false;
+    if (joystickZone) {
+      joystickZone.style.left = "";
+      joystickZone.style.bottom = "";
+      joystickZone.style.top = "";
+      joystickZone.style.opacity = "";
+      joystickZone.style.display = "none";
+      joystickZone.classList.remove("joystick-visible");
+      if (joystickStick) joystickStick.style.transform = "translate(0px, 0px)";
+    }
     if (typeof oneMinSynth !== 'undefined' && oneMinSynth && typeof oneMinSynth.stop === 'function') {
       oneMinSynth.stop();
     }
@@ -65709,7 +65829,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         oneMinScreenFlash = 1.0;
         screenShake = 26;
       }
-      return;
+      // Không return ở đây để giun vẫn di chuyển và lướt tự do kiểm tra nút bấm ngay trong 5s đếm ngược!
     }
 
     // 2. PLAYING STATE (0s to 67s)
@@ -66401,63 +66521,63 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.restore();
     }
 
-    // Top HUD Bar: Stage, Formula, Timer, HP, Dash & Buffs
+    // Top HUD Bar: Gọn gàng, tinh tế, chừa không gian an toàn bên phải cho nút tạm dừng/thoát (#control-panel)
+    const hudW = gw - 110;
+    const hudH = 46;
     targetCtx.save();
     targetCtx.fillStyle = "rgba(10, 12, 18, 0.88)";
-    targetCtx.fillRect(10, 8, gw - 20, 52);
+    targetCtx.fillRect(10, 8, hudW, hudH);
     targetCtx.strokeStyle = stage.color;
     targetCtx.lineWidth = 1.6;
-    targetCtx.strokeRect(10, 8, gw - 20, 52);
+    targetCtx.strokeRect(10, 8, hudW, hudH);
 
-    // Stage Pill & Formula
+    // Stage Pill (Tên màn chơi phong cách JSAB thanh thoát, không có công thức rườm rà)
     targetCtx.fillStyle = stage.color;
-    targetCtx.font = "bold 11.5px monospace";
+    targetCtx.font = "bold 12px monospace";
     targetCtx.textAlign = "left";
-    targetCtx.fillText(`[STAGE ${String(oneMinStageIdx + 1).padStart(2, '0')}/10] ${stage.status}`, 20, 26);
+    targetCtx.fillText(`[MÀN ${String(oneMinStageIdx + 1).padStart(2, '0')}/10] ${stage.name || stage.status}`, 20, 26);
 
-    // Active Core Badges (Shield / Berserk Speed Boost)
+    // Huy hiệu Buffs (Bất tử & Cuồng tốc)
     let badgeOffset = 20;
     if (oneMinInvincibleTimer > 0) {
       targetCtx.fillStyle = "#00e5ff";
       targetCtx.font = "bold 10px monospace";
-      targetCtx.fillText(`🛡️ BẤT TỬ: ${oneMinInvincibleTimer.toFixed(1)}s`, 20, 46);
-      badgeOffset += 130;
+      targetCtx.fillText(`🛡️ BẤT TỬ: ${oneMinInvincibleTimer.toFixed(1)}s`, badgeOffset, 42);
+      badgeOffset += 115;
     }
     if (oneMinSpeedBoostTimer > 0) {
       targetCtx.fillStyle = "#ff1744";
       targetCtx.font = "bold 10px monospace";
-      targetCtx.fillText(`🔥 CUỒNG TỐC: ${oneMinSpeedBoostTimer.toFixed(1)}s (+65%)`, badgeOffset, 46);
-      badgeOffset += 160;
-    }
-    if (oneMinInvincibleTimer <= 0 && oneMinSpeedBoostTimer <= 0) {
-      targetCtx.fillStyle = "#e2e8f0";
-      targetCtx.font = "10px monospace";
-      targetCtx.fillText(`${stage.formula} · ${stage.caption}`, 20, 46);
+      targetCtx.fillText(`🔥 CUỒNG TỐC: ${oneMinSpeedBoostTimer.toFixed(1)}s`, badgeOffset, 42);
+      badgeOffset += 125;
     }
 
-    // Timer Readout & Progress
+    // Trạng thái Lướt Dash gọn gàng ở góc trái dưới
+    if (badgeOffset === 20) {
+      targetCtx.font = "bold 10px monospace";
+      if (oneMinDashCooldown <= 0) {
+        targetCtx.fillStyle = "#00e5ff";
+        targetCtx.fillText("⚡ LƯỚT: SẴN SÀNG", 20, 42);
+      } else {
+        targetCtx.fillStyle = "#94a3b8";
+        const pct = Math.floor((1 - oneMinDashCooldown / oneMinDashCooldownMax) * 100);
+        targetCtx.fillText(`⚡ LƯỚT HỒI: ${pct}%`, 20, 42);
+      }
+    }
+
+    // Timer đếm ngược nhạc (Nằm an toàn trong thanh HUD)
     targetCtx.textAlign = "right";
     targetCtx.fillStyle = "#ffea00";
-    targetCtx.font = "bold 12.5px monospace";
-    targetCtx.fillText(`${oneMinPlayTime.toFixed(1).padStart(4, '0')}s / 67.0s`, gw - 130, 26);
+    targetCtx.font = "bold 12px monospace";
+    targetCtx.fillText(`${oneMinPlayTime.toFixed(1).padStart(4, '0')}s / 67.0s`, hudW - 85, 26);
 
-    // HP Hearts
+    // HP Hearts (Nằm ở rìa phải bên trong thanh HUD, không bao giờ bị nút Pause che khuất)
     let hearts = "";
     for (let h = 0; h < oneMinHp; h++) hearts += "❤️";
     for (let h = oneMinHp; h < oneMinMaxHp; h++) hearts += "🖤";
-    targetCtx.font = "13px sans-serif";
-    targetCtx.fillText(hearts, gw - 22, 26);
+    targetCtx.font = "12px sans-serif";
+    targetCtx.fillText(hearts, hudW - 8, 26);
 
-    // Dash status
-    targetCtx.font = "bold 10px monospace";
-    if (oneMinDashCooldown <= 0) {
-      targetCtx.fillStyle = "#00e5ff";
-      targetCtx.fillText("DASH: [ READY / SPACE ]", gw - 22, 46);
-    } else {
-      targetCtx.fillStyle = "#94a3b8";
-      const pct = Math.floor((1 - oneMinDashCooldown / oneMinDashCooldownMax) * 100);
-      targetCtx.fillText(`DASH: [ ${pct}% ]`, gw - 22, 46);
-    }
     targetCtx.restore();
 
     // 5-Second Countdown Overlay Display
@@ -66482,9 +66602,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.font = "900 80px sans-serif";
       targetCtx.fillText(String(sec), 0, 15);
 
-      targetCtx.font = "bold 14px monospace";
-      targetCtx.fillStyle = "#ffffff";
-      targetCtx.fillText("PREPARE TO DODGE (WASD / TOUCH · SPACE TO DASH)", 0, 56);
+      targetCtx.font = "bold 14px sans-serif";
+      targetCtx.fillStyle = "#00e5ff";
+      targetCtx.fillText("CHUẨN BỊ NÉ ĐẠN!", 0, 56);
       targetCtx.restore();
     }
 
