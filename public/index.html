@@ -2139,7 +2139,86 @@
         margin-top: 2px !important;
       }
 
-      #panel-darknight {
+      
+    /* === CHẾ ĐỘ 1 MINS (JUST SHAPES & BEATS · HOW A STAR EXPLODES) === */
+    #panel-map #nav-onemin {
+      display: flex !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      position: relative !important;
+      background: linear-gradient(135deg, #1f051b 0%, #d81b60 50%, #6200ea 100%) !important;
+      border: 2px solid #ff3366 !important;
+      box-shadow: 0 0 22px rgba(255, 51, 102, 0.65), inset 0 0 14px rgba(255, 255, 255, 0.25) !important;
+      animation: pulseOneMinGlow 2.2s infinite alternate !important;
+      margin: 4px 0 !important;
+      width: 250px !important;
+      padding: 7px 12px !important;
+      align-items: center !important;
+      cursor: pointer !important;
+      border-radius: 6px !important;
+    }
+    @keyframes pulseOneMinGlow {
+      0% { box-shadow: 0 0 14px rgba(255, 51, 102, 0.45), inset 0 0 8px rgba(255, 255, 255, 0.2); }
+      100% { box-shadow: 0 0 32px rgba(255, 51, 102, 0.95), 0 0 50px rgba(124, 0, 255, 0.55), inset 0 0 18px rgba(255, 255, 255, 0.4); }
+    }
+    #nav-onemin .hot-badge-beat {
+      position: absolute !important;
+      top: -8px !important;
+      right: 10px !important;
+      background: linear-gradient(90deg, #ff007f, #00e5ff) !important;
+      color: #ffffff !important;
+      font-size: 8.5px !important;
+      font-weight: 900 !important;
+      padding: 2px 8px !important;
+      border-radius: 999px !important;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.85) !important;
+      letter-spacing: 0.5px !important;
+      z-index: 5 !important;
+      text-transform: uppercase !important;
+    }
+    .onemin-btn-icon {
+      font-size: 20px;
+      margin-right: 8px;
+      display: inline-block;
+      filter: drop-shadow(0 0 8px #ffea00);
+      animation: beatIconBounce 0.75s infinite alternate ease-in-out;
+    }
+    @keyframes beatIconBounce {
+      0% { transform: scale(0.92); }
+      100% { transform: scale(1.18) rotate(6deg); }
+    }
+    #panel-onemin {
+      max-width: 620px;
+      gap: 6px;
+      padding: 10px 14px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 2px solid #ff3366 !important;
+      box-shadow: 0 0 35px rgba(255, 51, 102, 0.35), inset 0 0 20px rgba(0, 0, 0, 0.85) !important;
+      background: rgba(12, 14, 22, 0.97) !important;
+      border-radius: 12px !important;
+    }
+    #panel-onemin #btn-start-onemin {
+      background: linear-gradient(135deg, #ff0055 0%, #ff5500 100%) !important;
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.65) !important;
+      margin-top: 6px !important;
+      letter-spacing: 1px !important;
+    }
+    #panel-onemin #btn-start-onemin:hover {
+      box-shadow: 0 0 32px rgba(255, 0, 85, 0.95) !important;
+      transform: scale(1.02) !important;
+    }
+    #panel-onemin .diff-choice-btn.active-setting {
+      outline: 2px solid #ffffff !important;
+      box-shadow: 0 0 16px #ff3366 !important;
+      background: linear-gradient(135deg, #ff3366 0%, #9c27b0 100%) !important;
+      color: #fff !important;
+      font-weight: 900 !important;
+    }
+
+#panel-darknight {
         gap: 3px !important;
         max-width: 620px !important;
         padding: 0 4px !important;
@@ -17089,7 +17168,16 @@
           </div>
           <div class="mode-lock-text" id="mode-lock-text-darknight"></div>
         </div>
-        <div class="skin-coming-soon zoom-rotate-item">
+        
+        <button id="nav-onemin" class="menu-btn hot-mode-btn zoom-rotate-item" aria-label="1 Mins Beat Dash">
+          <span class="hot-badge-beat">🎵 1 MINS</span>
+          <span class="onemin-btn-icon">⚡</span>
+          <div class="boss-text-group">
+            <span class="boss-btn-text">1 MINS · BEAT DASH</span>
+            <span class="boss-btn-sub">💥 JUST SHAPES &amp; BEATS · HOW A STAR EXPLODES 💥</span>
+          </div>
+        </button>
+<div class="skin-coming-soon zoom-rotate-item">
           <div class="csoon-icon">🕹️</div>
           <div class="csoon-title">Coming Soon</div>
           <div class="csoon-sub">Thêm chế độ chơi mới sắp ra mắt...</div>
@@ -17288,7 +17376,25 @@
         </button>
         <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
       </div>
-      <div id="panel-darknight" class="menu-panel">
+      
+      <div id="panel-onemin" class="menu-panel">
+        <div class="menu-section-label slide-up-item" style="color: #ff3366; font-weight: 900; font-size: 14px; letter-spacing: 2px;">⚡ CHẾ ĐỘ 1 MINS · HOW A STAR EXPLODES ⚡</div>
+        <div class="endless-desc slide-up-item" style="font-size: 10px; max-width: 560px; line-height: 1.45; margin: 0 0 6px; text-align: center; color: #fce4ec;">
+          Phong cách Just Shapes &amp; Beats: Giun KHÔNG tự di chuyển mà chỉ di chuyển khi bấm phím/chạm. Nhấn Space (hoặc nút Dash) để LƯỚT (Bất tử trong 0.22s)! Sống sót qua 10 giai đoạn nhịp điệu của ngôi sao phát nổ trong 67s và nhặt Lõi Chiến Thắng!
+        </div>
+        <div class="diff-map-columns">
+          <div class="diff-column" style="width: 100%; max-width: 380px;">
+            <div class="menu-section-label slide-up-item">CHỌN ĐỘ KHÓ</div>
+            <button id="btn-onemin-easy" class="menu-btn diff-choice-btn slide-up-item">DỄ (5 HP · Đạn Chậm · Dash 0.6s)</button>
+            <button id="btn-onemin-normal" class="menu-btn diff-choice-btn slide-up-item active-setting">TRUNG BÌNH (4 HP · Chuẩn Nhịp)</button>
+            <button id="btn-onemin-hard" class="menu-btn diff-choice-btn slide-up-item">KHÓ (3 HP · Đạn Nhanh · Dày)</button>
+            <button id="btn-onemin-insane" class="menu-btn diff-choice-btn slide-up-item" style="color: #ff1744; border-color: #ff1744; font-weight: 900;">INSANE (1 HP · ONE-HIT KO!)</button>
+          </div>
+        </div>
+        <button id="btn-start-onemin" class="menu-btn slide-up-item">▶ BẮT ĐẦU (ĐẾM NGƯỢC 5S)</button>
+        <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
+      </div>
+<div id="panel-darknight" class="menu-panel">
         <div class="menu-section-label slide-up-item"
           style="color: #e040fb; font-weight: 900; font-size: 13px; letter-spacing: 2px;">🌑 Chế Độ Màn Đêm Tối</div>
         <div class="endless-desc slide-up-item"
@@ -18659,7 +18765,9 @@
     }
 
     let renderScale = 1;
-    let isDarkNightMode = false; // khai báo sớm vì applyCanvasResolution() dùng khi khởi động
+    let isDarkNightMode = false;
+      isOneMinMode = false;
+      if (typeof stopOneMinMode === "function") stopOneMinMode(); // khai báo sớm vì applyCanvasResolution() dùng khi khởi động
     const INFINITE_MAP_VIEW_COLS = 83;
     const INFINITE_MAP_VIEW_ROWS = 47;
     let isInfiniteMapMode = false; // khai báo sớm cùng lý do như isDarkNightMode ở trên
@@ -18759,6 +18867,8 @@
     const panelTsunami = document.getElementById("panel-tsunami");
 
     const panelDarkNight = document.getElementById("panel-darknight");
+    const panelOneMin = document.getElementById("panel-onemin");
+    let pendingOneMinDifficultyChoice = "normal";
 
     const panelSettings = document.getElementById("panel-settings");
 
@@ -23736,6 +23846,9 @@
           type = "map";
           backTarget = panelMap;
         } else if (currentActivePanel === panelTsunami) {
+          type = "map";
+          backTarget = panelMap;
+        } else if (currentActivePanel === panelOneMin) {
           type = "map";
           backTarget = panelMap;
         } else if (currentActivePanel === panelDarkNight) {
@@ -44038,6 +44151,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function returnToMainMenu() {
+      if (isOneMinMode) {
+        isOneMinMode = false;
+        if (typeof stopOneMinMode === "function") stopOneMinMode();
+        setMapSizeConfig(currentMapSizeSetting || "small");
+      }
       if (isDarkNightMode) {
         isDarkNightMode = false;
         document.body.classList.remove("darknight-active");
@@ -44440,6 +44558,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         dpadContainer.style.display = "none";
         showMobileActionBtns(false);
         bgMusic.pause();
+        if (isOneMinMode && typeof oneMinSynth !== "undefined" && oneMinSynth) oneMinSynth.pause();
       } else {
         btnPause.textContent = "⏸";
         pauseOverlay.style.display = "none";
@@ -44448,6 +44567,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         applyControlUI();
         showMobileActionBtns(true);
         bgMusic.play().catch(() => { });
+        if (isOneMinMode && typeof oneMinSynth !== "undefined" && oneMinSynth) oneMinSynth.resume();
       }
       if (isTwoPlayerFrame) lanSend({
         type: "pause",
@@ -44600,6 +44720,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
       if (e.code === "Space" && !gameWin) {
         if (e.preventDefault) e.preventDefault();
+        if (isOneMinMode) {
+          triggerOneMinDash();
+          return;
+        }
         triggerMobileDash();
         return;
       }
@@ -44629,11 +44753,19 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         if (e.clientX < paneRect.left || e.clientX > paneRect.right || e.clientY < paneRect.top || e.clientY > paneRect.bottom) return;
       }
       if (e.button === 0) {
+        if (isOneMinMode) {
+          triggerOneMinDash();
+          return;
+        }
         triggerMobileDash();
       }
     });
 
     function setDesiredDirection(dx, dy) {
+      if (isOneMinMode) {
+        updateOneMinDirection(dx, dy);
+        return;
+      }
       if (isPvpMode) {
         pvpSetDesiredDirection(dx, dy);
         return;
@@ -44677,6 +44809,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (!isRaceMode && (activeKeys["arrowdown"] || activeKeys["s"])) dy += 1;
       if (activeKeys["arrowleft"] || activeKeys["a"]) dx -= 1;
       if (activeKeys["arrowright"] || activeKeys["d"]) dx += 1;
+      if (isOneMinMode) {
+        updateOneMinDirection(dx, dy);
+        return;
+      }
       if (dx !== 0 || dy !== 0) {
         setDesiredDirection(dx, dy);
       }
@@ -44832,6 +44968,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           joystickActive = false;
           joystickTouchId = null;
           joystickCurrentDir = { dx: 0, dy: 0 };
+          if (isOneMinMode) updateOneMinDirection(0, 0);
           joystickStick.classList.add("joystick-releasing");
           joystickStick.style.transform = `translate(0px, 0px)`;
           joystickZone.classList.remove("joystick-visible");
@@ -44849,6 +44986,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     window.addEventListener("touchcancel", resetJoystick);
 
     function triggerMobileDash() {
+      if (isOneMinMode) {
+        triggerOneMinDash();
+        return;
+      }
       if (isPvpMode) {
         if (typeof pvpTryDash === "function") pvpTryDash();
         return;
@@ -44936,6 +45077,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           y: nextY,
           chromaHue: takeUniqueChromaHue()
         };
+        if (isOneMinMode) {
+          head.x = Math.max(1, Math.min(cols - 2, head.x));
+          head.y = Math.max(1, Math.min(rows - 2, head.y));
+        }
         for (let i = obstacles.length - 1; i >= 0; i--) {
           let obs = obstacles[i];
           if (obs.hard) continue;
@@ -48025,6 +48170,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         applyEndlessSpeedFromLevel();
       }
+      if (isOneMinMode && !isMenuMode && !gameOver && !gameWin) {
+        updateOneMinMode(dt);
+      }
       if (isDarkNightMode && !isMenuMode && !gameOver && !gameWin) {
         updateDarkNightMode(dt);
       }
@@ -48038,6 +48186,16 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       currentBaseSpeed *= worm.speedMultiplier || 1;
       let finalCalculatedSpeed = currentBaseSpeed * transitionSlowFactor;
       if (worm.isImmobilized) finalCalculatedSpeed = 0;
+      if (isOneMinMode) {
+        if (!oneMinMoving && oneMinDashTimer <= 0) {
+          finalCalculatedSpeed = 0;
+          moveCounter = 0;
+        } else if (oneMinDashTimer > 0) {
+          finalCalculatedSpeed = 38;
+        } else {
+          finalCalculatedSpeed = 16;
+        }
+      }
       const safeSpeed = finalCalculatedSpeed > 0 ? finalCalculatedSpeed : 1;
       // CỐ ĐỊNH TỐC ĐỘ GIUN TUYỆT ĐỐI BẤT KỂ FPS DAO ĐỘNG (FIXED REAL-TIME TIMESTEP ACCUMULATOR):
       // Thời gian cần thiết để đi hết 1 ô lưới: 1 / safeSpeed
@@ -53887,6 +54045,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         ctx.translate(gw / 2, gh / 2);
         ctx.scale(eatZoom, eatZoom);
         ctx.translate(-gw / 2, -gh / 2);
+      }
+      if (isOneMinMode && !isMenuMode) {
+        drawOneMinWorld(ctx);
+        ctx.restore();
+        return;
       }
       if (isDarkNightMode && !isMenuMode) {
         drawDarkNightWorld(ctx);
@@ -63802,6 +63965,1736 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         finishLoadingNow();
       }
     }, 2200);
+  
+
+  /* =========================================================================
+   * CHẾ ĐỘ 1 MINS: HOW A STAR EXPLODES (JUST SHAPES & BEATS DELUXE EDITION)
+   * ========================================================================= */
+  let isOneMinMode = false;
+  let oneMinDifficulty = "normal"; // easy, normal, hard, insane
+  let oneMinState = "idle"; // "countdown", "playing", "core_spawned", "victory"
+  let oneMinCountdownTimer = 5.0;
+  let oneMinCountdownLastSec = 5;
+  let oneMinPlayTime = 0;
+  let oneMinStageIdx = 0;
+  let oneMinStageProgress = 0;
+  let oneMinHp = 4;
+  let oneMinMaxHp = 4;
+  let oneMinInvincibleTimer = 0;
+  let oneMinDashTimer = 0;
+  let oneMinDashCooldown = 0;
+  let oneMinDashCooldownMax = 0.75;
+  let oneMinMoving = false;
+  let oneMinFacingDir = { x: 1, y: 0 };
+  let oneMinBullets = [];
+  let oneMinLasers = [];
+  let oneMinShockwaves = [];
+  let oneMinGrazeParticles = [];
+  let oneMinVictoryCore = null;
+  let oneMinScreenFlash = 0;
+  let oneMinDashAfterimages = [];
+  let oneMinLastBeatStep = -1;
+  let oneMinWallContractFrac = 0;
+  let oneMinIdlePhase = 0;
+
+  // Difficulty Presets
+  const ONE_MIN_DIFF_CONFIG = {
+    easy: {
+      maxHp: 5,
+      dashCooldown: 0.55,
+      spdMult: 0.65,
+      densityMult: 0.60,
+      laserWarnTime: 0.85,
+      laserWidth: 12,
+      shockwaveSpd: 105,
+      wallContract: 0.10,
+      invincibleTime: 1.5
+    },
+    normal: {
+      maxHp: 4,
+      dashCooldown: 0.75,
+      spdMult: 1.0,
+      densityMult: 1.0,
+      laserWarnTime: 0.60,
+      laserWidth: 16,
+      shockwaveSpd: 135,
+      wallContract: 0.18,
+      invincibleTime: 1.2
+    },
+    hard: {
+      maxHp: 3,
+      dashCooldown: 0.95,
+      spdMult: 1.30,
+      densityMult: 1.30,
+      laserWarnTime: 0.45,
+      laserWidth: 20,
+      shockwaveSpd: 175,
+      wallContract: 0.24,
+      invincibleTime: 1.0
+    },
+    insane: {
+      maxHp: 1, // ONE-HIT KO!
+      dashCooldown: 1.15,
+      spdMult: 1.55,
+      densityMult: 1.65,
+      laserWarnTime: 0.30,
+      laserWidth: 24,
+      shockwaveSpd: 215,
+      wallContract: 0.30,
+      invincibleTime: 0.8
+    }
+  };
+
+  // 10-Stage Specifications matching "HOW A STAR EXPLODES"
+  const ONE_MIN_STAGES = [
+    {
+      id: "HYDROGEN",
+      color: "#ff5522",
+      status: "HYDROGEN · 7,000,000 YEARS LEFT",
+      subtitle: "its last 7 million years, as math",
+      formula: "4 ¹H → ⁴He : b(x) = r(x) + 12 mod(⌊4x⌋, 2)",
+      caption: "4 protons make 1 helium: 4 notes on every beat",
+      midiRoot: 50,
+      chordOffsets: [0, 7, 12, 15]
+    },
+    {
+      id: "HELIUM",
+      color: "#ffaa33",
+      status: "HELIUM · 500,000 YEARS LEFT",
+      subtitle: "its last 7 million years, as math",
+      formula: "3 ⁴He → ¹²C : c(x) = chord[ ⌊3 mod(x, 1)⌋ ]",
+      caption: "triple-alpha: 3 helium nuclei fuse into one carbon",
+      midiRoot: 53,
+      chordOffsets: [0, 4, 7, 12]
+    },
+    {
+      id: "CARBON",
+      color: "#ffdd44",
+      status: "CARBON · 600 YEARS LEFT",
+      subtitle: "IT ONLY GETS FASTER",
+      formula: "ε ∝ T³⁰ : ε(x) = ((1 + 0.1 mod(x, 4)) / 1.4)³⁰",
+      caption: "carbon fusion: 10% hotter burns 17× faster",
+      midiRoot: 55,
+      chordOffsets: [0, 3, 7, 10]
+    },
+    {
+      id: "NEON",
+      color: "#44ff66",
+      status: "NEON · 1 YEAR LEFT",
+      subtitle: "IT ONLY GETS FASTER",
+      formula: "B(u) = u³/(eᵘ - 1) : n(x) = chord[⌊6 B(u)⌋]",
+      caption: "Planck: light gets so hot it smashes neon apart",
+      midiRoot: 57,
+      chordOffsets: [0, 3, 7, 12, 15, 19]
+    },
+    {
+      id: "OXYGEN",
+      color: "#44ccff",
+      status: "OXYGEN · 6 MONTHS LEFT",
+      subtitle: "IT ONLY GETS FASTER",
+      formula: "Lᵥ ∝ T⁸ : λ(x) = 2 · 2^(x/4) neutrinos per beat",
+      caption: "neutrinos now carry the heat away, faster every bar",
+      midiRoot: 58,
+      chordOffsets: [0, 4, 7, 11, 14]
+    },
+    {
+      id: "SILICON",
+      color: "#aa66ff",
+      status: "SILICON · 1 DAY LEFT",
+      subtitle: "IT ONLY GETS FASTER",
+      formula: "A(x) = 28 + 4⌊2 mod(x, 4)⌋",
+      caption: "each step adds a helium nucleus: Si, S, Ar, Ca, Ti, Cr, Fe, Ni",
+      midiRoot: 60,
+      chordOffsets: [0, 2, 4, 5, 7, 9, 11, 12]
+    },
+    {
+      id: "IRON",
+      color: "#e2e8f0",
+      status: "IRON · NO FUEL LEFT",
+      subtitle: "NOTHING LEFT TO BURN",
+      formula: "B/A = 15.8 - 18.3/A¹/³ - 0.71 Z²/A⁴/³",
+      caption: "binding energy peaks at iron: fusing it pays nothing",
+      midiRoot: 62,
+      chordOffsets: [0, 3, 7, 12]
+    },
+    {
+      id: "CHANDRASEKHAR",
+      color: "#ff4433",
+      status: "CORE · 1.44 SUNS IS THE LIMIT",
+      subtitle: "NOTHING LEFT TO BURN",
+      formula: "M(x) = 1.44 - 0.44 · 2^(-(x+8)/5) M☉",
+      caption: "electron pressure holds 1.44 suns, not one gram more",
+      midiRoot: 64,
+      chordOffsets: [0, 1, 6, 12]
+    },
+    {
+      id: "COLLAPSE",
+      color: "#ffffff",
+      status: "COLLAPSE · 0.25 SECONDS",
+      subtitle: "IT'S COLLAPSING",
+      formula: "t_ff = √(3π / 32Gρ) , r(x) = (1 - ((x+8)/16)²)^(2/3)",
+      caption: "free fall: the core falls in at 70,000 km/s",
+      midiRoot: 69,
+      chordOffsets: [0, 3, 6, 9]
+    },
+    {
+      id: "SUPERNOVA",
+      color: "#ff3366",
+      status: "SUPERNOVA · BRIGHTER THAN ITS GALAXY",
+      subtitle: "THE IRON IN YOUR BLOOD CAME FROM STARS LIKE THIS",
+      formula: "R(t) ∝ (Et²/ρ)¹/⁵ , s(x) = chord[ ⌊7(mod(x,4)/4)²/⁵⌋ ]",
+      caption: "the blast wave: its radius grows like t to the 2/5",
+      midiRoot: 50,
+      chordOffsets: [0, 3, 7, 10, 12, 15, 19]
+    }
+  ];
+
+  function evalOneMinStageWave(stageIdx, x) {
+    const u = ((x % 4) + 4) % 4;
+    switch (stageIdx) {
+      case 0: {
+        const base = 0.22 + 0.12 * Math.floor(u);
+        const sq = Math.floor(u * 4) % 2;
+        return base + sq * 0.32;
+      }
+      case 1: {
+        const step = Math.floor((u * 3) % 3);
+        return 0.20 + step * 0.27;
+      }
+      case 2: {
+        const cyc = u % 1;
+        const val = Math.pow((1 + 0.1 * (cyc * 4)) / 1.4, 15);
+        return 0.12 + 0.82 * Math.min(1, val * 3.4);
+      }
+      case 3: {
+        const p = (Math.pow(u + 0.45, 3) / (Math.exp(u + 0.45) - 1)) / 1.45;
+        return 0.14 + (Math.floor(p * 6) / 6) * 0.74;
+      }
+      case 4: {
+        const freq = Math.pow(2, u * 1.25);
+        const osc = 0.5 + 0.5 * Math.sin(u * freq * 3.2);
+        return 0.15 + (u / 4) * 0.55 + osc * 0.22;
+      }
+      case 5: {
+        const step = Math.floor(u * 2);
+        return 0.12 + (step / 7) * 0.76;
+      }
+      case 6: {
+        const a = u / 4;
+        if (a < 0.34) return 0.14 + Math.pow(a / 0.34, 0.65) * 0.74;
+        return 0.88 - ((a - 0.34) / 0.66) * 0.20;
+      }
+      case 7: {
+        const asym = 0.82 - 0.66 * Math.pow(2, -u * 1.4);
+        return Math.floor(asym * 12) / 12;
+      }
+      case 8: {
+        const r = Math.pow(Math.max(0, 1 - Math.pow(u / 3.85, 2)), 2 / 3);
+        return 0.1 + 0.78 * r;
+      }
+      case 9: {
+        const env = Math.pow(u / 4, 2 / 5);
+        const sq = (Math.floor(u * 6) % 2) * 0.20;
+        return 0.14 + env * 0.60 + sq;
+      }
+      default:
+        return 0.5;
+    }
+  }
+
+  function oneMinMidiToFreq(m) {
+    return 440 * Math.pow(2, (m - 69) / 12);
+  }
+
+  // =========================================================================
+  // ENRICHED PROCEDURAL CHIPTUNE / EDM SYNTHESIZER
+  // Polyphonic lead, Arpeggiator, Pumping Sub-bass, Kick, Snare, Hi-hat, Risers
+  // =========================================================================
+  const oneMinSynth = {
+    audioCtx: null,
+    masterGain: null,
+    voiceGain: null,
+    arpGain: null,
+    subGain: null,
+    filterNode: null,
+    arpFilter: null,
+    leadOsc1: null,
+    leadOsc2: null,
+    arpOsc: null,
+    subOsc: null,
+    isActive: false,
+
+    init() {
+      if (typeof window.AudioContext === "undefined" && typeof window.webkitAudioContext === "undefined") return;
+      if (!this.audioCtx) {
+        if (typeof audioCtx !== "undefined" && audioCtx) {
+          this.audioCtx = audioCtx;
+        } else {
+          this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      }
+      if (this.audioCtx.state === "suspended") {
+        this.audioCtx.resume().catch(() => {});
+      }
+    },
+
+    start() {
+      this.init();
+      if (!this.audioCtx) return;
+      this.stop();
+
+      try {
+        const now = this.audioCtx.currentTime;
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.gain.setValueAtTime(0.38, now);
+        this.masterGain.connect(this.audioCtx.destination);
+
+        // Main Lead Filter & Gain
+        this.filterNode = this.audioCtx.createBiquadFilter();
+        this.filterNode.type = "lowpass";
+        this.filterNode.frequency.setValueAtTime(1900, now);
+        this.filterNode.Q.setValueAtTime(3.8, now);
+
+        this.voiceGain = this.audioCtx.createGain();
+        this.voiceGain.gain.setValueAtTime(0.0001, now);
+
+        this.leadOsc1 = this.audioCtx.createOscillator();
+        this.leadOsc2 = this.audioCtx.createOscillator();
+        this.subOsc = this.audioCtx.createOscillator();
+
+        this.leadOsc1.type = "sawtooth";
+        this.leadOsc2.type = "square";
+        this.subOsc.type = "triangle";
+
+        this.leadOsc1.detune.setValueAtTime(-9, now);
+        this.leadOsc2.detune.setValueAtTime(9, now);
+
+        this.leadOsc1.connect(this.filterNode);
+        this.leadOsc2.connect(this.filterNode);
+
+        this.filterNode.connect(this.voiceGain);
+        this.voiceGain.connect(this.masterGain);
+
+        // Sub-bass sidechain path
+        this.subGain = this.audioCtx.createGain();
+        this.subGain.gain.setValueAtTime(0.24, now);
+        this.subOsc.connect(this.subGain);
+        this.subGain.connect(this.masterGain);
+
+        // Arpeggiator synth path (Adds dancing electronic chiptune melody)
+        this.arpFilter = this.audioCtx.createBiquadFilter();
+        this.arpFilter.type = "bandpass";
+        this.arpFilter.frequency.setValueAtTime(2200, now);
+        this.arpFilter.Q.setValueAtTime(2.2, now);
+
+        this.arpGain = this.audioCtx.createGain();
+        this.arpGain.gain.setValueAtTime(0.18, now);
+
+        this.arpOsc = this.audioCtx.createOscillator();
+        this.arpOsc.type = "sawtooth";
+        this.arpOsc.connect(this.arpFilter);
+        this.arpFilter.connect(this.arpGain);
+        this.arpGain.connect(this.masterGain);
+
+        this.leadOsc1.start(now);
+        this.leadOsc2.start(now);
+        this.subOsc.start(now);
+        this.arpOsc.start(now);
+        this.isActive = true;
+      } catch (e) {
+        console.warn("OneMinSynth start error:", e);
+      }
+    },
+
+    update(simTime, dt) {
+      if (!this.isActive || !this.audioCtx) return;
+      const now = this.audioCtx.currentTime;
+      const stageIdx = Math.min(9, Math.floor(simTime / 6.7));
+      const st = ONE_MIN_STAGES[stageIdx];
+      const stageProg = (simTime % 6.7) / 6.7;
+      const currentX = stageProg * 4;
+      const activeY = evalOneMinStageWave(stageIdx, currentX);
+
+      // Lead note calculation
+      const idxInChord = Math.min(
+        st.chordOffsets.length - 1,
+        Math.max(0, Math.floor(activeY * st.chordOffsets.length))
+      );
+      let midiNote = st.midiRoot + st.chordOffsets[idxInChord];
+      if ([2, 4, 6, 8].includes(stageIdx)) {
+        midiNote = st.midiRoot + (activeY - 0.2) * 18;
+      }
+      const freq = oneMinMidiToFreq(midiNote);
+
+      if (this.leadOsc1 && this.leadOsc2) {
+        this.leadOsc1.frequency.setTargetAtTime(freq, now, 0.012);
+        this.leadOsc2.frequency.setTargetAtTime(freq, now, 0.012);
+      }
+
+      // Sub-bass frequency
+      if (this.subOsc) {
+        const subFreq = oneMinMidiToFreq(st.midiRoot - 12);
+        this.subOsc.frequency.setTargetAtTime(subFreq, now, 0.015);
+      }
+
+      // 16th-note Arpeggiator cycling
+      const arpStep = Math.floor(currentX * 16) % st.chordOffsets.length;
+      const arpmidi = st.midiRoot + 12 + st.chordOffsets[arpStep];
+      if (this.arpOsc) {
+        this.arpOsc.frequency.setTargetAtTime(oneMinMidiToFreq(arpmidi), now, 0.01);
+      }
+
+      // Filter modulation + Riser swell at end of stage
+      let cutoff = 450 + activeY * 3400;
+      if (stageProg > 0.74 && stageIdx < 9) {
+        cutoff += (stageProg - 0.74) * 8000;
+      }
+      if (this.filterNode) {
+        this.filterNode.frequency.setTargetAtTime(Math.min(18000, cutoff), now, 0.02);
+      }
+      if (this.voiceGain) {
+        this.voiceGain.gain.setTargetAtTime(0.36, now, 0.02);
+      }
+
+      // Rhythmic Drum Machine (Kick, Snare, Hi-hat)
+      const beatStep = Math.floor(currentX * 8);
+      if (beatStep !== oneMinLastBeatStep) {
+        oneMinLastBeatStep = beatStep;
+        this.triggerDrums(beatStep, stageIdx, now);
+      }
+    },
+
+    triggerDrums(stepIndex, stageIdx, now) {
+      if (!this.audioCtx || !this.isActive) return;
+
+      // 1. Kick on beat 1 and 3 (stepIndex % 4 === 0)
+      if (stepIndex % 4 === 0 || stageIdx === 8) {
+        try {
+          const kOsc = this.audioCtx.createOscillator();
+          const kGain = this.audioCtx.createGain();
+          kOsc.type = "sine";
+          kOsc.frequency.setValueAtTime(145, now);
+          kOsc.frequency.exponentialRampToValueAtTime(36, now + 0.12);
+          kGain.gain.setValueAtTime(0.55, now);
+          kGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          kOsc.connect(kGain);
+          kGain.connect(this.masterGain || this.audioCtx.destination);
+          kOsc.start(now);
+          kOsc.stop(now + 0.15);
+
+          // Sidechain sub-bass ducking on kick hit
+          if (this.subGain) {
+            this.subGain.gain.setValueAtTime(0.05, now);
+            this.subGain.gain.exponentialRampToValueAtTime(0.26, now + 0.14);
+          }
+        } catch (e) {}
+      }
+
+      // 2. Snare / Clap on beat 2 and 4 (stepIndex % 4 === 2)
+      if (stepIndex % 4 === 2) {
+        try {
+          const sOsc = this.audioCtx.createOscillator();
+          const sGain = this.audioCtx.createGain();
+          sOsc.type = "triangle";
+          sOsc.frequency.setValueAtTime(220, now);
+          sOsc.frequency.exponentialRampToValueAtTime(80, now + 0.09);
+          sGain.gain.setValueAtTime(0.35, now);
+          sGain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+          sOsc.connect(sGain);
+          sGain.connect(this.masterGain || this.audioCtx.destination);
+          sOsc.start(now);
+          sOsc.stop(now + 0.12);
+
+          const bufSize = Math.floor(this.audioCtx.sampleRate * 0.14);
+          const buf = this.audioCtx.createBuffer(1, bufSize, this.audioCtx.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let i = 0; i < bufSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSize * 0.28));
+          }
+          const sNoise = this.audioCtx.createBufferSource();
+          sNoise.buffer = buf;
+          const sFilter = this.audioCtx.createBiquadFilter();
+          sFilter.type = "highpass";
+          sFilter.frequency.setValueAtTime(1400, now);
+          const snGain = this.audioCtx.createGain();
+          snGain.gain.setValueAtTime(0.32, now);
+          snGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          sNoise.connect(sFilter);
+          sFilter.connect(snGain);
+          snGain.connect(this.masterGain || this.audioCtx.destination);
+          sNoise.start(now);
+        } catch (e) {}
+      }
+
+      // 3. Hi-hat on 16th steps
+      if (stepIndex % 2 === 0) {
+        try {
+          const isOpen = (stepIndex % 4 === 2);
+          const hatDur = isOpen ? 0.08 : 0.035;
+          const bufferSize = Math.floor(this.audioCtx.sampleRate * hatDur);
+          const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.32));
+          }
+          const noise = this.audioCtx.createBufferSource();
+          noise.buffer = buffer;
+          const hFilter = this.audioCtx.createBiquadFilter();
+          hFilter.type = "highpass";
+          hFilter.frequency.setValueAtTime(isOpen ? 6500 : 8000, now);
+          const hGain = this.audioCtx.createGain();
+          hGain.gain.setValueAtTime(isOpen ? 0.18 : 0.12, now);
+          noise.connect(hFilter);
+          hFilter.connect(hGain);
+          hGain.connect(this.masterGain || this.audioCtx.destination);
+          noise.start(now);
+        } catch (e) {}
+      }
+    },
+
+    triggerSupernovaExplosion() {
+      if (!this.audioCtx) return;
+      try {
+        const now = this.audioCtx.currentTime;
+        const dur = 2.2;
+        const bufferSize = Math.floor(this.audioCtx.sampleRate * dur);
+        const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.35);
+        }
+        const noise = this.audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        const boomFilter = this.audioCtx.createBiquadFilter();
+        boomFilter.type = "lowpass";
+        boomFilter.frequency.setValueAtTime(1100, now);
+        boomFilter.frequency.exponentialRampToValueAtTime(60, now + dur);
+
+        const boomGain = this.audioCtx.createGain();
+        boomGain.gain.setValueAtTime(0.98, now);
+        boomGain.gain.exponentialRampToValueAtTime(0.005, now + dur);
+
+        const subDrop = this.audioCtx.createOscillator();
+        const subDropGain = this.audioCtx.createGain();
+        subDrop.type = "sine";
+        subDrop.frequency.setValueAtTime(120, now);
+        subDrop.frequency.exponentialRampToValueAtTime(28, now + dur * 0.8);
+        subDropGain.gain.setValueAtTime(0.75, now);
+        subDropGain.gain.exponentialRampToValueAtTime(0.001, now + dur * 0.9);
+        subDrop.connect(subDropGain);
+        subDropGain.connect(this.masterGain || this.audioCtx.destination);
+        subDrop.start(now);
+        subDrop.stop(now + dur);
+
+        noise.connect(boomFilter);
+        boomFilter.connect(boomGain);
+        boomGain.connect(this.masterGain || this.audioCtx.destination);
+        noise.start(now);
+      } catch (e) {}
+    },
+
+    playCountdownBeep(freq = 600, dur = 0.14) {
+      this.init();
+      if (!this.audioCtx) return;
+      try {
+        const now = this.audioCtx.currentTime;
+        const osc = this.audioCtx.createOscillator();
+        const g = this.audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now);
+        g.gain.setValueAtTime(0.32, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.connect(g);
+        g.connect(this.audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + dur);
+      } catch (e) {}
+    },
+
+    pause() {
+      if (this.voiceGain && this.audioCtx) {
+        this.voiceGain.gain.setTargetAtTime(0.0001, this.audioCtx.currentTime, 0.03);
+      }
+      if (this.arpGain && this.audioCtx) {
+        this.arpGain.gain.setTargetAtTime(0.0001, this.audioCtx.currentTime, 0.03);
+      }
+      if (this.subGain && this.audioCtx) {
+        this.subGain.gain.setTargetAtTime(0.0001, this.audioCtx.currentTime, 0.03);
+      }
+    },
+
+    resume() {
+      if (this.voiceGain && this.audioCtx) {
+        this.voiceGain.gain.setTargetAtTime(0.36, this.audioCtx.currentTime, 0.03);
+      }
+      if (this.arpGain && this.audioCtx) {
+        this.arpGain.gain.setTargetAtTime(0.18, this.audioCtx.currentTime, 0.03);
+      }
+      if (this.subGain && this.audioCtx) {
+        this.subGain.gain.setTargetAtTime(0.24, this.audioCtx.currentTime, 0.03);
+      }
+    },
+
+    stop() {
+      this.isActive = false;
+      try {
+        if (this.voiceGain && this.audioCtx) {
+          this.voiceGain.gain.setValueAtTime(0.0001, this.audioCtx.currentTime);
+        }
+        if (this.leadOsc1) { this.leadOsc1.stop(); this.leadOsc1.disconnect(); this.leadOsc1 = null; }
+        if (this.leadOsc2) { this.leadOsc2.stop(); this.leadOsc2.disconnect(); this.leadOsc2 = null; }
+        if (this.arpOsc) { this.arpOsc.stop(); this.arpOsc.disconnect(); this.arpOsc = null; }
+        if (this.subOsc) { this.subOsc.stop(); this.subOsc.disconnect(); this.subOsc = null; }
+        if (this.filterNode) { this.filterNode.disconnect(); this.filterNode = null; }
+        if (this.arpFilter) { this.arpFilter.disconnect(); this.arpFilter = null; }
+        if (this.voiceGain) { this.voiceGain.disconnect(); this.voiceGain = null; }
+        if (this.arpGain) { this.arpGain.disconnect(); this.arpGain = null; }
+        if (this.subGain) { this.subGain.disconnect(); this.subGain = null; }
+        if (this.masterGain) { this.masterGain.disconnect(); this.masterGain = null; }
+      } catch (e) {}
+    }
+  };
+
+  // Menu Selection Handlers
+  function selectOneMinDifficultyChoice(diff) {
+    pendingOneMinDifficultyChoice = diff;
+    document.querySelectorAll("#panel-onemin .diff-choice-btn").forEach(b => b.classList.remove("active-setting"));
+    const btn = document.getElementById("btn-onemin-" + diff);
+    if (btn) btn.classList.add("active-setting");
+  }
+
+  ["easy", "normal", "hard", "insane"].forEach(d => {
+    const b = document.getElementById("btn-onemin-" + d);
+    if (b) {
+      b.addEventListener("click", () => {
+        initAudio();
+        playSound("click");
+        selectOneMinDifficultyChoice(d);
+      });
+    }
+  });
+
+  const navOneMinEl = document.getElementById("nav-onemin");
+  if (navOneMinEl) {
+    navOneMinEl.addEventListener("click", () => {
+      initAudio();
+      playSound("click");
+      selectOneMinDifficultyChoice(pendingOneMinDifficultyChoice || "normal");
+      switchPanel(panelMap, panelOneMin, "in", "map");
+    });
+  }
+
+  const btnStartOneMinEl = document.getElementById("btn-start-onemin");
+  if (btnStartOneMinEl) {
+    btnStartOneMinEl.addEventListener("click", () => {
+      initAudio();
+      playSound("click");
+      startOneMinMode();
+    });
+  }
+
+  // Direction & Dash Handlers (Manual movement - JS&B style)
+  function updateOneMinDirection(dx, dy) {
+    if (!isOneMinMode || isMenuMode || gameOver || gameWin || isPaused) return;
+    if (dx === 0 && dy === 0) {
+      oneMinMoving = false;
+      worm.dir = { x: 0, y: 0 };
+      worm.nextDir = { x: 0, y: 0 };
+      moveCounter = 0;
+    } else {
+      oneMinMoving = true;
+      worm.dir = { x: dx, y: dy };
+      worm.nextDir = { x: dx, y: dy };
+      oneMinFacingDir = { x: dx, y: dy };
+    }
+  }
+
+  function triggerOneMinDash() {
+    if (!isOneMinMode || isMenuMode || gameOver || gameWin || isPaused) return;
+    if (oneMinDashCooldown > 0) return;
+    oneMinDashCooldown = oneMinDashCooldownMax;
+    oneMinDashTimer = 0.22;
+    screenShake = 24;
+    playSound("crazy");
+
+    if (worm.body) {
+      oneMinDashAfterimages.push({
+        segments: worm.body.map(s => ({ x: s.x, y: s.y })),
+        alpha: 0.9,
+        color: "#00e5ff"
+      });
+    }
+  }
+
+  function oneMinTakeDamage() {
+    if (oneMinDashTimer > 0 || oneMinInvincibleTimer > 0) return;
+    oneMinHp -= 1;
+    const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
+    oneMinInvincibleTimer = cfg.invincibleTime;
+    screenShake = 36;
+    playSound("explode");
+    if (oneMinHp <= 0) {
+      stopOneMinMode();
+      triggerGameOver();
+    }
+  }
+
+  function triggerOneMinVictory() {
+    if (oneMinState === "victory") return;
+    oneMinState = "victory";
+    screenShake = 52;
+    playSound("win");
+    stopOneMinMode();
+
+    const gw = cols * gridSize, gh = rows * gridSize;
+    for (let i = 0; i < 110; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const spd = 60 + Math.random() * 280;
+      oneMinGrazeParticles.push({
+        x: gw / 2,
+        y: gh / 2,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd,
+        size: 2.5 + Math.random() * 4.5,
+        color: `hsl(${Math.floor(Math.random() * 360)}, 100%, 65%)`,
+        alpha: 1.0,
+        life: 2.8
+      });
+    }
+
+    setTimeout(() => {
+      triggerGameWin();
+    }, 1200);
+  }
+
+  function startOneMinMode() {
+    initAudio();
+    enterImmersiveMode();
+    showOnlyPanel(panelRoot);
+    resetAllGameModeFlags();
+
+    isOneMinMode = true;
+    oneMinDifficulty = pendingOneMinDifficultyChoice || "normal";
+    currentDifficulty = oneMinDifficulty;
+
+    const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
+    oneMinMaxHp = cfg.maxHp;
+    oneMinHp = oneMinMaxHp;
+    oneMinDashCooldownMax = cfg.dashCooldown;
+
+    // Fixed 16:9 widescreen arena
+    cols = 50;
+    rows = 28;
+    applyCanvasResolution();
+
+    // Prepare state
+    oneMinState = "countdown";
+    oneMinCountdownTimer = 5.0;
+    oneMinCountdownLastSec = 5;
+    oneMinPlayTime = 0;
+    oneMinStageIdx = 0;
+    oneMinStageProgress = 0;
+    oneMinInvincibleTimer = 0;
+    oneMinDashTimer = 0;
+    oneMinDashCooldown = 0;
+    oneMinMoving = false;
+    oneMinBullets = [];
+    oneMinLasers = [];
+    oneMinShockwaves = [];
+    oneMinGrazeParticles = [];
+    oneMinDashAfterimages = [];
+    oneMinVictoryCore = null;
+    oneMinScreenFlash = 0;
+    oneMinLastBeatStep = -1;
+    oneMinWallContractFrac = 0;
+
+    isMenuMode = false;
+    document.body.classList.add("in-game");
+    mainMenu.classList.remove("menu-appear");
+    setTimeout(() => { mainMenu.style.display = "none"; }, 500);
+
+    resetAllStats();
+    resetGame(false);
+
+    // Initial worm setup: centered compact body, no auto-movement
+    const midX = Math.floor(cols / 2);
+    const midY = Math.floor(rows / 2);
+    worm.body = [
+      { x: midX, y: midY },
+      { x: midX - 1, y: midY },
+      { x: midX - 2, y: midY },
+      { x: midX - 3, y: midY },
+      { x: midX - 4, y: midY }
+    ];
+    worm.dir = { x: 0, y: 0 };
+    worm.nextDir = { x: 0, y: 0 };
+    prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
+    obstacles = [];
+    foods = [];
+
+    // Pause default background music to let procedural synth play
+    if (bgMusic && typeof bgMusic.pause === "function") {
+      bgMusic.pause();
+    }
+
+    applyControlUI();
+    showMobileActionBtns(true);
+    oneMinSynth.playCountdownBeep(440, 0.16);
+  }
+
+  function stopOneMinMode() {
+    isOneMinMode = false;
+    oneMinSynth.stop();
+    oneMinBullets = [];
+    oneMinLasers = [];
+    oneMinShockwaves = [];
+    oneMinVictoryCore = null;
+    oneMinWallContractFrac = 0;
+  }
+
+  // =========================================================================
+  // HAZARD GENERATION (JUST SHAPES & BEATS / PIXEL ART ATLAS INSPIRED)
+  // Saws, Diamonds, Shurikens, Lasers with Chevrons, Neutrino Darts, Whirlpool
+  // =========================================================================
+  function spawnOneMinStageAttack(stageIdx, beatStep, arenaW, arenaH) {
+    const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
+    const speedMult = cfg.spdMult;
+    const cx = arenaW / 2;
+    const cy = arenaH / 2;
+
+    switch (stageIdx) {
+      case 0: { // HYDROGEN: 4 Protons & Spinning Energy Shurikens
+        if (beatStep % 4 === 0) {
+          const baseSpd = 135 * speedMult;
+          for (let i = 0; i < 4; i++) {
+            const angle = (i * Math.PI / 2);
+            oneMinBullets.push({
+              x: cx, y: cy,
+              vx: Math.cos(angle) * baseSpd,
+              vy: Math.sin(angle) * baseSpd,
+              radius: 9,
+              color: "#ff5522",
+              glow: "#ff9966",
+              shape: "shuriken",
+              rot: Math.random() * Math.PI,
+              rotSpeed: 5.5,
+              life: 5.5
+            });
+          }
+        } else if (beatStep % 4 === 2) {
+          const baseSpd = 125 * speedMult;
+          for (let i = 0; i < 4; i++) {
+            const angle = (i * Math.PI / 2) + Math.PI / 4;
+            oneMinBullets.push({
+              x: cx, y: cy,
+              vx: Math.cos(angle) * baseSpd,
+              vy: Math.sin(angle) * baseSpd,
+              radius: 8,
+              color: "#ff7744",
+              glow: "#ffaa77",
+              shape: "circle",
+              rot: 0,
+              rotSpeed: 0,
+              life: 5.5
+            });
+          }
+        }
+        break;
+      }
+      case 1: { // HELIUM: Triple-Alpha Spinning Spiked Buzzsaws
+        if (beatStep % 3 === 0) {
+          const baseAngle = (beatStep * 0.48);
+          const baseSpd = 150 * speedMult;
+          for (let i = 0; i < 3; i++) {
+            const angle = baseAngle + (i * Math.PI * 2 / 3);
+            oneMinBullets.push({
+              x: cx + Math.cos(angle) * 22,
+              y: cy + Math.sin(angle) * 22,
+              vx: Math.cos(angle) * baseSpd,
+              vy: Math.sin(angle) * baseSpd,
+              radius: 11,
+              color: "#ffaa33",
+              glow: "#ffdd66",
+              shape: "saw",
+              teeth: 8,
+              rot: 0,
+              rotSpeed: 8.5,
+              life: 5.5
+            });
+          }
+        }
+        break;
+      }
+      case 2: { // CARBON: Exponential Spirals + Pulsing Hazard Diamonds
+        const angle = beatStep * 0.40;
+        const baseSpd = 165 * speedMult;
+        oneMinBullets.push({
+          x: cx, y: cy,
+          vx: Math.cos(angle) * baseSpd,
+          vy: Math.sin(angle) * baseSpd,
+          radius: 8.5,
+          color: "#ffdd44",
+          glow: "#ffff99",
+          shape: "diamond",
+          rot: angle,
+          rotSpeed: 4.0,
+          life: 5.0
+        });
+        oneMinBullets.push({
+          x: cx, y: cy,
+          vx: Math.cos(angle + Math.PI) * baseSpd,
+          vy: Math.sin(angle + Math.PI) * baseSpd,
+          radius: 8.5,
+          color: "#ffdd44",
+          glow: "#ffff99",
+          shape: "diamond",
+          rot: angle + Math.PI,
+          rotSpeed: -4.0,
+          life: 5.0
+        });
+        if (beatStep % 8 === 0) {
+          const sweepY = (beatStep % 16 === 0) ? arenaH * 0.32 : arenaH * 0.68;
+          oneMinLasers.push({
+            x1: 0, y1: sweepY,
+            x2: arenaW, y2: sweepY,
+            width: cfg.laserWidth,
+            state: "warning",
+            warningTimer: cfg.laserWarnTime,
+            fireTimer: 0.28,
+            color: "#ffdd44"
+          });
+        }
+        break;
+      }
+      case 3: { // NEON: Planck Laser Grid with Chevrons & Photon Shards
+        if (beatStep % 8 === 0) {
+          const randCol = 70 + Math.random() * (arenaW - 140);
+          const randRow = 60 + Math.random() * (arenaH - 120);
+          oneMinLasers.push({
+            x1: randCol, y1: 0,
+            x2: randCol, y2: arenaH,
+            width: cfg.laserWidth,
+            state: "warning",
+            warningTimer: cfg.laserWarnTime,
+            fireTimer: 0.32,
+            color: "#44ff66"
+          });
+          oneMinLasers.push({
+            x1: 0, y1: randRow,
+            x2: arenaW, y2: randRow,
+            width: cfg.laserWidth,
+            state: "warning",
+            warningTimer: cfg.laserWarnTime,
+            fireTimer: 0.32,
+            color: "#44ff66"
+          });
+        }
+        if (beatStep % 4 === 0) {
+          for (let i = 0; i < (oneMinDifficulty === "insane" ? 6 : 4); i++) {
+            const a = Math.random() * Math.PI * 2;
+            const spd = 130 * speedMult;
+            oneMinBullets.push({
+              x: cx, y: cy,
+              vx: Math.cos(a) * spd,
+              vy: Math.sin(a) * spd,
+              radius: 7,
+              color: "#33ff88",
+              glow: "#aaffcc",
+              shape: "shuriken",
+              rot: 0,
+              rotSpeed: 6.0,
+              life: 4.5
+            });
+          }
+        }
+        break;
+      }
+      case 4: { // OXYGEN: High-Velocity Neutrino Darts with Safe Lanes
+        if (beatStep % 4 === 0) {
+          const laneCount = oneMinDifficulty === "insane" ? 8 : 6;
+          const safeLane = Math.floor(Math.random() * (laneCount - 1));
+          const laneWidth = arenaW / laneCount;
+          for (let l = 0; l < laneCount; l++) {
+            if (l === safeLane || (oneMinDifficulty !== "insane" && l === safeLane + 1)) continue;
+            const lx = l * laneWidth + laneWidth / 2;
+            oneMinBullets.push({
+              x: lx, y: 10,
+              vx: 0,
+              vy: 255 * speedMult,
+              radius: 7.5,
+              color: "#44ccff",
+              glow: "#aaeeff",
+              shape: "needle",
+              rot: Math.PI / 2,
+              rotSpeed: 0,
+              life: 3.5
+            });
+          }
+        }
+        break;
+      }
+      case 5: { // SILICON: 8-Step Alpha Ladder Pulsing Starbursts
+        if (beatStep % 4 === 0) {
+          const stepOffset = (beatStep % 8) * (Math.PI / 8);
+          const baseSpd = 155 * speedMult;
+          for (let i = 0; i < 8; i++) {
+            const angle = stepOffset + (i * Math.PI / 4);
+            oneMinBullets.push({
+              x: cx, y: cy,
+              vx: Math.cos(angle) * baseSpd,
+              vy: Math.sin(angle) * baseSpd,
+              radius: 8.5,
+              color: "#aa66ff",
+              glow: "#ddbbff",
+              shape: "diamond",
+              rot: angle,
+              rotSpeed: 4.5,
+              life: 5.5
+            });
+          }
+        }
+        break;
+      }
+      case 6: { // IRON: Heavy Anvil Saws Slam + Notched Soundwave Rings
+        if (beatStep % 6 === 0) {
+          const targetX = 70 + Math.random() * (arenaW - 140);
+          const targetY = 60 + Math.random() * (arenaH - 120);
+          oneMinBullets.push({
+            x: targetX, y: -20,
+            vx: 0, vy: 340 * speedMult,
+            radius: 14,
+            color: "#e2e8f0",
+            glow: "#ffffff",
+            shape: "saw",
+            teeth: 10,
+            rot: 0,
+            rotSpeed: 10.0,
+            life: 2.2
+          });
+          oneMinShockwaves.push({
+            cx: targetX,
+            cy: targetY,
+            radius: 10,
+            maxRadius: 185,
+            speed: cfg.shockwaveSpd,
+            thickness: 9,
+            color: "#e2e8f0",
+            alpha: 1.0
+          });
+          screenShake = 18;
+        }
+        break;
+      }
+      case 7: { // CHANDRASEKHAR: Border Compression & Inward Spikes
+        oneMinWallContractFrac = cfg.wallContract;
+        if (beatStep % 3 === 0) {
+          const side = Math.floor(Math.random() * 4);
+          let sx = 0, sy = 0, angle = 0;
+          const leftBound = arenaW * oneMinWallContractFrac;
+          const rightBound = arenaW * (1 - oneMinWallContractFrac);
+          const topBound = arenaH * oneMinWallContractFrac;
+          const botBound = arenaH * (1 - oneMinWallContractFrac);
+
+          if (side === 0) { sx = leftBound; sy = topBound + Math.random() * (botBound - topBound); angle = 0; }
+          else if (side === 1) { sx = rightBound; sy = topBound + Math.random() * (botBound - topBound); angle = Math.PI; }
+          else if (side === 2) { sx = leftBound + Math.random() * (rightBound - leftBound); sy = topBound; angle = Math.PI / 2; }
+          else { sx = leftBound + Math.random() * (rightBound - leftBound); sy = botBound; angle = -Math.PI / 2; }
+
+          const spd = 180 * speedMult;
+          oneMinBullets.push({
+            x: sx, y: sy,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            radius: 8.5,
+            color: "#ff4433",
+            glow: "#ff8877",
+            shape: "shuriken",
+            rot: 0,
+            rotSpeed: 7.0,
+            life: 4.5
+          });
+        }
+        break;
+      }
+      case 8: { // COLLAPSE: Singularity Whirlpool Suction into Black Hole
+        oneMinWallContractFrac = cfg.wallContract * 0.45;
+        if (beatStep % 2 === 0) {
+          const edgeAngle = Math.random() * Math.PI * 2;
+          const edgeDist = Math.max(arenaW, arenaH) * 0.48;
+          const spawnX = cx + Math.cos(edgeAngle) * edgeDist;
+          const spawnY = cy + Math.sin(edgeAngle) * edgeDist;
+          const tangentAngle = edgeAngle + Math.PI / 2 + 0.32;
+          const spd = 165 * speedMult;
+          oneMinBullets.push({
+            x: spawnX, y: spawnY,
+            vx: Math.cos(tangentAngle) * spd,
+            vy: Math.sin(tangentAngle) * spd,
+            radius: 7.5,
+            color: "#ffffff",
+            glow: "#99ccff",
+            shape: "circle",
+            isWhirlpool: true,
+            rot: 0,
+            rotSpeed: 0,
+            life: 6.0
+          });
+        }
+        break;
+      }
+      case 9: { // SUPERNOVA: Climax Blast Waves & Full Rainbow Petal Cascade
+        oneMinWallContractFrac = 0;
+        if (beatStep % 4 === 0) {
+          const count = oneMinDifficulty === "easy" ? 10 : oneMinDifficulty === "insane" ? 20 : 14;
+          const baseSpd = 170 * speedMult;
+          for (let i = 0; i < count; i++) {
+            const angle = (i * Math.PI * 2 / count) + (beatStep * 0.22);
+            oneMinBullets.push({
+              x: cx, y: cy,
+              vx: Math.cos(angle) * baseSpd,
+              vy: Math.sin(angle) * baseSpd,
+              radius: 9,
+              color: `hsl(${(i * 360 / count)}, 100%, 65%)`,
+              glow: "#ffffff",
+              shape: "shuriken",
+              rot: angle,
+              rotSpeed: 8.0,
+              life: 5.0
+            });
+          }
+          oneMinShockwaves.push({
+            cx: cx,
+            cy: cy,
+            radius: 14,
+            maxRadius: Math.max(arenaW, arenaH) * 0.72,
+            speed: cfg.shockwaveSpd * 1.3,
+            thickness: 10,
+            color: "#ff3366",
+            alpha: 0.95
+          });
+        }
+        break;
+      }
+    }
+  }
+
+  // Update Game Logic Loop
+  function updateOneMinMode(dt) {
+    if (!isOneMinMode || isMenuMode || isPaused || gameOver || gameWin) return;
+    const arenaW = cols * gridSize;
+    const arenaH = rows * gridSize;
+    oneMinIdlePhase += dt * 3.0;
+
+    // Timers
+    if (oneMinInvincibleTimer > 0) oneMinInvincibleTimer = Math.max(0, oneMinInvincibleTimer - dt);
+    if (oneMinDashTimer > 0) oneMinDashTimer = Math.max(0, oneMinDashTimer - dt);
+    if (oneMinDashCooldown > 0) oneMinDashCooldown = Math.max(0, oneMinDashCooldown - dt);
+    if (oneMinScreenFlash > 0) oneMinScreenFlash = Math.max(0, oneMinScreenFlash - dt * 3.5);
+
+    // Afterimages fade
+    for (let i = oneMinDashAfterimages.length - 1; i >= 0; i--) {
+      oneMinDashAfterimages[i].alpha -= dt * 4.2;
+      if (oneMinDashAfterimages[i].alpha <= 0) oneMinDashAfterimages.splice(i, 1);
+    }
+
+    // 1. COUNTDOWN STATE (5 seconds)
+    if (oneMinState === "countdown") {
+      oneMinCountdownTimer -= dt;
+      const currentSec = Math.ceil(Math.max(0, oneMinCountdownTimer));
+      if (currentSec !== oneMinCountdownLastSec) {
+        oneMinCountdownLastSec = currentSec;
+        if (currentSec > 0) {
+          oneMinSynth.playCountdownBeep(440 + (5 - currentSec) * 75, 0.14);
+        } else {
+          oneMinSynth.playCountdownBeep(880, 0.30);
+        }
+      }
+      if (oneMinCountdownTimer <= 0) {
+        oneMinState = "playing";
+        oneMinPlayTime = 0;
+        oneMinSynth.start();
+        oneMinScreenFlash = 1.0;
+        screenShake = 26;
+      }
+      return;
+    }
+
+    // 2. PLAYING STATE (0s to 67s)
+    if (oneMinState === "playing") {
+      oneMinPlayTime += dt;
+      oneMinSynth.update(oneMinPlayTime, dt);
+
+      oneMinStageIdx = Math.min(9, Math.floor(oneMinPlayTime / 6.7));
+      oneMinStageProgress = (oneMinPlayTime % 6.7) / 6.7;
+
+      // Trigger Supernova explosion flash on reaching stage 9
+      if (oneMinStageIdx === 9 && oneMinPlayTime - dt < 6.7 * 9) {
+        oneMinScreenFlash = 1.0;
+        screenShake = 45;
+        oneMinSynth.triggerSupernovaExplosion();
+      }
+
+      // Generate rhythmic attacks
+      const currentX = ((oneMinPlayTime % 6.7) / 6.7) * 4;
+      const beatStep = Math.floor(currentX * 8);
+      if (beatStep !== oneMinLastBeatStep) {
+        spawnOneMinStageAttack(oneMinStageIdx, beatStep, arenaW, arenaH);
+      }
+
+      // End of music -> Spawn Victory Core
+      if (oneMinPlayTime >= 67.0) {
+        oneMinState = "core_spawned";
+        oneMinBullets = [];
+        oneMinLasers = [];
+        oneMinShockwaves = [];
+        oneMinWallContractFrac = 0;
+        oneMinVictoryCore = {
+          x: arenaW / 2,
+          y: arenaH / 2,
+          radius: 28,
+          pulse: 0,
+          glow: 1.0
+        };
+        screenShake = 34;
+        playSound("win");
+      }
+    }
+
+    // 3. Update Victory Core
+    if (oneMinState === "core_spawned" && oneMinVictoryCore) {
+      oneMinVictoryCore.pulse += dt * 3.5;
+      if (worm.body && worm.body[0]) {
+        const hx = (worm.body[0].x + 0.5) * gridSize;
+        const hy = (worm.body[0].y + 0.5) * gridSize;
+        const dist = Math.hypot(hx - oneMinVictoryCore.x, hy - oneMinVictoryCore.y);
+        if (dist <= oneMinVictoryCore.radius + gridSize * 0.85) {
+          triggerOneMinVictory();
+          return;
+        }
+      }
+    }
+
+    // Update Lasers
+    for (let i = oneMinLasers.length - 1; i >= 0; i--) {
+      const l = oneMinLasers[i];
+      if (l.state === "warning") {
+        l.warningTimer -= dt;
+        if (l.warningTimer <= 0) {
+          l.state = "firing";
+        }
+      } else if (l.state === "firing") {
+        l.fireTimer -= dt;
+        if (worm.body && worm.body[0]) {
+          const hx = (worm.body[0].x + 0.5) * gridSize;
+          const hy = (worm.body[0].y + 0.5) * gridSize;
+          const d = distToSegment({ x: hx, y: hy }, { x: l.x1, y: l.y1 }, { x: l.x2, y: l.y2 });
+          if (d <= l.width / 2 + 7) {
+            if (oneMinDashTimer > 0) {
+              spawnOneMinGrazeSpark(hx, hy);
+            } else {
+              oneMinTakeDamage();
+            }
+          }
+        }
+        if (l.fireTimer <= 0) {
+          oneMinLasers.splice(i, 1);
+        }
+      }
+    }
+
+    // Update Shockwaves
+    for (let i = oneMinShockwaves.length - 1; i >= 0; i--) {
+      const s = oneMinShockwaves[i];
+      s.radius += s.speed * dt;
+      s.alpha = Math.max(0, 1 - (s.radius / s.maxRadius));
+      if (worm.body && worm.body[0]) {
+        const hx = (worm.body[0].x + 0.5) * gridSize;
+        const hy = (worm.body[0].y + 0.5) * gridSize;
+        const dist = Math.hypot(hx - s.cx, hy - s.cy);
+        if (Math.abs(dist - s.radius) <= s.thickness + 5) {
+          if (oneMinDashTimer > 0) {
+            spawnOneMinGrazeSpark(hx, hy);
+          } else {
+            oneMinTakeDamage();
+          }
+        }
+      }
+      if (s.radius >= s.maxRadius) {
+        oneMinShockwaves.splice(i, 1);
+      }
+    }
+
+    // Update Bullets & Collisions
+    const cx = arenaW / 2;
+    const cy = arenaH / 2;
+    for (let i = oneMinBullets.length - 1; i >= 0; i--) {
+      const b = oneMinBullets[i];
+      if (b.rotSpeed) b.rot += b.rotSpeed * dt;
+
+      if (b.isWhirlpool) {
+        const dx = cx - b.x;
+        const dy = cy - b.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 15) {
+          const pullForce = 185 * dt;
+          b.vx += (dx / dist) * pullForce;
+          b.vy += (dy / dist) * pullForce;
+        }
+      }
+
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      b.life -= dt;
+
+      if (worm.body && worm.body[0]) {
+        let hit = false;
+        const maxCheck = Math.min(4, worm.body.length);
+        for (let si = 0; si < maxCheck; si++) {
+          const segX = (worm.body[si].x + 0.5) * gridSize;
+          const segY = (worm.body[si].y + 0.5) * gridSize;
+          if (Math.hypot(segX - b.x, segY - b.y) <= b.radius + 8.5) {
+            hit = true;
+            break;
+          }
+        }
+
+        if (hit) {
+          if (oneMinDashTimer > 0) {
+            spawnOneMinGrazeSpark(b.x, b.y);
+            oneMinBullets.splice(i, 1);
+            continue;
+          } else {
+            oneMinTakeDamage();
+            oneMinBullets.splice(i, 1);
+            continue;
+          }
+        }
+      }
+
+      if (b.life <= 0 || b.x < -60 || b.x > arenaW + 60 || b.y < -60 || b.y > arenaH + 60) {
+        oneMinBullets.splice(i, 1);
+      }
+    }
+
+    // Update Graze Particles
+    for (let i = oneMinGrazeParticles.length - 1; i >= 0; i--) {
+      const p = oneMinGrazeParticles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.alpha -= dt * 2.2;
+      if (p.alpha <= 0) oneMinGrazeParticles.splice(i, 1);
+    }
+  }
+
+  function spawnOneMinGrazeSpark(x, y) {
+    for (let i = 0; i < 5; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const spd = 50 + Math.random() * 100;
+      oneMinGrazeParticles.push({
+        x: x, y: y,
+        vx: Math.cos(a) * spd,
+        vy: Math.sin(a) * spd,
+        size: 2.8,
+        color: "#00e5ff",
+        alpha: 1.0
+      });
+    }
+  }
+
+  function distToSegment(p, v, w) {
+    const l2 = (v.x - w.x) * (v.x - w.x) + (v.y - w.y) * (v.y - w.y);
+    if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+    let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+  }
+
+  // =========================================================================
+  // WORLD RENDERER & VISUALS (JUST SHAPES & BEATS / PIXEL ART ATLAS STYLING)
+  // =========================================================================
+  function drawOneMinWorld(targetCtx) {
+    const gw = cols * gridSize;
+    const gh = rows * gridSize;
+    const stage = ONE_MIN_STAGES[oneMinStageIdx];
+
+    // Background Gradient with stage color tint
+    const bgGrad = targetCtx.createLinearGradient(0, 0, 0, gh);
+    bgGrad.addColorStop(0, "#080a10");
+    bgGrad.addColorStop(1, "#030406");
+    targetCtx.fillStyle = bgGrad;
+    targetCtx.fillRect(0, 0, gw, gh);
+
+    // Subtle Oscilloscope Wave in background
+    targetCtx.save();
+    targetCtx.strokeStyle = stage.color + "28";
+    targetCtx.lineWidth = 2.2;
+    targetCtx.beginPath();
+    const wavePlotW = gw * 0.88;
+    const waveStartX = gw * 0.06;
+    const waveMidY = gh * 0.52;
+    for (let i = 0; i <= 80; i++) {
+      const xVal = (i / 80) * 4;
+      const yVal = evalOneMinStageWave(oneMinStageIdx, xVal);
+      const px = waveStartX + (i / 80) * wavePlotW;
+      const py = waveMidY + (0.5 - yVal) * 125;
+      if (i === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
+    }
+    targetCtx.stroke();
+    targetCtx.restore();
+
+    // Arena Boundaries with Contracting Walls
+    const padX = gw * oneMinWallContractFrac;
+    const padY = gh * oneMinWallContractFrac;
+    targetCtx.save();
+    targetCtx.strokeStyle = stage.color;
+    targetCtx.shadowColor = stage.color;
+    targetCtx.shadowBlur = 15;
+    targetCtx.lineWidth = 3.2;
+    targetCtx.strokeRect(padX + 2, padY + 2, gw - padX * 2 - 4, gh - padY * 2 - 4);
+    targetCtx.restore();
+
+    // Lasers (Warning & Firing with JSAB chevrons)
+    oneMinLasers.forEach(l => {
+      targetCtx.save();
+      if (l.state === "warning") {
+        targetCtx.setLineDash([9, 6]);
+        targetCtx.strokeStyle = l.color;
+        targetCtx.lineWidth = 2.5;
+        targetCtx.beginPath();
+        targetCtx.moveTo(l.x1, l.y1);
+        targetCtx.lineTo(l.x2, l.y2);
+        targetCtx.stroke();
+
+        const midLx = (l.x1 + l.x2) / 2;
+        const midLy = (l.y1 + l.y2) / 2;
+        targetCtx.fillStyle = l.color;
+        targetCtx.font = "bold 13px monospace";
+        targetCtx.textAlign = "center";
+        targetCtx.fillText("⚠ BEAM ALERT ⚠", midLx, midLy - 6);
+      } else {
+        targetCtx.strokeStyle = l.color;
+        targetCtx.shadowColor = l.color;
+        targetCtx.shadowBlur = 22;
+        targetCtx.lineWidth = l.width;
+        targetCtx.beginPath();
+        targetCtx.moveTo(l.x1, l.y1);
+        targetCtx.lineTo(l.x2, l.y2);
+        targetCtx.stroke();
+
+        targetCtx.strokeStyle = "#ffffff";
+        targetCtx.lineWidth = l.width * 0.45;
+        targetCtx.beginPath();
+        targetCtx.moveTo(l.x1, l.y1);
+        targetCtx.lineTo(l.x2, l.y2);
+        targetCtx.stroke();
+      }
+      targetCtx.restore();
+    });
+
+    // Shockwaves (Notched Sonic Rings)
+    oneMinShockwaves.forEach(s => {
+      targetCtx.save();
+      targetCtx.strokeStyle = s.color;
+      targetCtx.shadowColor = s.color;
+      targetCtx.shadowBlur = 14;
+      targetCtx.globalAlpha = s.alpha;
+      targetCtx.lineWidth = s.thickness;
+      targetCtx.beginPath();
+      targetCtx.arc(s.cx, s.cy, s.radius, 0, Math.PI * 2);
+      targetCtx.stroke();
+      targetCtx.restore();
+    });
+
+    // Diverse JSAB / Pixel-Art Hazards Rendering
+    oneMinBullets.forEach(b => {
+      targetCtx.save();
+      targetCtx.translate(b.x, b.y);
+      if (b.rot) targetCtx.rotate(b.rot);
+
+      targetCtx.shadowColor = b.glow || b.color;
+      targetCtx.shadowBlur = 12;
+
+      if (b.shape === "saw") {
+        const teeth = b.teeth || 8;
+        const outerR = b.radius;
+        const innerR = b.radius * 0.62;
+        targetCtx.fillStyle = b.color;
+        targetCtx.beginPath();
+        for (let t = 0; t < teeth; t++) {
+          const a1 = (t * Math.PI * 2) / teeth;
+          const a2 = a1 + (Math.PI / teeth);
+          targetCtx.lineTo(Math.cos(a1) * outerR, Math.sin(a1) * outerR);
+          targetCtx.lineTo(Math.cos(a2) * innerR, Math.sin(a2) * innerR);
+        }
+        targetCtx.closePath();
+        targetCtx.fill();
+
+        targetCtx.fillStyle = "#11141c";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, innerR * 0.48, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, innerR * 0.22, 0, Math.PI * 2);
+        targetCtx.fill();
+
+      } else if (b.shape === "diamond") {
+        const r = b.radius;
+        targetCtx.fillStyle = b.color;
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -r * 1.25);
+        targetCtx.lineTo(r * 1.25, 0);
+        targetCtx.lineTo(0, r * 1.25);
+        targetCtx.lineTo(-r * 1.25, 0);
+        targetCtx.closePath();
+        targetCtx.fill();
+
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -r * 0.55);
+        targetCtx.lineTo(r * 0.55, 0);
+        targetCtx.lineTo(0, r * 0.55);
+        targetCtx.lineTo(-r * 0.55, 0);
+        targetCtx.closePath();
+        targetCtx.fill();
+
+      } else if (b.shape === "shuriken") {
+        const r = b.radius;
+        targetCtx.fillStyle = b.color;
+        targetCtx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          const a1 = i * Math.PI / 2;
+          const a2 = a1 + Math.PI / 4;
+          targetCtx.lineTo(Math.cos(a1) * r * 1.35, Math.sin(a1) * r * 1.35);
+          targetCtx.lineTo(Math.cos(a2) * r * 0.42, Math.sin(a2) * r * 0.42);
+        }
+        targetCtx.closePath();
+        targetCtx.fill();
+
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, r * 0.26, 0, Math.PI * 2);
+        targetCtx.fill();
+
+      } else if (b.shape === "needle") {
+        const r = b.radius;
+        targetCtx.fillStyle = b.color;
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -r * 1.6);
+        targetCtx.lineTo(r * 0.7, r * 0.9);
+        targetCtx.lineTo(0, r * 0.5);
+        targetCtx.lineTo(-r * 0.7, r * 0.9);
+        targetCtx.closePath();
+        targetCtx.fill();
+
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.arc(0, -r * 0.3, r * 0.3, 0, Math.PI * 2);
+        targetCtx.fill();
+
+      } else {
+        targetCtx.fillStyle = b.color;
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, b.radius, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, b.radius * 0.45, 0, Math.PI * 2);
+        targetCtx.fill();
+      }
+      targetCtx.restore();
+    });
+
+    // Dash Afterimages
+    oneMinDashAfterimages.forEach(img => {
+      targetCtx.save();
+      targetCtx.globalAlpha = img.alpha * 0.65;
+      targetCtx.fillStyle = img.color;
+      img.segments.forEach((seg, idx) => {
+        const sx = (seg.x + 0.5) * gridSize;
+        const sy = (seg.y + 0.5) * gridSize;
+        const r = Math.max(3, 9 - idx * 0.9);
+        targetCtx.beginPath();
+        targetCtx.arc(sx, sy, r, 0, Math.PI * 2);
+        targetCtx.fill();
+      });
+      targetCtx.restore();
+    });
+
+    // Player Worm Body with JS&B Neon Styling
+    if (worm && worm.body && worm.body.length > 0) {
+      targetCtx.save();
+      const isInvincible = oneMinInvincibleTimer > 0;
+      const isDashing = oneMinDashTimer > 0;
+      const flicker = isInvincible ? (Math.floor(Date.now() / 60) % 2 === 0) : false;
+
+      if (!flicker) {
+        worm.body.forEach((seg, idx) => {
+          const sx = (seg.x + 0.5) * gridSize;
+          const sy = (seg.y + 0.5) * gridSize;
+          const idleScale = (!oneMinMoving) ? (1 + 0.08 * Math.sin(oneMinIdlePhase + idx * 0.5)) : 1;
+          const r = Math.max(4, (9 - idx * 0.6) * idleScale);
+
+          targetCtx.beginPath();
+          targetCtx.arc(sx, sy, r, 0, Math.PI * 2);
+
+          if (isDashing) {
+            targetCtx.fillStyle = "#ffffff";
+            targetCtx.shadowColor = "#00e5ff";
+            targetCtx.shadowBlur = 20;
+          } else if (idx === 0) {
+            targetCtx.fillStyle = "#00e5ff";
+            targetCtx.shadowColor = "#00e5ff";
+            targetCtx.shadowBlur = 16;
+          } else {
+            targetCtx.fillStyle = "#ff007f";
+            targetCtx.shadowColor = "#ff007f";
+            targetCtx.shadowBlur = 10;
+          }
+          targetCtx.fill();
+
+          if (idx === 0) {
+            targetCtx.fillStyle = "#ffffff";
+            targetCtx.beginPath();
+            targetCtx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+            targetCtx.fill();
+          }
+        });
+      }
+      targetCtx.restore();
+    }
+
+    // Graze Spark Particles
+    oneMinGrazeParticles.forEach(p => {
+      targetCtx.save();
+      targetCtx.fillStyle = p.color;
+      targetCtx.globalAlpha = p.alpha;
+      targetCtx.beginPath();
+      targetCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      targetCtx.fill();
+      targetCtx.restore();
+    });
+
+    // Victory Core (When Spawned)
+    if (oneMinState === "core_spawned" && oneMinVictoryCore) {
+      targetCtx.save();
+      const vc = oneMinVictoryCore;
+      const pulseR = vc.radius + Math.sin(vc.pulse) * 4.5;
+
+      const coreGrad = targetCtx.createRadialGradient(vc.x, vc.y, 4, vc.x, vc.y, pulseR * 2.3);
+      coreGrad.addColorStop(0, "rgba(255, 255, 255, 0.98)");
+      coreGrad.addColorStop(0.35, "rgba(255, 215, 0, 0.75)");
+      coreGrad.addColorStop(0.7, "rgba(255, 51, 102, 0.38)");
+      coreGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      targetCtx.fillStyle = coreGrad;
+      targetCtx.beginPath();
+      targetCtx.arc(vc.x, vc.y, pulseR * 2.3, 0, Math.PI * 2);
+      targetCtx.fill();
+
+      targetCtx.fillStyle = "#ffffff";
+      targetCtx.shadowColor = "#ffea00";
+      targetCtx.shadowBlur = 26;
+      targetCtx.beginPath();
+      const points = 8;
+      for (let i = 0; i < points * 2; i++) {
+        const a = (i * Math.PI / points) + vc.pulse * 0.55;
+        const dist = (i % 2 === 0) ? pulseR * 1.35 : pulseR * 0.68;
+        const px = vc.x + Math.cos(a) * dist;
+        const py = vc.y + Math.sin(a) * dist;
+        if (i === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
+      }
+      targetCtx.closePath();
+      targetCtx.fill();
+
+      targetCtx.fillStyle = "#ffffff";
+      targetCtx.font = "bold 15px sans-serif";
+      targetCtx.textAlign = "center";
+      targetCtx.shadowColor = "#ffea00";
+      targetCtx.shadowBlur = 12;
+      targetCtx.fillText("★ CHẠM VÀO LÕI ĐỂ CHIẾN THẮNG! ★", vc.x, vc.y + pulseR + 30);
+      targetCtx.restore();
+    }
+
+    // Top HUD Bar: Stage, Formula, Timer, HP, Dash
+    targetCtx.save();
+    targetCtx.fillStyle = "rgba(10, 12, 18, 0.88)";
+    targetCtx.fillRect(10, 8, gw - 20, 50);
+    targetCtx.strokeStyle = stage.color;
+    targetCtx.lineWidth = 1.6;
+    targetCtx.strokeRect(10, 8, gw - 20, 50);
+
+    // Stage Pill & Formula
+    targetCtx.fillStyle = stage.color;
+    targetCtx.font = "bold 11.5px monospace";
+    targetCtx.textAlign = "left";
+    targetCtx.fillText(`[STAGE ${String(oneMinStageIdx + 1).padStart(2, '0')}/10] ${stage.status}`, 20, 26);
+
+    targetCtx.fillStyle = "#e2e8f0";
+    targetCtx.font = "10px monospace";
+    targetCtx.fillText(`${stage.formula} · ${stage.caption}`, 20, 46);
+
+    // Timer Readout & Progress
+    targetCtx.textAlign = "right";
+    targetCtx.fillStyle = "#ffea00";
+    targetCtx.font = "bold 12.5px monospace";
+    targetCtx.fillText(`${oneMinPlayTime.toFixed(1).padStart(4, '0')}s / 67.0s`, gw - 130, 26);
+
+    // HP Hearts
+    let hearts = "";
+    for (let h = 0; h < oneMinHp; h++) hearts += "❤️";
+    for (let h = oneMinHp; h < oneMinMaxHp; h++) hearts += "🖤";
+    targetCtx.font = "13px sans-serif";
+    targetCtx.fillText(hearts, gw - 22, 26);
+
+    // Dash status
+    targetCtx.font = "bold 10px monospace";
+    if (oneMinDashCooldown <= 0) {
+      targetCtx.fillStyle = "#00e5ff";
+      targetCtx.fillText("DASH: [ READY / SPACE ]", gw - 22, 46);
+    } else {
+      targetCtx.fillStyle = "#94a3b8";
+      const pct = Math.floor((1 - oneMinDashCooldown / oneMinDashCooldownMax) * 100);
+      targetCtx.fillText(`DASH: [ ${pct}% ]`, gw - 22, 46);
+    }
+    targetCtx.restore();
+
+    // 5-Second Countdown Overlay Display
+    if (oneMinState === "countdown") {
+      targetCtx.save();
+      targetCtx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      targetCtx.fillRect(0, 0, gw, gh);
+
+      const sec = Math.ceil(Math.max(0, oneMinCountdownTimer));
+      const frac = oneMinCountdownTimer - Math.floor(oneMinCountdownTimer);
+      const scale = 1.0 + (1.0 - frac) * 0.35;
+
+      targetCtx.textAlign = "center";
+      targetCtx.translate(gw / 2, gh / 2);
+      targetCtx.scale(scale, scale);
+
+      targetCtx.fillStyle = sec > 2 ? "#00e5ff" : sec === 2 ? "#ffaa00" : "#ff1744";
+      targetCtx.shadowColor = targetCtx.fillStyle;
+      targetCtx.shadowBlur = 30;
+      targetCtx.font = "900 80px sans-serif";
+      targetCtx.fillText(String(sec), 0, 15);
+
+      targetCtx.font = "bold 14px monospace";
+      targetCtx.fillStyle = "#ffffff";
+      targetCtx.shadowBlur = 10;
+      targetCtx.fillText("PREPARE TO DODGE (WASD / TOUCH · SPACE TO DASH)", 0, 56);
+      targetCtx.restore();
+    }
+
+    // Full Screen Flash effect
+    if (oneMinScreenFlash > 0) {
+      targetCtx.save();
+      targetCtx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, oneMinScreenFlash)})`;
+      targetCtx.fillRect(0, 0, gw, gh);
+      targetCtx.restore();
+    }
+  }
+
   </script>
 
 </body>
