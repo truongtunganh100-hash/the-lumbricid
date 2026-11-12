@@ -28,12 +28,15 @@
       8. Clean countdown display with large glowing numbers (5 -> 1) and keys instruction.
   - **Verification**: Visuals match the video aesthetic across all 10 stages, rendering at 60 FPS across all graphics tiers.
 
-- [x] **Task 3: Refine mobile UI layout & panel lifecycle**
+- [x] **Task 3: Refine mobile UI layout, controls responsiveness & countdown fix**
   - **Action**:
-    - Ensure `#panel-onemin` is cleanly displayed as a centered modal with dark backdrop.
-    - Enforce immediate hiding of `#main-menu` upon game start.
-    - Keep virtual joystick and action buttons fully responsive.
-  - **Verification**: Mobile portrait and landscape display without panel overlap.
+    - Converted `#panel-onemin` into an isolated full-screen glassmorphism modal (`position: fixed; inset: 0; z-index: 100005`) with `.onemin-modal-card` to eliminate any visual bleedthrough or scrolling artifacts from `#main-menu` in mobile portrait mode.
+    - Fixed infinite attack spawn storm bug by setting `oneMinLastBeatStep = beatStep` in `updateOneMinMode(dt)` to prevent mobile frame stall/lock.
+    - Wrapped all Web Audio `AudioContext` and synthesizer calls in bulletproof `try...catch` so restricted mobile autoplay can never crash the countdown tick loop.
+    - Fixed frozen worm bug: Worm starts with active velocity (`worm.dir = { x: 1, y: 0 }; worm.nextDir = { x: 1, y: 0 }; oneMinMoving = true;`) and no longer gets forced to speed = 0 on joystick release, ensuring fluid continuous steering.
+    - Enhanced 5s countdown rendering with real-time radial progress arc, multi-color pulsing numbers (5 -> 4 -> 3 -> 2 -> 1 -> START), and tap-to-skip support.
+    - Added `#panel-onemin` to Android Back navigation handler in `initAndroidBackNavigation`.
+  - **Verification**: Mobile portrait and landscape display cleanly without panel overlap; countdown ticks smoothly; worm steers fluidly with virtual joystick.
 
 - [x] **Task 4: Verification, local server testing & GitHub push**
   - **Action**:

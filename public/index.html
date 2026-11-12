@@ -1195,23 +1195,51 @@
         min-height: 32px !important;
       }
 
-      /* MÀN HÌNH CHỌN CHẾ ĐỘ 1 MINS (BEAT DASH) TRÊN ĐIỆN THOẠI DỌC */
-      #panel-onemin[style*="display: flex"] {
+      /* MÀN HÌNH CHỌN CHẾ ĐỘ 1 MINS (BEAT DASH) TRÊN ĐIỆN THOẠI DỌC: MODAL ĐỘC LẬP CHE KHUẤT 100% MENU SAU */
+      #panel-onemin {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 100005 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-width: 100vw !important;
+        max-height: 100dvh !important;
+        margin: 0 !important;
+        padding: 12px 8px !important;
+        box-sizing: border-box !important;
+        background: rgba(6, 4, 12, 0.92) !important;
+        backdrop-filter: blur(14px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      #panel-onemin:not([style*="display: flex"]) {
+        display: none !important;
+      }
+
+      #panel-onemin .onemin-modal-card {
         width: 95vw !important;
-        max-width: 400px !important;
+        max-width: 390px !important;
         max-height: 92vh !important;
         max-height: 92dvh !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
-        padding: 10px 8px 14px !important;
+        padding: 12px 10px 16px !important;
         box-sizing: border-box !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         gap: 6px !important;
-        border-radius: 14px !important;
-        background: rgba(14, 10, 22, 0.97) !important;
+        border-radius: 16px !important;
+        background: rgba(18, 12, 28, 0.98) !important;
+        border: 2px solid #ff3366 !important;
+        box-shadow: 0 0 35px rgba(255, 51, 102, 0.45), inset 0 0 20px rgba(0, 0, 0, 0.85) !important;
       }
 
       #panel-onemin .onemin-title {
@@ -1258,7 +1286,9 @@
         width: 98% !important;
         max-width: 260px !important;
         padding: 7px 12px !important;
-        font-size: 10.5px !important;
+        font-size: 10px !important;
+        border-radius: 8px !important;
+        margin: 2px 0 0 !important;
         min-height: 32px !important;
       }
 
@@ -2440,15 +2470,47 @@
       100% { transform: scale(1.18) rotate(6deg); }
     }
     #panel-onemin {
-      max-width: 620px;
-      gap: 6px;
-      padding: 10px 14px;
-      max-height: 90vh;
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 100005 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      max-width: 100vw !important;
+      max-height: 100dvh !important;
+      margin: 0 !important;
+      padding: 16px !important;
+      box-sizing: border-box !important;
+      background: rgba(6, 4, 12, 0.90) !important;
+      backdrop-filter: blur(14px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(14px) saturate(180%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    #panel-onemin:not([style*="display: flex"]) {
+      display: none !important;
+    }
+    #panel-onemin .onemin-modal-card {
+      width: 95vw;
+      max-width: 580px;
+      max-height: 92vh;
+      max-height: 92dvh;
       overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      background: rgba(18, 12, 28, 0.98);
       border: 2px solid #ff3366 !important;
-      box-shadow: 0 0 35px rgba(255, 51, 102, 0.35), inset 0 0 20px rgba(0, 0, 0, 0.85) !important;
-      background: rgba(12, 14, 22, 0.97) !important;
-      border-radius: 12px !important;
+      box-shadow: 0 0 45px rgba(255, 51, 102, 0.45), inset 0 0 25px rgba(0, 0, 0, 0.85) !important;
+      border-radius: 18px !important;
+      padding: 14px 18px 18px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
     }
     #panel-onemin #btn-start-onemin {
       background: linear-gradient(135deg, #ff0055 0%, #ff5500 100%) !important;
@@ -2470,19 +2532,16 @@
       font-weight: 900 !important;
     }
 
-
     /* === TỐI ƯU HÓA GIAO DIỆN MÀN HÌNH NGANG (LANDSCAPE) CHO ĐIỆN THOẠI === */
     @media (orientation: landscape) and (max-height: 560px),
            (orientation: landscape) and (max-width: 960px) {
-      #panel-onemin {
+      #panel-onemin .onemin-modal-card {
         width: 94vw !important;
         max-width: 580px !important;
-        max-height: 95vh !important;
-        max-height: 95dvh !important;
-        overflow-y: auto !important;
+        max-height: 96vh !important;
+        max-height: 96dvh !important;
         padding: 8px 12px 10px !important;
         gap: 4px !important;
-        box-sizing: border-box !important;
       }
 
       #panel-onemin .onemin-title {
@@ -2490,6 +2549,7 @@
         margin: 0 0 2px !important;
       }
 
+      #panel-onemin .onemin-desc,
       #panel-onemin .endless-desc {
         font-size: 9px !important;
         line-height: 1.25 !important;
@@ -17701,21 +17761,23 @@
       </div>
       
       <div id="panel-onemin" class="menu-panel" style="display: none;">
-        <div class="menu-section-label slide-up-item" style="color: #ff3366; font-weight: 900; font-size: 14px; letter-spacing: 2px;">⚡ CHẾ ĐỘ 1 MINS · HOW A STAR EXPLODES ⚡</div>
-        <div class="endless-desc slide-up-item" style="font-size: 10px; max-width: 560px; line-height: 1.45; margin: 0 0 6px; text-align: center; color: #fce4ec;">
-          Phong cách Just Shapes &amp; Beats: Giun KHÔNG tự di chuyển mà chỉ di chuyển khi bấm phím/chạm. Nhấn Space (hoặc nút Dash) để LƯỚT (Bất tử trong 0.22s)! Sống sót qua 10 giai đoạn nhịp điệu của ngôi sao phát nổ trong 67s và nhặt Lõi Chiến Thắng!
-        </div>
-        <div class="diff-map-columns">
-          <div class="diff-column" style="width: 100%; max-width: 380px;">
-            <div class="menu-section-label slide-up-item">CHỌN ĐỘ KHÓ</div>
-            <button id="btn-onemin-easy" class="menu-btn diff-choice-btn slide-up-item">DỄ (5 HP · Đạn Chậm · Dash 0.6s)</button>
-            <button id="btn-onemin-normal" class="menu-btn diff-choice-btn slide-up-item active-setting">TRUNG BÌNH (4 HP · Chuẩn Nhịp)</button>
-            <button id="btn-onemin-hard" class="menu-btn diff-choice-btn slide-up-item">KHÓ (3 HP · Đạn Nhanh · Dày)</button>
-            <button id="btn-onemin-insane" class="menu-btn diff-choice-btn slide-up-item" style="color: #ff1744; border-color: #ff1744; font-weight: 900;">INSANE (1 HP · ONE-HIT KO!)</button>
+        <div class="onemin-modal-card">
+          <div class="menu-section-label slide-up-item onemin-title" style="color: #ff3366; font-weight: 900; font-size: 14px; letter-spacing: 2px; text-shadow: 0 0 14px #ff3366;">⚡ CHẾ ĐỘ 1 MINS · HOW A STAR EXPLODES ⚡</div>
+          <div class="endless-desc slide-up-item onemin-desc" style="font-size: 10px; max-width: 520px; line-height: 1.4; margin: 0 0 4px; text-align: center; color: #fce4ec;">
+            Lấy cảm hứng từ Just Shapes &amp; Beats: Sống sót qua 10 giai đoạn phát nổ của ngôi sao (67 giây)! Điều khiển mượt mà bằng cần gạt ảo hoặc WASD, nhấn Nút Lướt (Space) để bất tử né đạn và nhặt Lõi Chiến Thắng ở giây cuối!
           </div>
+          <div class="diff-map-columns">
+            <div class="diff-column" style="width: 100%; max-width: 440px;">
+              <div class="menu-section-label slide-up-item" style="font-size: 11px; margin-bottom: 2px;">CHỌN ĐỘ KHÓ</div>
+              <button id="btn-onemin-easy" class="menu-btn diff-choice-btn slide-up-item">DỄ (5 HP · Đạn Chậm · Dash 0.6s)</button>
+              <button id="btn-onemin-normal" class="menu-btn diff-choice-btn slide-up-item active-setting">TRUNG BÌNH (4 HP · Chuẩn Nhịp)</button>
+              <button id="btn-onemin-hard" class="menu-btn diff-choice-btn slide-up-item">KHÓ (3 HP · Đạn Nhanh · Dày)</button>
+              <button id="btn-onemin-insane" class="menu-btn diff-choice-btn slide-up-item" style="color: #ff1744; border-color: #ff1744; font-weight: 900;">INSANE (1 HP · ONE-HIT KO!)</button>
+            </div>
+          </div>
+          <button id="btn-start-onemin" class="menu-btn slide-up-item">▶ BẮT ĐẦU (ĐẾM NGƯỢC 5S)</button>
+          <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
         </div>
-        <button id="btn-start-onemin" class="menu-btn slide-up-item">▶ BẮT ĐẦU (ĐẾM NGƯỢC 5S)</button>
-        <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
       </div>
 <div id="panel-darknight" class="menu-panel" style="display: none;">
         <div class="menu-section-label slide-up-item"
@@ -44568,12 +44630,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           return;
         }
         if (isMenuMode) {
-          const openSubPanel = [panelDifficulty, panelMap, panelRace, panel2p, panelSettings, panelSkin, panelEndless, panelTsunami, panelDarkNight].find(p => p && p.style.display !== "none");
+          const openSubPanel = [panelDifficulty, panelMap, panelRace, panel2p, panelSettings, panelSkin, panelEndless, panelTsunami, panelDarkNight, panelOneMin].find(p => p && p.style.display !== "none");
           if (openSubPanel) {
             let type = "difficulty";
             let backTarget = panelRoot;
             if (openSubPanel === panelMap) type = "map";
-            else if (openSubPanel === panelRace) {
+            else if (openSubPanel === panelRace || openSubPanel === panelOneMin) {
               type = "map";
               backTarget = panelMap;
             }
@@ -45196,6 +45258,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     document.addEventListener("touchstart", e => {
       initAudio();
+      // Chế độ 1 Mins: Chạm vào màn hình trong lúc đếm ngược 5s để bỏ qua và vào trận ngay lập tức!
+      if (typeof isOneMinMode !== "undefined" && isOneMinMode && typeof oneMinState !== "undefined" && oneMinState === "countdown") {
+        if (!e.target.closest("#btn-pause, .arc-btn, #mobile-action-buttons")) {
+          oneMinCountdownTimer = Math.min(oneMinCountdownTimer, 0.05);
+        }
+      }
       if (isMenuMode || isPaused || gameOver) return;
       if (gameWin) {
         returnToMainMenu();
@@ -45312,7 +45380,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           joystickActive = false;
           joystickTouchId = null;
           joystickCurrentDir = { dx: 0, dy: 0 };
-          if (isOneMinMode) updateOneMinDirection(0, 0);
+          // Chế độ 1 Mins: Không đột ngột dừng chết giun ở tốc độ 0 khi nhấc ngón tay, giun tiếp tục bò mượt mà theo hướng cuối!
           joystickStick.classList.add("joystick-releasing");
           joystickStick.style.transform = `translate(0px, 0px)`;
           if (isOneMinMode) {
@@ -48542,10 +48610,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       let finalCalculatedSpeed = currentBaseSpeed * transitionSlowFactor;
       if (worm.isImmobilized) finalCalculatedSpeed = 0;
       if (isOneMinMode) {
-        if (!oneMinMoving && oneMinDashTimer <= 0) {
-          finalCalculatedSpeed = 0;
-          moveCounter = 0;
-        } else if (oneMinDashTimer > 0) {
+        if (oneMinDashTimer > 0) {
           finalCalculatedSpeed = 38;
         } else {
           const spdBoost = (typeof oneMinSpeedMultiplier !== "undefined" ? oneMinSpeedMultiplier : 1.0) * (worm.speedMultiplier || 1.0);
@@ -60553,11 +60618,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
       // 3. Nếu đang ở màn hình sảnh chính (Menu Mode)
       if (typeof isMenuMode !== "undefined" && isMenuMode) {
-        const subPanels = [panelDifficulty, panelMap, panelRace, panel2p, panelSettings, panelSkin, panelEndless, panelTsunami, panelDarkNight];
+        const subPanels = [panelDifficulty, panelMap, panelRace, panel2p, panelSettings, panelSkin, panelEndless, panelTsunami, panelDarkNight, panelOneMin];
         const openSubPanel = subPanels.find(p => p && p !== panelRoot && p.style.display === "flex");
 
         if (openSubPanel) {
           // Xử lý các view phụ của chế độ 2 người chơi nếu có
+          if (openSubPanel === panelOneMin) {
+            switchPanel(panelOneMin, panelMap, "out", "map");
+            return true;
+          }
           if (openSubPanel === panel2p) {
             const waitingView = document.getElementById("lan-waiting-view");
             if (waitingView && waitingView.style.display !== "none") {
@@ -64879,17 +64948,19 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     isActive: false,
 
     init() {
-      if (typeof window.AudioContext === "undefined" && typeof window.webkitAudioContext === "undefined") return;
-      if (!this.audioCtx) {
-        if (typeof audioCtx !== "undefined" && audioCtx) {
-          this.audioCtx = audioCtx;
-        } else {
-          this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      try {
+        if (typeof window.AudioContext === "undefined" && typeof window.webkitAudioContext === "undefined") return;
+        if (!this.audioCtx) {
+          if (typeof audioCtx !== "undefined" && audioCtx) {
+            this.audioCtx = audioCtx;
+          } else {
+            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
         }
-      }
-      if (this.audioCtx.state === "suspended") {
-        this.audioCtx.resume().catch(() => {});
-      }
+        if (this.audioCtx && this.audioCtx.state === "suspended") {
+          this.audioCtx.resume().catch(() => {});
+        }
+      } catch (_) {}
     },
 
     start() {
@@ -65149,9 +65220,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     },
 
     playCountdownBeep(freq = 600, dur = 0.14) {
-      this.init();
-      if (!this.audioCtx) return;
       try {
+        this.init();
+        if (!this.audioCtx) return;
         const now = this.audioCtx.currentTime;
         const osc = this.audioCtx.createOscillator();
         const g = this.audioCtx.createGain();
@@ -65449,7 +65520,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     resetAllStats();
     resetGame(false);
 
-    // Initial worm setup: centered compact body, no auto-movement
+    // Initial worm setup: centered compact body, active crawling velocity right from start
     const midX = Math.floor(cols / 2);
     const midY = Math.floor(rows / 2);
     worm.body = [
@@ -65460,8 +65531,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       { x: midX - 4, y: midY }
     ];
     hasStartedMoving = true;
-    worm.dir = { x: 0, y: 0 };
-    worm.nextDir = { x: 0, y: 0 };
+    worm.dir = { x: 1, y: 0 };
+    worm.nextDir = { x: 1, y: 0 };
+    oneMinFacingDir = { x: 1, y: 0 };
+    oneMinMoving = true;
     prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     wormDisplayBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     obstacles = [];
@@ -65496,7 +65569,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       joystickZone.classList.add("joystick-visible");
       if (joystickStick) joystickStick.style.transform = "translate(0px, 0px)";
     }
-    oneMinSynth.playCountdownBeep(440, 0.16);
+    try { if (typeof oneMinSynth !== "undefined" && oneMinSynth.playCountdownBeep) oneMinSynth.playCountdownBeep(440, 0.16); } catch (_) {}
   }
 
   function stopOneMinMode() {
@@ -65907,11 +65980,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const currentSec = Math.ceil(Math.max(0, oneMinCountdownTimer));
       if (currentSec !== oneMinCountdownLastSec) {
         oneMinCountdownLastSec = currentSec;
-        if (currentSec > 0) {
-          oneMinSynth.playCountdownBeep(440 + (5 - currentSec) * 75, 0.14);
-        } else {
-          oneMinSynth.playCountdownBeep(880, 0.30);
-        }
+        try {
+          if (typeof oneMinSynth !== 'undefined' && oneMinSynth.playCountdownBeep) {
+            if (currentSec > 0) {
+              oneMinSynth.playCountdownBeep(440 + (5 - currentSec) * 75, 0.14);
+            } else {
+              oneMinSynth.playCountdownBeep(880, 0.30);
+            }
+          }
+        } catch (_) {}
       }
       if (oneMinCountdownTimer <= 0) {
         oneMinState = "playing";
@@ -65964,11 +66041,16 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         oneMinSynth.triggerSupernovaExplosion();
       }
 
-      // Generate rhythmic attacks
+      // Generate rhythmic attacks - CẬP NHẬT oneMinLastBeatStep CHÍNH XÁC ĐỂ TRÁNH INFINITE SPAWN
       const currentX = ((oneMinPlayTime % 6.7) / 6.7) * 4;
       const beatStep = Math.floor(currentX * 8);
       if (beatStep !== oneMinLastBeatStep) {
-        spawnOneMinStageAttack(oneMinStageIdx, beatStep, arenaW, arenaH);
+        oneMinLastBeatStep = beatStep;
+        try {
+          spawnOneMinStageAttack(oneMinStageIdx, beatStep, arenaW, arenaH);
+        } catch (err) {
+          console.warn("Attack spawn error safely handled:", err);
+        }
       }
 
       // Spawn special Cores: Cục Bất Tử & Cục Đỏ Điên Loạn
@@ -66927,34 +67009,60 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
     targetCtx.restore();
 
-    // 16. 5-Second Countdown Overlay Display
+    // 16. 5-Second Countdown Overlay Display - HIỂN THỊ ĐẾM NGƯỢC RÕ RÀNG & MƯỢT MÀ
     if (oneMinState === "countdown") {
       targetCtx.save();
-      targetCtx.fillStyle = "rgba(0, 0, 0, 0.50)";
+      targetCtx.fillStyle = "rgba(0, 0, 0, 0.58)";
       targetCtx.fillRect(0, 0, gw, gh);
 
-      const sec = Math.ceil(Math.max(0, oneMinCountdownTimer));
-      const frac = oneMinCountdownTimer - Math.floor(oneMinCountdownTimer);
-      const scale = 1.0 + (1.0 - frac) * 0.35;
+      const sec = Math.ceil(Math.max(0.01, oneMinCountdownTimer));
+      const frac = Math.max(0, Math.min(1, oneMinCountdownTimer - Math.floor(oneMinCountdownTimer)));
+      const pulseScale = 1.0 + (1.0 - frac) * 0.28;
 
+      const colors = {
+        5: "#00e5ff",
+        4: "#00e676",
+        3: "#ffeb3b",
+        2: "#ff9100",
+        1: "#ff1744"
+      };
+      const mainCol = colors[sec] || "#00e5ff";
+
+      // Vòng tròn tiến trình đếm ngược thời gian thực
+      targetCtx.strokeStyle = mainCol;
+      targetCtx.lineWidth = 4;
+      targetCtx.shadowColor = mainCol;
+      targetCtx.shadowBlur = isGfxHigh ? 22 : 8;
+      targetCtx.beginPath();
+      targetCtx.arc(gw / 2, gh / 2 - 10, 68, -Math.PI / 2, -Math.PI / 2 + (1.0 - frac) * Math.PI * 2);
+      targetCtx.stroke();
+
+      // Số đếm ngược phóng to nhịp nhàng
+      targetCtx.save();
       targetCtx.textAlign = "center";
-      targetCtx.translate(gw / 2, gh / 2);
-      targetCtx.scale(scale, scale);
+      targetCtx.translate(gw / 2, gh / 2 - 10);
+      targetCtx.scale(pulseScale, pulseScale);
+      targetCtx.fillStyle = mainCol;
+      targetCtx.font = "900 84px sans-serif";
+      targetCtx.fillText(String(sec), 0, 26);
+      targetCtx.restore();
 
-      targetCtx.fillStyle = sec > 2 ? "#00e5ff" : sec === 2 ? "#ffaa00" : "#ff1744";
-      if (isGfxHigh) {
-        targetCtx.shadowColor = targetCtx.fillStyle;
-        targetCtx.shadowBlur = 30;
-      }
-      targetCtx.font = "900 85px sans-serif";
-      targetCtx.fillText(String(sec), 0, 15);
-
+      // Hướng dẫn thao tác và nút chạm để bỏ qua đếm ngược
+      targetCtx.textAlign = "center";
       targetCtx.font = "bold 16px sans-serif";
       targetCtx.fillStyle = "#ffffff";
-      targetCtx.fillText("CHUẨN BỊ NÉ ĐẠN!", 0, 58);
+      targetCtx.shadowColor = "rgba(0, 0, 0, 0.8)";
+      targetCtx.shadowBlur = 6;
+      targetCtx.fillText("CHUẨN BỊ NÉ ĐẠN!", gw / 2, gh / 2 + 82);
+
       targetCtx.font = "12px sans-serif";
       targetCtx.fillStyle = "#00e5ff";
-      targetCtx.fillText("WASD / JOYSTICK · SPACE / NÚT LƯỚT", 0, 80);
+      targetCtx.fillText("JOYSTICK / WASD ĐỂ DI CHUYỂN · SPACE / NÚT LƯỚT ĐỂ NÉ", gw / 2, gh / 2 + 104);
+
+      // Lời nhắc chạm để bắt đầu ngay
+      targetCtx.font = "bold 11px sans-serif";
+      targetCtx.fillStyle = "rgba(255, 255, 255, 0.72)";
+      targetCtx.fillText("⚡ CHẠM MÀN HÌNH ĐỂ VÀO TRẬN NGAY (BỎ QUA 5S) ⚡", gw / 2, gh / 2 + 126);
       targetCtx.restore();
     }
 
