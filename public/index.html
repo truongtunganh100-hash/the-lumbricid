@@ -48644,13 +48644,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (worm.isImmobilized) finalCalculatedSpeed = 0;
       if (isOneMinMode) {
         while (worm.body && worm.body.length > 3) worm.body.pop();
+        // Tăng tốc độ giun theo độ khó: +20% ở Khó (19.2), +50% ở Insane (24.0)
+        const diffWormMult = (oneMinDifficulty === "insane") ? 1.50 : (oneMinDifficulty === "hard" ? 1.20 : 1.0);
         if (oneMinDashTimer > 0) {
-          finalCalculatedSpeed = 38;
+          finalCalculatedSpeed = 38 * (oneMinDifficulty === "insane" ? 1.30 : (oneMinDifficulty === "hard" ? 1.15 : 1.0));
         } else if (oneMinDifficulty === "easy" && !oneMinMoving) {
           finalCalculatedSpeed = 0;
         } else {
           const spdBoost = (typeof oneMinSpeedMultiplier !== "undefined" ? oneMinSpeedMultiplier : 1.0) * (worm.speedMultiplier || 1.0);
-          finalCalculatedSpeed = 16 * spdBoost;
+          finalCalculatedSpeed = 16 * diffWormMult * spdBoost;
         }
       }
       const safeSpeed = finalCalculatedSpeed > 0 ? finalCalculatedSpeed : 1;
@@ -64761,19 +64763,19 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   const ONE_MIN_DIFF_CONFIG = {
     easy: {
       maxHp: 5,
-      dashCooldown: 0.50, // Hồi lướt nhanh để người mới chơi dễ dàng né
-      spdMult: 0.65, // Đạn bay chậm hơn, đường đạn thưa
-      densityMult: 0.60,
-      laserWarnTime: 0.95, // Báo trước laser gần 1 giây
+      dashCooldown: 0.50,
+      spdMult: 0.70, // Đạn bay êm ái, dễ nhìn
+      densityMult: 1.0,
+      laserWarnTime: 0.90,
       laserWidth: 12,
       shockwaveSpd: 95,
       wallContract: 0.08,
-      invincibleTime: 1.8 // Bất tử lâu sau khi trúng đòn
+      invincibleTime: 1.8
     },
     normal: {
       maxHp: 4,
-      dashCooldown: 0.75,
-      spdMult: 1.0, // Chuẩn nhịp gốc 130 BPM
+      dashCooldown: 0.70,
+      spdMult: 1.0, // Chuẩn nhịp 130 BPM
       densityMult: 1.0,
       laserWarnTime: 0.65,
       laserWidth: 16,
@@ -64783,25 +64785,25 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     },
     hard: {
       maxHp: 3,
-      dashCooldown: 0.95,
-      spdMult: 1.35, // Đạn nhanh hơn +35%
-      densityMult: 1.35, // Mật độ đạn dày hơn
-      laserWarnTime: 0.45, // Báo trước laser ngắn
-      laserWidth: 20,
+      dashCooldown: 0.65, // Hồi lướt nhanh hơn để đáp ứng tốc độ cao
+      spdMult: 1.36, // Đạn nhanh hơn +36%
+      densityMult: 2.0, // TĂNG GẤP ĐÔI (2X) SỐ LƯỢNG ĐẠN
+      laserWarnTime: 0.45,
+      laserWidth: 18,
       shockwaveSpd: 180,
-      wallContract: 0.24,
-      invincibleTime: 0.9
+      wallContract: 0.22,
+      invincibleTime: 1.0
     },
     insane: {
-      maxHp: 1, // ONE-HIT KO! Chạm đạn là Game Over ngay lập tức
-      dashCooldown: 1.15,
-      spdMult: 1.65, // Tốc độ đạn cực đại (+65%)
-      densityMult: 1.75, // Mật độ đạn cực dày (+75%)
-      laserWarnTime: 0.30, // Báo trước siêu chớp nhoáng
-      laserWidth: 26,
-      shockwaveSpd: 225,
-      wallContract: 0.30,
-      invincibleTime: 0.5
+      maxHp: 1, // ONE-HIT KO!
+      dashCooldown: 0.55, // Hồi lướt cực nhanh để lướt liên tục qua biển đạn
+      spdMult: 1.75, // Tốc độ đạn cực đại +75%
+      densityMult: 3.0, // TĂNG GẤP 3 (3X) SỐ LƯỢNG ĐẠN DÀY ĐẶC
+      laserWarnTime: 0.32,
+      laserWidth: 22,
+      shockwaveSpd: 220,
+      wallContract: 0.26,
+      invincibleTime: 0.6
     }
   };
 
@@ -65745,15 +65747,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   function spawnOneMinStageAttack(stageIdx, beatStep, arenaW, arenaH) {
     const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
     const speedMult = cfg.spdMult;
+    const countMult = (oneMinDifficulty === "insane") ? 3 : (oneMinDifficulty === "hard" ? 2 : 1);
     const cx = arenaW / 2;
     const cy = arenaH / 2;
 
     switch (stageIdx) {
-      case 0: { // HYDROGEN: 4 Protons & Spinning Energy Shurikens
+      case 0: { // HYDROGEN: 4 -> 8 -> 12 Protons & Energy Shurikens (Chia đều 360 độ)
         if (beatStep % 4 === 0) {
+          const count = 4 * countMult; // 4 (Normal) -> 8 (Hard - 2x) -> 12 (Insane - 3x)
           const baseSpd = 135 * speedMult;
-          for (let i = 0; i < 4; i++) {
-            const angle = (i * Math.PI / 2);
+          for (let i = 0; i < count; i++) {
+            const angle = (i * Math.PI * 2 / count);
             oneMinBullets.push({
               x: cx, y: cy,
               vx: Math.cos(angle) * baseSpd,
@@ -65768,16 +65772,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             });
           }
         } else if (beatStep % 4 === 2) {
+          const count = 4 * countMult;
           const baseSpd = 125 * speedMult;
-          for (let i = 0; i < 4; i++) {
-            const angle = (i * Math.PI / 2) + Math.PI / 4;
+          for (let i = 0; i < count; i++) {
+            const angle = (i * Math.PI * 2 / count) + (Math.PI / count);
             oneMinBullets.push({
               x: cx, y: cy,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
               radius: 8,
-              color: "#ff7744",
-              glow: "#ffaa77",
+              color: "#00e5ff",
+              glow: "#80d8ff",
               shape: "circle",
               rot: 0,
               rotSpeed: 0,
@@ -65787,15 +65792,16 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 1: { // HELIUM: Triple-Alpha Spinning Spiked Buzzsaws
+      case 1: { // HELIUM: Triple-Alpha Buzzsaws (3 -> 6 -> 9 Bánh cưa xoay sắc lạnh chia đều)
         if (beatStep % 3 === 0) {
-          const baseAngle = (beatStep * 0.48);
+          const count = 3 * countMult; // 3 (Normal) -> 6 (Hard - 2x) -> 9 (Insane - 3x)
+          const baseAngle = (beatStep * 0.42);
           const baseSpd = 150 * speedMult;
-          for (let i = 0; i < 3; i++) {
-            const angle = baseAngle + (i * Math.PI * 2 / 3);
+          for (let i = 0; i < count; i++) {
+            const angle = baseAngle + (i * Math.PI * 2 / count);
             oneMinBullets.push({
-              x: cx + Math.cos(angle) * 22,
-              y: cy + Math.sin(angle) * 22,
+              x: cx + Math.cos(angle) * 24,
+              y: cy + Math.sin(angle) * 24,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
               radius: 11,
@@ -65808,36 +65814,43 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               life: 5.5
             });
           }
+          // Thêm đạn phụ Plasma Orbs xoay vệ tinh ở Hard/Insane
+          if (countMult >= 2 && beatStep % 6 === 0) {
+            for (let i = 0; i < 4; i++) {
+              const a = (i * Math.PI / 2) + baseAngle * 0.5;
+              oneMinBullets.push({
+                x: cx, y: cy,
+                vx: Math.cos(a) * (baseSpd * 0.75),
+                vy: Math.sin(a) * (baseSpd * 0.75),
+                radius: 7,
+                color: "#ff3d00",
+                glow: "#ff9100",
+                shape: "circle",
+                life: 5.0
+              });
+            }
+          }
         }
         break;
       }
-      case 2: { // CARBON: Exponential Spirals + Pulsing Hazard Diamonds
-        const angle = beatStep * 0.40;
+      case 2: { // CARBON: Exponential Spirals (2 -> 4 -> 6 Cánh xoắn kim cương) + Tia Laser
+        const spiralCount = (countMult === 3) ? 6 : (countMult === 2 ? 4 : 2);
         const baseSpd = 165 * speedMult;
-        oneMinBullets.push({
-          x: cx, y: cy,
-          vx: Math.cos(angle) * baseSpd,
-          vy: Math.sin(angle) * baseSpd,
-          radius: 8.5,
-          color: "#ffdd44",
-          glow: "#ffff99",
-          shape: "diamond",
-          rot: angle,
-          rotSpeed: 4.0,
-          life: 5.0
-        });
-        oneMinBullets.push({
-          x: cx, y: cy,
-          vx: Math.cos(angle + Math.PI) * baseSpd,
-          vy: Math.sin(angle + Math.PI) * baseSpd,
-          radius: 8.5,
-          color: "#ffdd44",
-          glow: "#ffff99",
-          shape: "diamond",
-          rot: angle + Math.PI,
-          rotSpeed: -4.0,
-          life: 5.0
-        });
+        for (let s = 0; s < spiralCount; s++) {
+          const angle = beatStep * 0.38 + (s * Math.PI * 2 / spiralCount);
+          oneMinBullets.push({
+            x: cx, y: cy,
+            vx: Math.cos(angle) * baseSpd,
+            vy: Math.sin(angle) * baseSpd,
+            radius: 8.5,
+            color: "#ffdd44",
+            glow: "#ffff99",
+            shape: "diamond",
+            rot: angle,
+            rotSpeed: 4.5 * (s % 2 === 0 ? 1 : -1),
+            life: 5.0
+          });
+        }
         if (beatStep % 8 === 0) {
           const sweepY = (beatStep % 16 === 0) ? arenaH * 0.32 : arenaH * 0.68;
           oneMinLasers.push({
@@ -65849,59 +65862,76 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             fireTimer: 0.28,
             color: "#ffdd44"
           });
-        }
-        break;
-      }
-      case 3: { // NEON: Planck Laser Grid with Chevrons & Photon Shards
-        if (beatStep % 8 === 0) {
-          const randCol = 70 + Math.random() * (arenaW - 140);
-          const randRow = 60 + Math.random() * (arenaH - 120);
-          oneMinLasers.push({
-            x1: randCol, y1: 0,
-            x2: randCol, y2: arenaH,
-            width: cfg.laserWidth,
-            state: "warning",
-            warningTimer: cfg.laserWarnTime,
-            fireTimer: 0.32,
-            color: "#44ff66"
-          });
-          oneMinLasers.push({
-            x1: 0, y1: randRow,
-            x2: arenaW, y2: randRow,
-            width: cfg.laserWidth,
-            state: "warning",
-            warningTimer: cfg.laserWarnTime,
-            fireTimer: 0.32,
-            color: "#44ff66"
-          });
-        }
-        if (beatStep % 4 === 0) {
-          for (let i = 0; i < (oneMinDifficulty === "insane" ? 6 : 4); i++) {
-            const a = Math.random() * Math.PI * 2;
-            const spd = 130 * speedMult;
-            oneMinBullets.push({
-              x: cx, y: cy,
-              vx: Math.cos(a) * spd,
-              vy: Math.sin(a) * spd,
-              radius: 7,
-              color: "#33ff88",
-              glow: "#aaffcc",
-              shape: "shuriken",
-              rot: 0,
-              rotSpeed: 6.0,
-              life: 4.5
+          // Ở Insane thêm laser dọc quét vuông góc
+          if (countMult >= 2) {
+            const sweepX = (beatStep % 16 === 0) ? arenaW * 0.35 : arenaW * 0.65;
+            oneMinLasers.push({
+              x1: sweepX, y1: 0,
+              x2: sweepX, y2: arenaH,
+              width: cfg.laserWidth * 0.9,
+              state: "warning",
+              warningTimer: cfg.laserWarnTime + 0.15,
+              fireTimer: 0.28,
+              color: "#ffdd44"
             });
           }
         }
         break;
       }
-      case 4: { // OXYGEN: High-Velocity Neutrino Darts with Safe Lanes
+      case 3: { // NEON: Laser Grid + Phi tiêu Shuriken (4 -> 8 -> 12 tia chia đều)
+        if (beatStep % 8 === 0) {
+          const gridCount = countMult >= 2 ? 2 : 1;
+          for (let g = 0; g < gridCount; g++) {
+            const randCol = 70 + (g + 0.5) * ((arenaW - 140) / gridCount);
+            const randRow = 60 + (g + 0.5) * ((arenaH - 120) / gridCount);
+            oneMinLasers.push({
+              x1: randCol, y1: 0,
+              x2: randCol, y2: arenaH,
+              width: cfg.laserWidth,
+              state: "warning",
+              warningTimer: cfg.laserWarnTime,
+              fireTimer: 0.32,
+              color: "#44ff66"
+            });
+            oneMinLasers.push({
+              x1: 0, y1: randRow,
+              x2: arenaW, y2: randRow,
+              width: cfg.laserWidth,
+              state: "warning",
+              warningTimer: cfg.laserWarnTime,
+              fireTimer: 0.32,
+              color: "#44ff66"
+            });
+          }
+        }
         if (beatStep % 4 === 0) {
-          const laneCount = oneMinDifficulty === "insane" ? 8 : 6;
-          const safeLane = Math.floor(Math.random() * (laneCount - 1));
+          const count = 4 * countMult; // 4 -> 8 -> 12
+          const spd = 135 * speedMult;
+          for (let i = 0; i < count; i++) {
+            const a = (i * Math.PI * 2 / count) + (beatStep * 0.15);
+            oneMinBullets.push({
+              x: cx, y: cy,
+              vx: Math.cos(a) * spd,
+              vy: Math.sin(a) * spd,
+              radius: 7.5,
+              color: "#33ff88",
+              glow: "#aaffcc",
+              shape: "shuriken",
+              rot: a,
+              rotSpeed: 6.0,
+              life: 4.8
+            });
+          }
+        }
+        break;
+      }
+      case 4: { // OXYGEN: Neutrino Darts Mũi tên Plasma (6 -> 10 -> 14 làn đạn)
+        if (beatStep % 4 === 0) {
+          const laneCount = (countMult === 3) ? 14 : (countMult === 2 ? 10 : 6);
+          const safeLane = Math.floor(Math.random() * (laneCount - 2)) + 1;
           const laneWidth = arenaW / laneCount;
           for (let l = 0; l < laneCount; l++) {
-            if (l === safeLane || (oneMinDifficulty !== "insane" && l === safeLane + 1)) continue;
+            if (l === safeLane || (countMult < 3 && l === safeLane + 1)) continue;
             const lx = l * laneWidth + laneWidth / 2;
             oneMinBullets.push({
               x: lx, y: 10,
@@ -65916,15 +65946,40 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               life: 3.5
             });
           }
+          // Ở Insane/Hard thêm mưa phi đạn bắn chéo từ góc
+          if (countMult >= 2 && beatStep % 8 === 0) {
+            const crossSpd = 180 * speedMult;
+            oneMinBullets.push({
+              x: 10, y: 10,
+              vx: crossSpd, vy: crossSpd * 0.6,
+              radius: 8,
+              color: "#00e5ff",
+              glow: "#ffffff",
+              shape: "needle",
+              rot: Math.atan2(crossSpd * 0.6, crossSpd),
+              life: 4.0
+            });
+            oneMinBullets.push({
+              x: arenaW - 10, y: 10,
+              vx: -crossSpd, vy: crossSpd * 0.6,
+              radius: 8,
+              color: "#00e5ff",
+              glow: "#ffffff",
+              shape: "needle",
+              rot: Math.atan2(crossSpd * 0.6, -crossSpd),
+              life: 4.0
+            });
+          }
         }
         break;
       }
-      case 5: { // SILICON: 8-Step Alpha Ladder Pulsing Starbursts
+      case 5: { // SILICON: 8-Step Alpha Ladder (8 -> 16 -> 24 Hoa sao Starburst)
         if (beatStep % 4 === 0) {
+          const count = 8 * (countMult === 3 ? 3 : (countMult === 2 ? 2 : 1)); // 8 -> 16 -> 24
           const stepOffset = (beatStep % 8) * (Math.PI / 8);
           const baseSpd = 155 * speedMult;
-          for (let i = 0; i < 8; i++) {
-            const angle = stepOffset + (i * Math.PI / 4);
+          for (let i = 0; i < count; i++) {
+            const angle = stepOffset + (i * Math.PI * 2 / count);
             oneMinBullets.push({
               x: cx, y: cy,
               vx: Math.cos(angle) * baseSpd,
@@ -65941,97 +65996,105 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 6: { // IRON: Heavy Anvil Saws Slam + Notched Soundwave Rings
+      case 6: { // IRON: Heavy Anvil Saws Slam (1 -> 2 -> 3 Cưa sắt khổng lồ + Mảnh đạn vỡ)
         if (beatStep % 6 === 0) {
-          const targetX = 70 + Math.random() * (arenaW - 140);
-          const targetY = 60 + Math.random() * (arenaH - 120);
-          oneMinBullets.push({
-            x: targetX, y: -20,
-            vx: 0, vy: 340 * speedMult,
-            radius: 14,
-            color: "#e2e8f0",
-            glow: "#ffffff",
-            shape: "saw",
-            teeth: 10,
-            rot: 0,
-            rotSpeed: 10.0,
-            life: 2.2
-          });
-          oneMinShockwaves.push({
-            cx: targetX,
-            cy: targetY,
-            radius: 10,
-            maxRadius: 185,
-            speed: cfg.shockwaveSpd,
-            thickness: 9,
-            color: "#e2e8f0",
-            alpha: 1.0
-          });
+          const sawDrops = countMult; // 1 -> 2 -> 3
+          for (let s = 0; s < sawDrops; s++) {
+            const targetX = 70 + (s + 0.5) * ((arenaW - 140) / sawDrops);
+            const targetY = 60 + Math.random() * (arenaH - 120);
+            oneMinBullets.push({
+              x: targetX, y: -20,
+              vx: 0, vy: 340 * speedMult,
+              radius: 14,
+              color: "#e2e8f0",
+              glow: "#ffffff",
+              shape: "saw",
+              teeth: 10,
+              rot: 0,
+              rotSpeed: 10.0,
+              life: 2.2
+            });
+            oneMinShockwaves.push({
+              cx: targetX,
+              cy: targetY,
+              radius: 10,
+              maxRadius: 170,
+              speed: cfg.shockwaveSpd,
+              thickness: 7,
+              color: "#e2e8f0",
+              alpha: 0.95
+            });
+          }
           screenShake = 18;
         }
         break;
       }
-      case 7: { // CHANDRASEKHAR: Border Compression & Inward Spikes
+      case 7: { // CHANDRASEKHAR: Border Compression & Inward Spikes (1 -> 2 -> 3 Chông biên đồng thời)
         oneMinWallContractFrac = cfg.wallContract;
         if (beatStep % 3 === 0) {
-          const side = Math.floor(Math.random() * 4);
-          let sx = 0, sy = 0, angle = 0;
-          const leftBound = arenaW * oneMinWallContractFrac;
-          const rightBound = arenaW * (1 - oneMinWallContractFrac);
-          const topBound = arenaH * oneMinWallContractFrac;
-          const botBound = arenaH * (1 - oneMinWallContractFrac);
+          const spikeCount = countMult; // 1 -> 2 -> 3
+          for (let sc = 0; sc < spikeCount; sc++) {
+            const side = (Math.floor(Math.random() * 4) + sc) % 4;
+            let sx = 0, sy = 0, angle = 0;
+            const leftBound = arenaW * oneMinWallContractFrac;
+            const rightBound = arenaW * (1 - oneMinWallContractFrac);
+            const topBound = arenaH * oneMinWallContractFrac;
+            const botBound = arenaH * (1 - oneMinWallContractFrac);
 
-          // Đạn sinh ra bên ngoài mép tường 24px để bay vào trong đấu trường, không sinh đè lên thân giun
-          if (side === 0) { sx = leftBound - 24; sy = topBound + Math.random() * (botBound - topBound); angle = 0; }
-          else if (side === 1) { sx = rightBound + 24; sy = topBound + Math.random() * (botBound - topBound); angle = Math.PI; }
-          else if (side === 2) { sx = leftBound + Math.random() * (rightBound - leftBound); sy = topBound - 24; angle = Math.PI / 2; }
-          else { sx = leftBound + Math.random() * (rightBound - leftBound); sy = botBound + 24; angle = -Math.PI / 2; }
+            if (side === 0) { sx = leftBound - 24; sy = topBound + Math.random() * (botBound - topBound); angle = 0; }
+            else if (side === 1) { sx = rightBound + 24; sy = topBound + Math.random() * (botBound - topBound); angle = Math.PI; }
+            else if (side === 2) { sx = leftBound + Math.random() * (rightBound - leftBound); sy = topBound - 24; angle = Math.PI / 2; }
+            else { sx = leftBound + Math.random() * (rightBound - leftBound); sy = botBound + 24; angle = -Math.PI / 2; }
 
-          const spd = 180 * speedMult;
-          oneMinBullets.push({
-            x: sx, y: sy,
-            vx: Math.cos(angle) * spd,
-            vy: Math.sin(angle) * spd,
-            radius: 8.5,
-            color: "#ff4433",
-            glow: "#ff8877",
-            shape: "shuriken",
-            rot: 0,
-            rotSpeed: 7.0,
-            life: 4.5
-          });
+            const spd = 180 * speedMult;
+            oneMinBullets.push({
+              x: sx, y: sy,
+              vx: Math.cos(angle) * spd,
+              vy: Math.sin(angle) * spd,
+              radius: 8.5,
+              color: "#ff1744",
+              glow: "#ff8877",
+              shape: "shuriken",
+              rot: 0,
+              rotSpeed: 7.0,
+              life: 4.5
+            });
+          }
         }
         break;
       }
-      case 8: { // COLLAPSE: Singularity Whirlpool Suction into Black Hole
+      case 8: { // COLLAPSE: Singularity Whirlpool Suction (1 -> 2 -> 3 Đạn xoáy bồi tụ bão tố)
         oneMinWallContractFrac = cfg.wallContract * 0.45;
         if (beatStep % 2 === 0) {
-          const edgeAngle = Math.random() * Math.PI * 2;
-          const edgeDist = Math.max(arenaW, arenaH) * 0.48;
-          const spawnX = cx + Math.cos(edgeAngle) * edgeDist;
-          const spawnY = cy + Math.sin(edgeAngle) * edgeDist;
-          const tangentAngle = edgeAngle + Math.PI / 2 + 0.32;
-          const spd = 165 * speedMult;
-          oneMinBullets.push({
-            x: spawnX, y: spawnY,
-            vx: Math.cos(tangentAngle) * spd,
-            vy: Math.sin(tangentAngle) * spd,
-            radius: 7.5,
-            color: "#ffffff",
-            glow: "#99ccff",
-            shape: "circle",
-            isWhirlpool: true,
-            rot: 0,
-            rotSpeed: 0,
-            life: 6.0
-          });
+          const orbCount = countMult; // 1 -> 2 -> 3
+          for (let oc = 0; oc < orbCount; oc++) {
+            const edgeAngle = Math.random() * Math.PI * 2;
+            const edgeDist = Math.max(arenaW, arenaH) * 0.48;
+            const spawnX = cx + Math.cos(edgeAngle) * edgeDist;
+            const spawnY = cy + Math.sin(edgeAngle) * edgeDist;
+            const tangentAngle = edgeAngle + Math.PI / 2 + 0.32;
+            const spd = 165 * speedMult;
+            oneMinBullets.push({
+              x: spawnX, y: spawnY,
+              vx: Math.cos(tangentAngle) * spd,
+              vy: Math.sin(tangentAngle) * spd,
+              radius: 8.0,
+              color: (oc === 0) ? "#ffffff" : (oc === 1 ? "#00e5ff" : "#e040fb"),
+              glow: "#99ccff",
+              shape: "circle",
+              isWhirlpool: true,
+              rot: 0,
+              rotSpeed: 0,
+              life: 6.0
+            });
+          }
         }
         break;
       }
-      case 9: { // SUPERNOVA: Climax Blast Waves & Full Rainbow Petal Cascade
+      case 9: { // SUPERNOVA: Rainbow Petal Cascade (16 -> 32 -> 48 Cánh hoa cầu vồng đại phát nổ)
         oneMinWallContractFrac = 0;
         if (beatStep % 4 === 0) {
-          const count = oneMinDifficulty === "easy" ? 10 : oneMinDifficulty === "insane" ? 20 : 14;
+          const count = (oneMinDifficulty === "easy") ? 10 : (16 * countMult); // 16 (Normal) -> 32 (Hard - 2x) -> 48 (Insane - 3x)
           const baseSpd = 170 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = (i * Math.PI * 2 / count) + (beatStep * 0.22);
@@ -66046,7 +66109,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               rot: angle,
               rotSpeed: 8.0,
               life: 5.0,
-              spawnGrace: 0.25 // Độ trễ an toàn 0.25s khi đạn mới phóng ra từ tâm
+              spawnGrace: 0.25
             });
           }
           oneMinShockwaves.push({
@@ -66055,9 +66118,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             radius: 14,
             maxRadius: Math.max(arenaW, arenaH) * 0.72,
             speed: cfg.shockwaveSpd * 1.3,
-            thickness: 10,
+            thickness: 8,
             color: "#ff3366",
-            alpha: 0.95
+            alpha: 0.90
           });
         }
         break;
@@ -66559,34 +66622,207 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.restore();
     }
 
-    // 3. THE EVOLVING STAR - TỐI GIẢN & THOÁNG ĐÃNG (ĐÃ BỎ Ô XANH TRÒN VÀ VỎ CẦU CHOÁN MÀN HÌNH)
+    // 3. THE EVOLVING STELLAR CORE - Ô TRÒN VŨ TRỤ TRUNG TÂM ĐA DẠNG SẮC THÁI QUA TỪNG MÀN CHƠI
     targetCtx.save();
-    const starMaxR = Math.min(gw, gh) * 0.36;
+    const starMaxR = Math.min(gw, gh) * 0.35;
     const pulseT = oneMinIdlePhase * 1.5;
 
-    if (oneMinStageIdx >= 8) {
-      if (oneMinStageIdx === 8) {
-        // Hố đen nén hạch nhỏ tinh tế ở tâm
-        const inR = 14 + Math.sin(pulseT * 6) * 3;
-        targetCtx.fillStyle = "#000000";
+    if (oneMinStageIdx < 8) {
+      // Cấu trúc hạch sao đa dạng theo 8 giai đoạn phân rã hạt nhân (Hydrogen -> Iron -> Chandrasekhar)
+      const stageStarStyles = [
+        { color: "#00e5ff", glow: "#33f6ff", coreColor: "#ffffff", rings: 2, ringColor: "rgba(0, 229, 255, 0.18)", flareCount: 4, name: "HYDROGEN" },
+        { color: "#ff8800", glow: "#ffaa33", coreColor: "#fff3e0", rings: 3, ringColor: "rgba(255, 136, 0, 0.20)", flareCount: 6, name: "HELIUM" },
+        { color: "#ffdd00", glow: "#ffee55", coreColor: "#ffffff", rings: 2, ringColor: "rgba(255, 221, 0, 0.22)", flareCount: 6, name: "CARBON" },
+        { color: "#00e676", glow: "#69f0ae", coreColor: "#e8f5e9", rings: 3, ringColor: "rgba(0, 230, 118, 0.22)", flareCount: 8, name: "NEON" },
+        { color: "#00b0ff", glow: "#40c4ff", coreColor: "#ffffff", rings: 2, ringColor: "rgba(0, 176, 255, 0.22)", flareCount: 6, name: "OXYGEN" },
+        { color: "#b388ff", glow: "#d1c4e9", coreColor: "#f3e5f5", rings: 3, ringColor: "rgba(179, 136, 255, 0.24)", flareCount: 8, name: "SILICON" },
+        { color: "#ff1744", glow: "#ff5252", coreColor: "#ffffff", rings: 3, ringColor: "rgba(255, 23, 68, 0.28)", flareCount: 10, name: "IRON" },
+        { color: "#ff0055", glow: "#ffffff", coreColor: "#ffffff", rings: 4, ringColor: "rgba(255, 0, 85, 0.35)", flareCount: 12, name: "CHANDRASEKHAR" }
+      ];
+      const curStyle = stageStarStyles[oneMinStageIdx] || stageStarStyles[0];
+
+      // A. Vành hào quang đồng tâm bán trong suốt (Semi-transparent Aura Ring)
+      const auraPulse = Math.sin(pulseT * 3.2) * 5;
+      const coreR = 38 + auraPulse;
+
+      if (!isGfxUltraLow) {
+        const auraGrad = targetCtx.createRadialGradient(cx, cy, coreR * 0.2, cx, cy, coreR * 1.8);
+        auraGrad.addColorStop(0, curStyle.coreColor);
+        auraGrad.addColorStop(0.35, curStyle.color + "55");
+        auraGrad.addColorStop(0.75, curStyle.color + "18");
+        auraGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        targetCtx.fillStyle = auraGrad;
         targetCtx.beginPath();
-        targetCtx.arc(cx, cy, inR, 0, Math.PI * 2);
-        targetCtx.fill();
-        targetCtx.strokeStyle = "#ff0055";
-        targetCtx.lineWidth = 2.5;
-        targetCtx.stroke();
-      } else {
-        // Stage 9: Vệt sáng Supernova nhẹ nhàng
-        const expandR = starMaxR * (0.35 + oneMinStageProgress * 0.8);
-        const supernovaGrad = targetCtx.createRadialGradient(cx, cy, 2, cx, cy, expandR);
-        supernovaGrad.addColorStop(0, "rgba(255, 255, 255, 0.7)");
-        supernovaGrad.addColorStop(0.35, "rgba(255, 0, 127, 0.25)");
-        supernovaGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        targetCtx.fillStyle = supernovaGrad;
-        targetCtx.beginPath();
-        targetCtx.arc(cx, cy, expandR, 0, Math.PI * 2);
+        targetCtx.arc(cx, cy, coreR * 1.8, 0, Math.PI * 2);
         targetCtx.fill();
       }
+
+      // B. Các vòng quỹ đạo đồng tâm thanh mảnh tinh tế
+      for (let r = 1; r <= curStyle.rings; r++) {
+        const ringRad = coreR + r * 28 + Math.sin(pulseT * 2 + r) * 3;
+        targetCtx.strokeStyle = curStyle.ringColor;
+        targetCtx.lineWidth = 1.4;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, ringRad, 0, Math.PI * 2);
+        targetCtx.stroke();
+
+        // Điểm hạt năng lượng chuyển động trên vòng
+        const orbAngle = pulseT * (1.2 / r) + (r * Math.PI / 3);
+        targetCtx.fillStyle = curStyle.glow;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy + ringRad, 2.5, 0, Math.PI * 2);
+        targetCtx.fill();
+      }
+
+      // C. Lõi sao sáng trung tâm (Evolving Stellar Nucleus)
+      targetCtx.strokeStyle = curStyle.color;
+      targetCtx.lineWidth = 2.4;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = curStyle.glow;
+        targetCtx.shadowBlur = 18;
+      }
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, coreR, 0, Math.PI * 2);
+      targetCtx.stroke();
+
+      // D. Các tia lửa bức xạ nhật hoa xoay tròn (Rotating Solar Corona Prominences)
+      if (!isGfxUltraLow) {
+        const fCount = curStyle.flareCount;
+        targetCtx.strokeStyle = curStyle.glow + "99";
+        targetCtx.lineWidth = 2.0;
+        for (let f = 0; f < fCount; f++) {
+          const a = (f / fCount) * Math.PI * 2 + pulseT * 0.4;
+          const fLen = 14 + Math.sin(pulseT * 4 + f * 1.8) * 8;
+          targetCtx.beginPath();
+          targetCtx.moveTo(cx + Math.cos(a) * coreR, cy + Math.sin(a) * coreR);
+          targetCtx.lineTo(cx + Math.cos(a) * (coreR + fLen), cy + Math.sin(a) * (coreR + fLen));
+          targetCtx.stroke();
+        }
+      }
+    } else if (oneMinStageIdx === 8) {
+      // =========================================================================
+      // MÀN 9: HỐ TRẮNG SIÊU KHỔNG LỒ SỤP ĐỔ (CORE COLLAPSE SINGULARITY) CỰC KỲ ẤN TƯỢNG
+      // =========================================================================
+      const vortexTime = performance.now() * 0.0035;
+
+      // 1. Vùng không thời gian biến dạng xoáy ốc (Swirling Inward Space-Time Grid)
+      const suctionR = starMaxR * 1.35;
+      if (!isGfxUltraLow) {
+        const suctionGrad = targetCtx.createRadialGradient(cx, cy, 10, cx, cy, suctionR);
+        suctionGrad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+        suctionGrad.addColorStop(0.18, "rgba(128, 216, 255, 0.45)");
+        suctionGrad.addColorStop(0.50, "rgba(224, 64, 251, 0.20)");
+        suctionGrad.addColorStop(0.85, "rgba(0, 229, 255, 0.08)");
+        suctionGrad.addColorStop(1.0, "rgba(0, 0, 0, 0)");
+        targetCtx.fillStyle = suctionGrad;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, suctionR, 0, Math.PI * 2);
+        targetCtx.fill();
+      }
+
+      // 2. 8 cánh xoắn ốc bồi tụ năng lượng (8 Spiral Accretion Arms) cuộn tròn hút vào tâm
+      const armCount = isGfxLow ? 4 : 8;
+      targetCtx.lineWidth = 2.2;
+      for (let a = 0; a < armCount; a++) {
+        const baseAngle = (a / armCount) * Math.PI * 2 - vortexTime * 2.2;
+        targetCtx.strokeStyle = (a % 2 === 0) ? "rgba(255, 255, 255, 0.75)" : "rgba(0, 229, 255, 0.65)";
+        targetCtx.beginPath();
+        for (let step = 0; step < 24; step++) {
+          const t = step / 24;
+          const r = suctionR * (1 - t * 0.92);
+          const spiralAngle = baseAngle + t * 2.8;
+          const px = cx + Math.cos(spiralAngle) * r;
+          const py = cy + Math.sin(spiralAngle) * r;
+          if (step === 0) targetCtx.moveTo(px, py); else targetCtx.lineTo(px, py);
+        }
+        targetCtx.stroke();
+      }
+
+      // 3. Các vòng Event Horizon chấn động co rút dồn dập
+      for (let ring = 1; ring <= 3; ring++) {
+        const rRad = ((vortexTime * 60 + ring * 45) % (suctionR * 0.75));
+        const alpha = Math.max(0, 1 - rRad / (suctionR * 0.75));
+        targetCtx.strokeStyle = `rgba(179, 136, 255, ${alpha * 0.7})`;
+        targetCtx.lineWidth = 2.0;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, Math.max(12, rRad), 0, Math.PI * 2);
+        targetCtx.stroke();
+      }
+
+      // 4. Lõi Hố Trắng cực quang sáng lóa chói mắt (Blinding Pure-White Core)
+      const whiteHoleR = 26 + Math.sin(vortexTime * 14) * 5;
+      targetCtx.fillStyle = "#ffffff";
+      if (isGfxHigh) {
+        targetCtx.shadowColor = "#00e5ff";
+        targetCtx.shadowBlur = 36;
+      }
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, whiteHoleR, 0, Math.PI * 2);
+      targetCtx.fill();
+
+      // Vành quang sai sắc ký tím/hồng bọc ngoài lõi trắng
+      targetCtx.strokeStyle = "#e040fb";
+      targetCtx.lineWidth = 3.5;
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, whiteHoleR + 4, 0, Math.PI * 2);
+      targetCtx.stroke();
+
+      // 5. Luồng phản lực chuẩn tinh (Relativistic Polar Jets) phóng xuyên không gian
+      const jetLen = suctionR * 0.95;
+      const jetAngle = pulseT * 0.8;
+      targetCtx.strokeStyle = "rgba(0, 229, 255, 0.85)";
+      targetCtx.lineWidth = 3.0;
+      targetCtx.beginPath();
+      targetCtx.moveTo(cx - Math.cos(jetAngle) * jetLen, cy - Math.sin(jetAngle) * jetLen);
+      targetCtx.lineTo(cx + Math.cos(jetAngle) * jetLen, cy + Math.sin(jetAngle) * jetLen);
+      targetCtx.stroke();
+
+    } else {
+      // =========================================================================
+      // MÀN 10: SUPERNOVA TOÀN CẢNH PHÁT NỔ CẦU VỒNG HOÀNH TRÁNG
+      // =========================================================================
+      const waveProg = Math.min(1.0, oneMinStageProgress);
+      const blastR = (gw * 0.72) * Math.pow(Math.max(0.04, waveProg), 0.40);
+
+      // Tinh vân tàn dư Supernova đa sắc cầu vồng
+      if (!isGfxUltraLow) {
+        const nebulaGrad = targetCtx.createRadialGradient(cx, cy, blastR * 0.15, cx, cy, blastR);
+        nebulaGrad.addColorStop(0, "rgba(255, 255, 255, 0.65)");
+        nebulaGrad.addColorStop(0.25, "rgba(224, 64, 251, 0.35)");
+        nebulaGrad.addColorStop(0.55, "rgba(0, 229, 255, 0.28)");
+        nebulaGrad.addColorStop(0.85, "rgba(255, 171, 0, 0.22)");
+        nebulaGrad.addColorStop(1.0, "rgba(124, 77, 255, 0.0)");
+        targetCtx.fillStyle = nebulaGrad;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, blastR, 0, Math.PI * 2);
+        targetCtx.fill();
+      }
+
+      // Vòng sóng xung kích tương đối tính sáng rực
+      targetCtx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+      targetCtx.lineWidth = 3.5;
+      if (isGfxHigh) {
+        targetCtx.shadowColor = "#ffffff";
+        targetCtx.shadowBlur = 24;
+      }
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, blastR, 0, Math.PI * 2);
+      targetCtx.stroke();
+
+      // Sao Neutron Pulsar xoay tít ở tâm
+      const jetAngle = pulseT * 3.2;
+      const jetLen = 95;
+      targetCtx.strokeStyle = "#00e5ff";
+      targetCtx.lineWidth = 3.2;
+      targetCtx.beginPath();
+      targetCtx.moveTo(cx - Math.cos(jetAngle) * jetLen, cy - Math.sin(jetAngle) * jetLen);
+      targetCtx.lineTo(cx + Math.cos(jetAngle) * jetLen, cy + Math.sin(jetAngle) * jetLen);
+      targetCtx.stroke();
+
+      targetCtx.fillStyle = "#ffffff";
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, 18, 0, Math.PI * 2);
+      targetCtx.fill();
     }
     targetCtx.restore();
 
@@ -66716,6 +66952,20 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         targetCtx.shadowBlur = 10;
       } else {
         targetCtx.shadowBlur = 0;
+      }
+
+      // Vệt đuôi chuyển động năng lượng siêu bắt mắt (Flashy Energy Slipstream Wake)
+      if (b.vx !== 0 || b.vy !== 0) {
+        const tailLen = Math.min(18, Math.hypot(b.vx, b.vy) * 0.08);
+        const tailAngle = Math.atan2(b.vy, b.vx) + Math.PI;
+        targetCtx.strokeStyle = b.glow || b.color;
+        targetCtx.lineWidth = b.radius * 0.65;
+        targetCtx.globalAlpha = 0.45;
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, 0);
+        targetCtx.lineTo(Math.cos(tailAngle) * tailLen, Math.sin(tailAngle) * tailLen);
+        targetCtx.stroke();
+        targetCtx.globalAlpha = 1.0;
       }
 
       if (b.shape === "saw") {
