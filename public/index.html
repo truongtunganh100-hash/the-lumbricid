@@ -19165,7 +19165,8 @@
 
     let renderScale = 1;
     let isDarkNightMode = false;
-    let isOneMinMode = false; // khai báo sớm vì applyCanvasResolution() dùng khi khởi động
+    let isOneMinMode = false;
+  let wasOneMinMode = false; // khai báo sớm vì applyCanvasResolution() dùng khi khởi động
     const INFINITE_MAP_VIEW_COLS = 83;
     const INFINITE_MAP_VIEW_ROWS = 47;
     let isInfiniteMapMode = false; // khai báo sớm cùng lý do như isDarkNightMode ở trên
@@ -44525,6 +44526,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       goOverlay.style.opacity = "0";
       setTimeout(() => {
         goOverlay.style.display = "none";
+        if (typeof wasOneMinMode !== "undefined" && wasOneMinMode) {
+          startOneMinMode();
+          return;
+        }
         resetAllStats();
         resetGame(false); // Luôn reset hoàn toàn từ đầu ván chơi mới
         showMobileActionBtns(true);
@@ -44551,6 +44556,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     function returnToMainMenu() {
+      wasOneMinMode = false;
       if (isOneMinMode) {
         isOneMinMode = false;
         if (typeof stopOneMinMode === "function") stopOneMinMode();
@@ -48625,6 +48631,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       let finalCalculatedSpeed = currentBaseSpeed * transitionSlowFactor;
       if (worm.isImmobilized) finalCalculatedSpeed = 0;
       if (isOneMinMode) {
+        while (worm.body && worm.body.length > 3) worm.body.pop();
         if (oneMinDashTimer > 0) {
           finalCalculatedSpeed = 38;
         } else {
@@ -65418,30 +65425,73 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     if (!isOneMinMode || isMenuMode || gameOver || gameWin || isPaused) return;
     if (oneMinDashCooldown > 0) return;
     oneMinDashCooldown = oneMinDashCooldownMax;
-    oneMinDashTimer = 0.22;
-    screenShake = 24;
+    oneMinDashTimer = 0.32;
+    // Kích hoạt toàn bộ hiệu ứng lướt chuẩn như chế độ mặc định (zoom camera, punch FOV, bóng ma cyan/magenta)
+    dashPunchTimer = DASH_PUNCH_DURATION;
+    dashPunchDir = { x: worm.dir.x || 1, y: worm.dir.y || 0 };
+    screenShake = Math.max(screenShake, 22);
     playSound("crazy");
 
     if (worm.body) {
       oneMinDashAfterimages.push({
         segments: worm.body.map(s => ({ x: s.x, y: s.y })),
-        alpha: 0.9,
+        alpha: 0.95,
         color: "#00e5ff"
       });
     }
   }
 
   function oneMinTakeDamage() {
-    if (oneMinDashTimer > 0 || oneMinInvincibleTimer > 0) return;
+    if (oneMinDashTimer > 0 || dashPunchTimer > 0 || oneMinInvincibleTimer > 0) return;
     oneMinHp -= 1;
     const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
     oneMinInvincibleTimer = cfg.invincibleTime;
     screenShake = 36;
     playSound("explode");
     if (oneMinHp <= 0) {
-      stopOneMinMode();
-      triggerGameOver();
+      wasOneMinMode = true;
+      triggerOneMinGameOver();
     }
+  }
+
+  function triggerOneMinGameOver() {
+    wasOneMinMode = true;
+    gameOver = true;
+    screenShake = 55;
+    playSound("gameover");
+    stopOneMinMode();
+    wasOneMinMode = true; // Preserve flag after stopOneMinMode
+
+    const reviveBtn = document.getElementById("btn-revive");
+    if (reviveBtn) {
+      reviveBtn.textContent = "⚡ HỒI SINH & CHƠI LẠI (1 MINS) ⚡";
+    }
+    const goTitleEl = document.getElementById("go-title");
+    if (goTitleEl) {
+      goTitleEl.textContent = "💀 THẤT BẠI - BỊ ĐẠN HỦY DIỆT 💀";
+    }
+    const diffStat = document.getElementById("stat-difficulty");
+    if (diffStat) {
+      diffStat.textContent = `1 MINS (${oneMinDifficulty.toUpperCase()})`;
+      diffStat.style.color = "#ff3366";
+    }
+    const timeStat = document.getElementById("stat-time");
+    if (timeStat) {
+      timeStat.textContent = `${oneMinPlayTime.toFixed(1)}s / 67.0s`;
+    }
+    const heightStat = document.getElementById("stat-height");
+    if (heightStat) {
+      heightStat.textContent = `Màn ${oneMinStageIdx + 1}/10`;
+    }
+
+    setTimeout(() => {
+      if (gameOver) {
+        goOverlay.style.display = "flex";
+        setTimeout(() => {
+          goOverlay.style.opacity = "1";
+        }, 50);
+      }
+    }, 400);
   }
 
   function triggerOneMinVictory() {
@@ -65537,12 +65587,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     // Initial worm setup: centered compact body, active crawling velocity right from start
     const midX = Math.floor(cols / 2);
     const midY = Math.floor(rows / 2);
+    // Chiều dài giun cố định chuẩn xác chỉ có 3 đốt (đầu, thân, đuôi)
     worm.body = [
       { x: midX, y: midY },
       { x: midX - 1, y: midY },
-      { x: midX - 2, y: midY },
-      { x: midX - 3, y: midY },
-      { x: midX - 4, y: midY }
+      { x: midX - 2, y: midY }
     ];
     hasStartedMoving = true;
     worm.dir = { x: 1, y: 0 };
@@ -66274,10 +66323,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
 
         if (hit) {
-          if (oneMinDashTimer > 0 || oneMinInvincibleTimer > 0) {
-            spawnOneMinGrazeSpark(b.x, b.y, "#00e5ff", 6);
-            oneMinBullets.splice(i, 1);
-            continue;
+          if (oneMinDashTimer > 0 || dashPunchTimer > 0 || oneMinInvincibleTimer > 0) {
+            // Lướt né đạn chuẩn xác: XUYÊN QUA ĐẠN MÀ KHÔNG PHÁ ĐẠN
+            spawnOneMinGrazeSpark(b.x, b.y, "#00e5ff", 4);
+            // Đạn không bị xóa, tiếp tục bay bình thường
           } else {
             oneMinTakeDamage();
             oneMinBullets.splice(i, 1);
@@ -66782,53 +66831,38 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.restore();
     });
 
-    // 10. Worm Character Rendering
+    // 10. Worm Character Rendering - DÙNG HỆ THỐNG RENDER GIUN VÀ TRANG PHỤC MẶC ĐỊNH
     if (worm && worm.body && worm.body.length > 0) {
       targetCtx.save();
       const isInv = (oneMinInvincibleTimer > 0);
-      const isDashing = (oneMinDashTimer > 0);
       const isBerserk = (oneMinSpeedBoostTimer > 0);
+      const isDashing = (oneMinDashTimer > 0 || dashPunchTimer > 0);
 
-      worm.body.forEach((seg, idx) => {
-        const isHead = (idx === 0);
-        const px = seg.x * gridSize;
-        const py = seg.y * gridSize;
+      // Render giun chuẩn xác 100% với Skin đã chọn, hiệu ứng mắt, vảy, màu sắc, bóng ma
+      drawWormBody(
+        targetCtx,
+        worm.body,
+        selectedSkin,
+        worm.isShielded || isInv,
+        worm.isCrazy || isBerserk,
+        worm.sizeScale || 1,
+        false,
+        prevWormBody,
+        lastTimePerGrid > 0 ? moveCounter / lastTimePerGrid : 1,
+        worm.dir.x !== 0 || worm.dir.y !== 0
+      );
 
-        if (isInv && Math.floor(Date.now() / 80) % 2 === 0) {
-          targetCtx.fillStyle = "rgba(255, 255, 255, 0.4)";
-        } else if (isDashing) {
-          targetCtx.fillStyle = "#ffffff";
-          if (isGfxHigh) {
-            targetCtx.shadowColor = "#00e5ff";
-            targetCtx.shadowBlur = 18;
-          }
-        } else if (isBerserk) {
-          targetCtx.fillStyle = isHead ? "#ff1744" : "#ff5252";
-          if (isGfxHigh) {
-            targetCtx.shadowColor = "#ff1744";
-            targetCtx.shadowBlur = 14;
-          }
-        } else {
-          targetCtx.fillStyle = isHead ? "#00e5ff" : "#00838f";
-        }
-
-        targetCtx.fillRect(px + 2, py + 2, gridSize - 4, gridSize - 4);
-
-        if (isHead) {
-          targetCtx.fillStyle = "#ffffff";
-          const eyeOffX = oneMinFacingDir.x * 3;
-          const eyeOffY = oneMinFacingDir.y * 3;
-          targetCtx.fillRect(px + gridSize / 2 - 3 + eyeOffX, py + gridSize / 2 - 3 + eyeOffY, 6, 6);
-        }
-      });
-
-      // Invincible Shield Bubble (when active)
-      if (worm.isShielded || oneMinInvincibleTimer > 0) {
+      // Hiệu ứng khiên bảo vệ phát quang khi có bất tử
+      if (worm.isShielded || isInv) {
         const h = worm.body[0];
         targetCtx.strokeStyle = "#00e5ff";
-        targetCtx.lineWidth = 2.0;
+        targetCtx.lineWidth = 2.4;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = "#00e5ff";
+          targetCtx.shadowBlur = 18;
+        }
         targetCtx.beginPath();
-        targetCtx.arc((h.x + 0.5) * gridSize, (h.y + 0.5) * gridSize, gridSize * 1.25, 0, Math.PI * 2);
+        targetCtx.arc((h.x + 0.5) * gridSize, (h.y + 0.5) * gridSize, gridSize * 1.35, 0, Math.PI * 2);
         targetCtx.stroke();
       }
       targetCtx.restore();
@@ -66996,33 +67030,35 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
     targetCtx.restore();
 
-    // 15. HUD Display (Observatory Header)
+    // 15. HUD Display - TINH GỌN TUYỆT ĐỐI: CHỈ HIỂN THỊ MÁU VÀ THỜI GIAN
     targetCtx.save();
-    targetCtx.font = "900 12px monospace";
+
+    // Giai đoạn hiện tại (Góc trên bên trái)
+    targetCtx.font = "900 13px monospace";
     targetCtx.fillStyle = stage.color;
     targetCtx.textAlign = "left";
     const stageNum = String(oneMinStageIdx + 1).padStart(2, "0");
-    targetCtx.fillText(`[MÀN ${stageNum}/10] ${stage.status}`, padX + 14, padY + 22);
+    targetCtx.fillText(`[MÀN ${stageNum}/10] ${stage.id}`, padX + 16, padY + 24);
 
+    // Thời gian sống sót (Góc trên bên phải)
     targetCtx.textAlign = "right";
     const timeFormatted = oneMinPlayTime.toFixed(1).padStart(4, "0") + "s / 67.0s";
+    targetCtx.font = "bold 14px monospace";
+    targetCtx.fillStyle = "#ffffff";
+    targetCtx.fillText(`${timeFormatted}    `, gw - padX - 110, padY + 24);
+
+    // Trái tim sinh mệnh to rõ ràng
     let hpStr = "";
     for (let i = 0; i < oneMinMaxHp; i++) {
-      hpStr += (i < oneMinHp ? "❤" : "🖤");
+      hpStr += (i < oneMinHp ? "❤ " : "🖤 ");
     }
-    targetCtx.fillText(`${timeFormatted}  ${hpStr}`, gw - padX - 14, padY + 22);
-
-    // Dash indicator in HUD
-    targetCtx.textAlign = "left";
-    targetCtx.font = "bold 10px monospace";
-    if (oneMinDashCooldown > 0) {
-      const frac = 1 - (oneMinDashCooldown / oneMinDashCooldownMax);
-      targetCtx.fillStyle = "#ffaa00";
-      targetCtx.fillText(`⚡ LƯỚT HỒI: ${Math.floor(frac * 100)}%`, padX + 14, padY + 38);
-    } else {
-      targetCtx.fillStyle = "#00e5ff";
-      targetCtx.fillText("⚡ LƯỚT: SẴN SÀNG (SPACE / NÚT LƯỚT)", padX + 14, padY + 38);
+    targetCtx.font = "bold 15px sans-serif";
+    targetCtx.fillStyle = "#ff1744";
+    if (isGfxHigh) {
+      targetCtx.shadowColor = "#ff1744";
+      targetCtx.shadowBlur = 10;
     }
+    targetCtx.fillText(hpStr.trim(), gw - padX - 16, padY + 24);
     targetCtx.restore();
 
     // 16. 5-Second Countdown Overlay Display - HIỂN THỊ ĐẾM NGƯỢC RÕ RÀNG & MƯỢT MÀ
