@@ -17863,7 +17863,7 @@
               <button id="btn-onemin-map-huge" class="menu-btn map-size-btn slide-up-item">CỰC LỚN (152 Ô)</button>
             </div>
           </div>
-          <button id="btn-start-onemin" class="menu-btn slide-up-item">▶ BẮT ĐẦU (ĐẾM NGƯỢC 5S)</button>
+          <button id="btn-start-onemin" class="menu-btn slide-up-item">▶ BẮT ĐẦU (ĐẾM NGƯỢC 3S)</button>
           <button class="menu-btn back-btn slide-up-item">↩ QUAY LẠI</button>
         </div>
       </div>
@@ -45352,13 +45352,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     document.addEventListener("touchstart", e => {
       initAudio();
-      // Chế độ 1 Mins: Chạm vào màn hình trong lúc đếm ngược 5s để bỏ qua và vào trận ngay lập tức!
-      if (typeof isOneMinMode !== "undefined" && isOneMinMode && typeof oneMinState !== "undefined" && oneMinState === "countdown") {
-        if (!e.target.closest("#btn-pause, .arc-btn, #mobile-action-buttons")) {
-          oneMinCountdownTimer = 0;
-          oneMinCountdownStartTime = performance.now() - 5500;
-        }
-      }
+      // Chế độ 1 Mins: Đếm ngược 3-2-1 diễn ra trọn vẹn, không bị bỏ qua ngoài ý muốn khi chạm màn hình
       if (isMenuMode || isPaused || gameOver) return;
       if (gameWin) {
         returnToMainMenu();
@@ -48714,7 +48708,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const mapWormScale = (cols || 48) / 48;
         if (oneMinDashTimer > 0) {
           finalCalculatedSpeed = 38 * (oneMinDifficulty === "insane" ? 1.30 : (oneMinDifficulty === "hard" ? 1.15 : 1.0)) * mapWormScale;
-        } else if (oneMinDifficulty === "easy" && !oneMinMoving) {
+        } else if (!oneMinMoving) {
+          // Khi mới bắt đầu hoặc ở chế độ dễ khi thả tay: giun đứng yên tuyệt đối cho đến khi vuốt!
           finalCalculatedSpeed = 0;
         } else {
           const spdBoost = (typeof oneMinSpeedMultiplier !== "undefined" ? oneMinSpeedMultiplier : 1.0) * (worm.speedMultiplier || 1.0);
@@ -64795,9 +64790,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   isOneMinMode = false;
   let oneMinDifficulty = "normal"; // easy, normal, hard, insane
   let oneMinState = "idle"; // "countdown", "playing", "core_spawned", "victory"
-  let oneMinCountdownTimer = 5.0;
+  let oneMinCountdownTimer = 3.0;
   let oneMinCountdownStartTime = 0;
-  let oneMinCountdownLastSec = 5;
+  let oneMinCountdownLastSec = 3;
   let oneMinPlayTime = 0;
   let oneMinStageIdx = 0;
   let oneMinStageProgress = 0;
@@ -65542,7 +65537,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   // Direction & Dash Handlers (Manual movement - JS&B style)
   function updateOneMinDirection(dx, dy) {
     if (!isOneMinMode || isMenuMode || gameOver || gameWin || isPaused) return;
-    hasStartedMoving = true;
     if (dx === 0 && dy === 0) {
       if (oneMinDifficulty === "easy") {
         // Chế độ DỄ: Cho phép đứng yên khi nhả nút điều khiển / thả cần gạt ảo!
@@ -65552,7 +65546,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         moveCounter = 0;
       }
     } else {
+      // Khi người chơi vuốt trên màn hình hoặc thao tác điều khiển: giun bắt đầu di chuyển!
       oneMinMoving = true;
+      hasStartedMoving = true;
       const sx = Math.sign(dx);
       const sy = Math.sign(dy);
       worm.dir = { x: sx, y: sy };
@@ -65737,11 +65733,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     currentMapSizeSetting = mapChoice;
     applyCanvasResolution();
 
-    // Prepare state
+    // Prepare state (Đếm ngược 3s: 3 -> 2 -> 1 -> Bắt đầu!)
     oneMinState = "countdown";
     oneMinCountdownStartTime = performance.now();
-    oneMinCountdownTimer = 5.0;
-    oneMinCountdownLastSec = 5;
+    oneMinCountdownTimer = 3.0;
+    oneMinCountdownLastSec = 3;
     oneMinPlayTime = 0;
     oneMinStageIdx = 0;
     oneMinStageProgress = 0;
@@ -65785,11 +65781,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       { x: startX - 1, y: startY },
       { x: startX - 2, y: startY }
     ];
-    hasStartedMoving = true;
-    worm.dir = { x: 1, y: 0 };
-    worm.nextDir = { x: 1, y: 0 };
+    // Bắt đầu game: giun đứng yên tuyệt đối cho đến khi người chơi vuốt / điều khiển
+    hasStartedMoving = false;
+    oneMinMoving = false;
+    worm.dir = { x: 0, y: 0 };
+    worm.nextDir = { x: 0, y: 0 };
     oneMinFacingDir = { x: 1, y: 0 };
-    oneMinMoving = (oneMinDifficulty !== "easy");
     prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     wormDisplayBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     obstacles = [];
@@ -65875,6 +65872,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     switch (stageIdx) {
       case 0: { // HYDROGEN: 4 -> 8 -> 12 Protons & Energy Shurikens (Chia đều 360 độ)
+        // Không nhảy vào phát đạn ngay lập tức ở beatStep = 0 (t = 0.0s) để người chơi có 1.3s nghe nhạc và định hình!
+        if (beatStep < 6) break;
         if (beatStep % 4 === 0) {
           const count = 4 * countMult; // 4 (Normal) -> 8 (Hard - 2x) -> 12 (Insane - 3x)
           const baseSpd = 135 * speedMult;
@@ -66298,18 +66297,18 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (oneMinDashAfterimages[i].alpha <= 0) oneMinDashAfterimages.splice(i, 1);
     }
 
-    // 1. COUNTDOWN STATE (5 seconds) - BẢO VỆ TUYỆT ĐỐI BẰNG ĐỒNG HỒ PHẦN CỨNG WALL-CLOCK
+    // 1. COUNTDOWN STATE (3 seconds: 3 -> 2 -> 1 -> BẮT ĐẦU)
     if (oneMinState === "countdown") {
       if (!oneMinCountdownStartTime) oneMinCountdownStartTime = performance.now();
       const elapsedWallSec = Math.max(0, (performance.now() - oneMinCountdownStartTime) / 1000);
-      oneMinCountdownTimer = Math.max(0, 5.0 - elapsedWallSec);
+      oneMinCountdownTimer = Math.max(0, 3.0 - elapsedWallSec);
       const currentSec = Math.ceil(Math.max(0.001, oneMinCountdownTimer));
       if (currentSec !== oneMinCountdownLastSec) {
         oneMinCountdownLastSec = currentSec;
         try {
           if (typeof oneMinSynth !== 'undefined' && oneMinSynth.playCountdownBeep) {
             if (currentSec > 0) {
-              oneMinSynth.playCountdownBeep(440 + (5 - currentSec) * 75, 0.14);
+              oneMinSynth.playCountdownBeep(440 + (3 - currentSec) * 110, 0.16);
             } else {
               oneMinSynth.playCountdownBeep(880, 0.30);
             }
@@ -66321,6 +66320,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         oneMinPlayTime = 0;
         oneMinScreenFlash = 1.0;
         screenShake = 26;
+        // Bắt đầu game: GIUN ĐỨNG YÊN HOÀN TOÀN CHO ĐẾN KHI NGƯỜI CHƠI VUỐT DI CHUYỂN!
+        oneMinMoving = false;
+        hasStartedMoving = false;
+        worm.dir = { x: 0, y: 0 };
+        worm.nextDir = { x: 0, y: 0 };
 
         // Bắt đầu bản nhạc chuẩn xác từ video (có dự phòng bằng synthesizer quy trình)
         let audioStarted = false;
@@ -66370,7 +66374,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       // Generate rhythmic attacks - CẬP NHẬT oneMinLastBeatStep CHÍNH XÁC ĐỂ TRÁNH INFINITE SPAWN
       const currentX = ((oneMinPlayTime % 6.7) / 6.7) * 4;
       const beatStep = Math.floor(currentX * 8);
-      if (beatStep !== oneMinLastBeatStep) {
+      // Đầu game: nếu giun đang đứng yên chờ người chơi vuốt thì trì hoãn phát đạn tối đa 1.8s
+      const isInitialGrace = (!oneMinMoving && oneMinStageIdx === 0 && oneMinPlayTime < 1.8);
+      if (beatStep !== oneMinLastBeatStep && !isInitialGrace) {
         oneMinLastBeatStep = beatStep;
         try {
           spawnOneMinStageAttack(oneMinStageIdx, beatStep, arenaW, arenaH);
@@ -67214,79 +67220,23 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.restore();
     });
 
-    // 9b. DỰ BÁO TẦM LƯỚT TRỰC QUAN & VỆT ĐIỀU HƯỚNG (DASH RANGE & TRAJECTORY PREVIEW)
-    if (worm && worm.body && worm.body[0] && !gameOver && !gameWin) {
+    // 9b. (Đã bỏ vuốt định hướng đầu giun theo yêu cầu của người chơi)
+    // 9c. DÒNG TRỌNG LỰC HÚT VÀO HỐ TRẮNG Ở MÀN 9 (COLLAPSE STREAMERS)
+    if (oneMinStageIdx === 8 && worm && worm.body && worm.body[0] && !gameOver && !gameWin) {
       targetCtx.save();
       const head = worm.body[0];
       const hx = (head.x + 0.5) * gridSize;
       const hy = (head.y + 0.5) * gridSize;
-      const fDir = (worm.dir.x !== 0 || worm.dir.y !== 0) ? worm.dir : (oneMinFacingDir || { x: 1, y: 0 });
-
-      // Tính toán điểm tiếp đất dự kiến khi lướt (tỷ lệ chuẩn ~8 ô ở bản đồ 48 ô)
-      const dashDistTiles = Math.max(6, Math.round(8 * ((cols || 48) / 48)));
-      const padC = Math.floor(cols * oneMinWallContractFrac);
-      const padR = Math.floor(rows * oneMinWallContractFrac);
-      const targetGridX = Math.max(padC + 1, Math.min(cols - 2 - padC, head.x + fDir.x * dashDistTiles));
-      const targetGridY = Math.max(padR + 1, Math.min(rows - 2 - padR, head.y + fDir.y * dashDistTiles));
-      const targetPxX = (targetGridX + 0.5) * gridSize;
-      const targetPxY = (targetGridY + 0.5) * gridSize;
-
-      if (oneMinDashCooldown <= 0) {
-        // [LƯỚT SẴN SÀNG]: Tia laser dẫn hướng nét đứt cyan + biểu tượng hologram đích đến
-        const pulse = 0.55 + Math.sin(performance.now() * 0.008) * 0.35;
-        targetCtx.strokeStyle = `rgba(0, 229, 255, ${pulse})`;
-        targetCtx.lineWidth = 2.0;
-        targetCtx.setLineDash([6, 6]);
-        targetCtx.lineDashOffset = -performance.now() * 0.03;
-
-        // Đường chỉ dẫn lướt từ đầu giun đến điểm đích
-        targetCtx.beginPath();
-        targetCtx.moveTo(hx, hy);
-        targetCtx.lineTo(targetPxX, targetPxY);
-        targetCtx.stroke();
-        targetCtx.setLineDash([]);
-
-        // Hologram hình bóng đầu giun ở vị trí sẽ lướt đến
-        targetCtx.strokeStyle = "#00e5ff";
-        targetCtx.lineWidth = 2.2;
-        targetCtx.shadowColor = "#00e5ff";
-        targetCtx.shadowBlur = isGfxHigh ? 14 : 6;
-        targetCtx.fillStyle = "rgba(0, 229, 255, 0.22)";
-        targetCtx.beginPath();
-        targetCtx.arc(targetPxX, targetPxY, gridSize * 0.72, 0, Math.PI * 2);
-        targetCtx.fill();
-        targetCtx.stroke();
-
-        // Mũi tên chỉ hướng lướt
-        targetCtx.fillStyle = "#ffffff";
-        targetCtx.font = "bold 10px monospace";
-        targetCtx.textAlign = "center";
-        targetCtx.textBaseline = "middle";
-        targetCtx.fillText("⚡DASH", targetPxX, targetPxY - 14);
-      } else {
-        // [LƯỚT ĐANG HỒI]: Vòng tròn hồi chiêu xung quanh đầu giun
-        const cdFrac = 1 - (oneMinDashCooldown / oneMinDashCooldownMax);
-        targetCtx.strokeStyle = "rgba(255, 170, 0, 0.65)";
-        targetCtx.lineWidth = 2.5;
-        targetCtx.beginPath();
-        targetCtx.arc(hx, hy, gridSize * 0.95, -Math.PI / 2, -Math.PI / 2 + cdFrac * Math.PI * 2);
-        targetCtx.stroke();
-      }
-
-      // 9c. DÒNG TRỌNG LỰC HÚT VÀO HỐ TRẮNG Ở MÀN 9 (COLLAPSE STREAMERS)
-      if (oneMinStageIdx === 8) {
-        const streamT = performance.now() * 0.02;
-        targetCtx.strokeStyle = "rgba(128, 216, 255, 0.45)";
-        targetCtx.lineWidth = 1.8;
-        targetCtx.setLineDash([4, 8]);
-        targetCtx.lineDashOffset = streamT;
-        targetCtx.beginPath();
-        targetCtx.moveTo(hx, hy);
-        targetCtx.lineTo(cx, cy);
-        targetCtx.stroke();
-        targetCtx.setLineDash([]);
-      }
-
+      const streamT = performance.now() * 0.02;
+      targetCtx.strokeStyle = "rgba(128, 216, 255, 0.45)";
+      targetCtx.lineWidth = 1.8;
+      targetCtx.setLineDash([4, 8]);
+      targetCtx.lineDashOffset = streamT;
+      targetCtx.beginPath();
+      targetCtx.moveTo(hx, hy);
+      targetCtx.lineTo(cx, cy);
+      targetCtx.stroke();
+      targetCtx.setLineDash([]);
       targetCtx.restore();
     }
 
@@ -67563,7 +67513,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     targetCtx.restore();
 
-    // 16. 5-Second Countdown Overlay Display - HIỂN THỊ ĐẾM NGƯỢC RÕ RÀNG & MƯỢT MÀ
+    // 16. 3-Second Countdown Overlay Display (3 - 2 - 1 - BẮT ĐẦU!)
     if (oneMinState === "countdown") {
       targetCtx.save();
       targetCtx.fillStyle = "rgba(0, 0, 0, 0.58)";
@@ -67574,10 +67524,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const pulseScale = 1.0 + (1.0 - frac) * 0.28;
 
       const colors = {
-        5: "#00e5ff",
-        4: "#00e676",
-        3: "#ffeb3b",
-        2: "#ff9100",
+        3: "#00e5ff",
+        2: "#ffeb3b",
         1: "#ff1744"
       };
       const mainCol = colors[sec] || "#00e5ff";
@@ -67598,16 +67546,16 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.scale(pulseScale, pulseScale);
       targetCtx.fillStyle = mainCol;
       targetCtx.font = "900 84px sans-serif";
-      targetCtx.fillText(String(sec), 0, 26);
+      targetCtx.fillText(String(Math.min(3, sec)), 0, 26);
       targetCtx.restore();
 
-      // Hướng dẫn thao tác và nút chạm để bỏ qua đếm ngược
+      // Hướng dẫn thao tác
       targetCtx.textAlign = "center";
       targetCtx.font = "bold 16px sans-serif";
       targetCtx.fillStyle = "#ffffff";
       targetCtx.shadowColor = "rgba(0, 0, 0, 0.8)";
       targetCtx.shadowBlur = 6;
-      targetCtx.fillText("CHUẨN BỊ NÉ ĐẠN!", gw / 2, gh / 2 + 82);
+      targetCtx.fillText("VUỐT ĐỂ DI CHUYỂN!", gw / 2, gh / 2 + 82);
 
       targetCtx.font = "12px sans-serif";
       targetCtx.fillStyle = "#00e5ff";
