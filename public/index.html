@@ -1203,7 +1203,14 @@
       #main-menu[data-panel="onemin"] .logo-wrapper,
       #main-menu[data-panel="onemin"] #btn-lobby-fullscreen,
       #main-menu[data-panel="onemin"] #panel-difficulty,
-      #main-menu[data-panel="onemin"] #panel-map {
+      #main-menu[data-panel="onemin"] #panel-map,
+      body:has(#panel-onemin[style*="display: flex"]) #panel-map,
+      body:has(#panel-onemin[style*="display: flex"]) #panel-difficulty,
+      body:has(#panel-onemin[style*="display: flex"]) #btn-lobby-fullscreen,
+      body:has(#panel-onemin[style*="display: flex"]) .logo-wrapper,
+      #main-menu:has(#panel-onemin[style*="display: flex"]) .menu-panel:not(#panel-onemin),
+      #main-menu:has(#panel-onemin[style*="display: flex"]) #btn-lobby-fullscreen,
+      #main-menu:has(#panel-onemin[style*="display: flex"]) .logo-wrapper {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
@@ -45406,6 +45413,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           joystickStick.style.transform = `translate(0px, 0px)`;
           if (isOneMinMode) {
             joystickZone.style.opacity = "0.78";
+            if (oneMinDifficulty === "easy") updateOneMinDirection(0, 0);
           } else {
             joystickZone.classList.remove("joystick-visible");
             setTimeout(() => {
@@ -48635,6 +48643,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         while (worm.body && worm.body.length > 3) worm.body.pop();
         if (oneMinDashTimer > 0) {
           finalCalculatedSpeed = 38;
+        } else if (oneMinDifficulty === "easy" && !oneMinMoving) {
+          finalCalculatedSpeed = 0;
         } else {
           const spdBoost = (typeof oneMinSpeedMultiplier !== "undefined" ? oneMinSpeedMultiplier : 1.0) * (worm.speedMultiplier || 1.0);
           finalCalculatedSpeed = 16 * spdBoost;
@@ -57829,7 +57839,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     function updateRollFabState() {
       if (!rollFab) return;
-      const shouldHide = isMenuMode || gameOver || gameWin || isPaused || isRolling;
+      const shouldHide = isMenuMode || gameOver || gameWin || isPaused || isRolling || isOneMinMode;
       if (shouldHide !== _lastRollFabHidden) {
         _lastRollFabHidden = shouldHide;
         rollFab.classList.toggle("roll-fab-hidden", shouldHide);
@@ -65412,8 +65422,16 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   function updateOneMinDirection(dx, dy) {
     if (!isOneMinMode || isMenuMode || gameOver || gameWin || isPaused) return;
     hasStartedMoving = true;
-    oneMinMoving = true;
-    if (dx !== 0 || dy !== 0) {
+    if (dx === 0 && dy === 0) {
+      if (oneMinDifficulty === "easy") {
+        // Chế độ DỄ: Cho phép đứng yên khi nhả nút điều khiển / thả cần gạt ảo!
+        oneMinMoving = false;
+        worm.dir = { x: 0, y: 0 };
+        worm.nextDir = { x: 0, y: 0 };
+        moveCounter = 0;
+      }
+    } else {
+      oneMinMoving = true;
       const sx = Math.sign(dx);
       const sy = Math.sign(dy);
       worm.dir = { x: sx, y: sy };
@@ -65447,8 +65465,57 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     oneMinHp -= 1;
     const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
     oneMinInvincibleTimer = cfg.invincibleTime;
-    screenShake = 36;
+
+    // Rung lắc mạnh giật màn hình giống lúc chết + chớp đỏ cảnh báo
+    screenShake = 46;
+    oneMinScreenFlash = 1.0;
     playSound("explode");
+    try { playSound("gameover"); } catch (_) {}
+
+    // Animation nổ hạt mảnh vỡ mãnh liệt tỏa ra từ thân giun giống hiệu ứng tử trận (Death Burst)
+    if (worm.body && worm.body[0]) {
+      const hx = (worm.body[0].x + 0.5) * gridSize;
+      const hy = (worm.body[0].y + 0.5) * gridSize;
+
+      // 1. Sóng xung kích chấn thương màu đỏ rực
+      oneMinShockwaves.push({
+        cx: hx,
+        cy: hy,
+        radius: 10,
+        maxRadius: 90,
+        speed: 240,
+        thickness: 5,
+        color: "#ff1744",
+        alpha: 1.0
+      });
+
+      // 2. Chùm 32 tia lửa vỡ vụn bắn tung ra 360 độ từ đầu và thân
+      for (let i = 0; i < 32; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = 130 + Math.random() * 260;
+        const pCol = Math.random() < 0.65 ? "#ff1744" : (Math.random() < 0.5 ? "#ffffff" : "#ff9100");
+        oneMinGrazeParticles.push({
+          x: hx + (Math.random() * 10 - 5),
+          y: hy + (Math.random() * 10 - 5),
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd,
+          size: 3.5 + Math.random() * 3.5,
+          color: pCol,
+          alpha: 1.0
+        });
+      }
+
+      // 3. Biểu tượng sát thương bay lên
+      oneMinFloatingBanners.push({
+        text: "💥 -1 ❤",
+        color: "#ff1744",
+        x: hx,
+        y: hy - 22,
+        life: 1.3,
+        maxLife: 1.3
+      });
+    }
+
     if (oneMinHp <= 0) {
       wasOneMinMode = true;
       triggerOneMinGameOver();
@@ -65586,19 +65653,19 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     resetGame(false);
 
     // Initial worm setup: centered compact body, active crawling velocity right from start
-    const midX = Math.floor(cols / 2);
-    const midY = Math.floor(rows / 2);
+    const startX = 6; // Xuất phát ở giữa phía bên trái đấu trường (cách tường trái 6 ô)
+    const startY = Math.floor(rows / 2); // Chính giữa theo chiều dọc
     // Chiều dài giun cố định chuẩn xác chỉ có 3 đốt (đầu, thân, đuôi)
     worm.body = [
-      { x: midX, y: midY },
-      { x: midX - 1, y: midY },
-      { x: midX - 2, y: midY }
+      { x: startX, y: startY },
+      { x: startX - 1, y: startY },
+      { x: startX - 2, y: startY }
     ];
     hasStartedMoving = true;
     worm.dir = { x: 1, y: 0 };
     worm.nextDir = { x: 1, y: 0 };
     oneMinFacingDir = { x: 1, y: 0 };
-    oneMinMoving = true;
+    oneMinMoving = (oneMinDifficulty !== "easy");
     prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     wormDisplayBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     obstacles = [];
@@ -66420,15 +66487,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
       targetCtx.stroke();
 
-      // Observatory Reticle Circles & Tick Marks
-      targetCtx.strokeStyle = "rgba(0, 229, 255, 0.08)";
-      targetCtx.beginPath();
-      targetCtx.arc(cx, cy, 140, 0, Math.PI * 2);
-      targetCtx.arc(cx, cy, 210, 0, Math.PI * 2);
-      targetCtx.stroke();
-
-      // Reticle Crosshairs
-      targetCtx.strokeStyle = "rgba(255, 51, 102, 0.12)";
+      // Reticle Crosshairs (ĐÃ BỎ Ô XANH TRÒN Ở GIỮA ĐỂ ĐẤU TRƯỜNG THOÁNG ĐÃNG)
+      targetCtx.strokeStyle = "rgba(255, 51, 102, 0.08)";
       targetCtx.beginPath();
       targetCtx.moveTo(cx - 240, cy); targetCtx.lineTo(cx - 150, cy);
       targetCtx.moveTo(cx + 150, cy); targetCtx.lineTo(cx + 240, cy);
@@ -66438,221 +66498,34 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.restore();
     }
 
-    // 3. THE GIANT EVOLVING STAR (FROM VIDEO)
+    // 3. THE EVOLVING STAR - TỐI GIẢN & THOÁNG ĐÃNG (ĐÃ BỎ Ô XANH TRÒN VÀ VỎ CẦU CHOÁN MÀN HÌNH)
     targetCtx.save();
     const starMaxR = Math.min(gw, gh) * 0.36;
     const pulseT = oneMinIdlePhase * 1.5;
 
-    if (oneMinStageIdx < 7) {
-      // Concentric fusion shells from outside to inside:
-      // Shell 6: Hydrogen (H)
-      // Shell 5: Helium (He)
-      // Shell 4: Carbon (C)
-      // Shell 3: Neon (Ne)
-      // Shell 2: Oxygen (O)
-      // Shell 1: Silicon (Si)
-      // Inner Core: Iron (Fe)
-      const shells = [
-        { name: "H", r: starMaxR * 0.88, color: "#00e5ff", glow: "#33f6ff", stageIdx: 0 },
-        { name: "He", r: starMaxR * 0.74, color: "#ff8800", glow: "#ffaa33", stageIdx: 1 },
-        { name: "C", r: starMaxR * 0.61, color: "#ffdd00", glow: "#ffee55", stageIdx: 2 },
-        { name: "Ne", r: starMaxR * 0.49, color: "#00e676", glow: "#69f0ae", stageIdx: 3 },
-        { name: "O", r: starMaxR * 0.38, color: "#00b0ff", glow: "#40c4ff", stageIdx: 4 },
-        { name: "Si", r: starMaxR * 0.27, color: "#b388ff", glow: "#d1c4e9", stageIdx: 5 },
-        { name: "Fe", r: starMaxR * 0.16, color: "#ff1744", glow: "#ff5252", stageIdx: 6 }
-      ];
-
-      // Draw concentric shells
-      shells.forEach((sh) => {
-        const isActive = (oneMinStageIdx === sh.stageIdx);
-        const pulse = isActive ? Math.sin(pulseT * 2.8) * 3.5 : 0;
-        const currentR = sh.r + pulse;
-
-        // Shell Fill with gradient
-        if (!isGfxUltraLow) {
-          const grad = targetCtx.createRadialGradient(cx, cy, currentR * 0.65, cx, cy, currentR);
-          grad.addColorStop(0, sh.color + (isActive ? "35" : "12"));
-          grad.addColorStop(1, sh.color + (isActive ? "65" : "25"));
-          targetCtx.fillStyle = grad;
-          targetCtx.beginPath();
-          targetCtx.arc(cx, cy, currentR, 0, Math.PI * 2);
-          targetCtx.fill();
-        }
-
-        // Shell Outline
-        targetCtx.strokeStyle = sh.color + (isActive ? "ff" : "55");
-        targetCtx.lineWidth = isActive ? (isGfxLow ? 2.5 : 3.5) : 1.2;
-        if (isActive && isGfxHigh) {
-          targetCtx.shadowColor = sh.glow;
-          targetCtx.shadowBlur = 18;
-        } else {
-          targetCtx.shadowBlur = 0;
-        }
+    if (oneMinStageIdx >= 8) {
+      if (oneMinStageIdx === 8) {
+        // Hố đen nén hạch nhỏ tinh tế ở tâm
+        const inR = 14 + Math.sin(pulseT * 6) * 3;
+        targetCtx.fillStyle = "#000000";
         targetCtx.beginPath();
-        targetCtx.arc(cx, cy, currentR, 0, Math.PI * 2);
+        targetCtx.arc(cx, cy, inR, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.strokeStyle = "#ff0055";
+        targetCtx.lineWidth = 2.5;
         targetCtx.stroke();
-
-        // Active Corona Prominences / Flares
-        if (isActive && !isGfxUltraLow) {
-          const flareCount = isGfxLow ? 6 : 14;
-          targetCtx.strokeStyle = sh.glow + "bb";
-          targetCtx.lineWidth = 2.0;
-          for (let f = 0; f < flareCount; f++) {
-            const angle = (f / flareCount) * Math.PI * 2 + pulseT * 0.2;
-            const flareLen = 12 + Math.sin(pulseT * 3.0 + f * 1.5) * 8;
-            targetCtx.beginPath();
-            targetCtx.moveTo(cx + Math.cos(angle) * currentR, cy + Math.sin(angle) * currentR);
-            targetCtx.lineTo(cx + Math.cos(angle) * (currentR + flareLen), cy + Math.sin(angle) * (currentR + flareLen));
-            targetCtx.stroke();
-          }
-        }
-      });
-
-      // Dense glowing Iron / Energy Core at center
-      const coreR = starMaxR * 0.16;
-      const coreGrad = targetCtx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-      coreGrad.addColorStop(0, "#ffffff");
-      coreGrad.addColorStop(0.4, "#ffffbb");
-      coreGrad.addColorStop(1.0, "#ff3d00");
-      targetCtx.fillStyle = coreGrad;
-      targetCtx.beginPath();
-      targetCtx.arc(cx, cy, coreR, 0, Math.PI * 2);
-      targetCtx.fill();
-
-    } else if (oneMinStageIdx === 7) {
-      // Stage 8: CHANDRASEKHAR LIMIT (Iron core exceeds 1.44 Suns)
-      // Core trembles aggressively with critical mass alarms
-      const trembleX = (Math.random() - 0.5) * (isGfxLow ? 2 : 5);
-      const trembleY = (Math.random() - 0.5) * (isGfxLow ? 2 : 5);
-      const scx = cx + trembleX;
-      const scy = cy + trembleY;
-
-      // Pulsing red hazard warning perimeter
-      const warnR = starMaxR * 0.70 + Math.sin(pulseT * 6.0) * 8;
-      targetCtx.strokeStyle = "rgba(255, 23, 68, 0.75)";
-      targetCtx.lineWidth = 2.8;
-      targetCtx.setLineDash([12, 8]);
-      targetCtx.beginPath();
-      targetCtx.arc(scx, scy, warnR, 0, Math.PI * 2);
-      targetCtx.stroke();
-      targetCtx.setLineDash([]);
-
-      // Overloaded Iron Core
-      const coreR = starMaxR * 0.28 + Math.sin(pulseT * 8.0) * 4;
-      const coreGrad = targetCtx.createRadialGradient(scx, scy, 0, scx, scy, coreR);
-      coreGrad.addColorStop(0, "#ffffff");
-      coreGrad.addColorStop(0.3, "#ff5252");
-      coreGrad.addColorStop(1.0, "#b71c1c");
-      targetCtx.fillStyle = coreGrad;
-      if (isGfxHigh) {
-        targetCtx.shadowColor = "#ff1744";
-        targetCtx.shadowBlur = 30;
-      }
-      targetCtx.beginPath();
-      targetCtx.arc(scx, scy, coreR, 0, Math.PI * 2);
-      targetCtx.fill();
-
-      // Telemetry Text
-      targetCtx.font = "900 11px monospace";
-      targetCtx.fillStyle = "#ff1744";
-      targetCtx.textAlign = "center";
-      targetCtx.fillText("⚠ CHANDRASEKHAR LIMIT: M > 1.44 M☉ CRITICAL ⚠", scx, scy - warnR - 10);
-
-    } else if (oneMinStageIdx === 8) {
-      // Stage 9: CORE COLLAPSE (70,000 km/s - Free Fall into a neutron star)
-      const collapseProg = Math.min(1.0, oneMinStageProgress);
-      const collapseR = starMaxR * Math.max(0.08, Math.pow(1.0 - collapseProg * 0.92, 1.6));
-
-      // Inward Gravitational Suction Lines
-      if (!isGfxUltraLow) {
-        const streakCount = isGfxLow ? 12 : 28;
-        targetCtx.strokeStyle = "rgba(255, 255, 255, 0.45)";
-        targetCtx.lineWidth = 1.6;
-        for (let s = 0; s < streakCount; s++) {
-          const a = (s / streakCount) * Math.PI * 2 + pulseT * 0.5;
-          const outerR = starMaxR * 0.95;
-          const innerR = collapseR + 8;
-          const streakT = (oneMinPlayTime * 4.5 + s * 0.2) % 1.0;
-          const p1 = outerR - streakT * (outerR - innerR);
-          const p2 = Math.max(innerR, p1 - 25);
-          targetCtx.beginPath();
-          targetCtx.moveTo(cx + Math.cos(a) * p1, cy + Math.sin(a) * p1);
-          targetCtx.lineTo(cx + Math.cos(a) * p2, cy + Math.sin(a) * p2);
-          targetCtx.stroke();
-        }
-      }
-
-      // Collapsing Singularity Core
-      const singGrad = targetCtx.createRadialGradient(cx, cy, 0, cx, cy, collapseR);
-      singGrad.addColorStop(0, "#ffffff");
-      singGrad.addColorStop(0.5, "#80d8ff");
-      singGrad.addColorStop(1.0, "#000000");
-      targetCtx.fillStyle = singGrad;
-      targetCtx.beginPath();
-      targetCtx.arc(cx, cy, collapseR, 0, Math.PI * 2);
-      targetCtx.fill();
-
-      // Telemetry Text
-      targetCtx.font = "900 11px monospace";
-      targetCtx.fillStyle = "#00e5ff";
-      targetCtx.textAlign = "center";
-      targetCtx.fillText("⚡ CORE COLLAPSE: 70,000 km/s FREE FALL ⚡", cx, cy - starMaxR * 0.85);
-
-    } else if (oneMinStageIdx === 9) {
-      // Stage 10: SUPERNOVA (Blast Wave grows like t^(2/5))
-      const waveProg = Math.min(1.0, oneMinStageProgress);
-      const blastR = (gw * 0.65) * Math.pow(Math.max(0.04, waveProg), 0.40);
-
-      // Multi-layer Remnant Planetary Nebula Clouds
-      if (!isGfxUltraLow) {
-        const nebulaGrad = targetCtx.createRadialGradient(cx, cy, blastR * 0.15, cx, cy, blastR);
-        nebulaGrad.addColorStop(0, "rgba(255, 255, 255, 0.45)");
-        nebulaGrad.addColorStop(0.25, "rgba(224, 64, 251, 0.28)"); // Magenta
-        nebulaGrad.addColorStop(0.55, "rgba(0, 229, 255, 0.22)");  // Cyan
-        nebulaGrad.addColorStop(0.85, "rgba(255, 171, 0, 0.18)");  // Gold
-        nebulaGrad.addColorStop(1.0, "rgba(124, 77, 255, 0.0)");   // Violet outer
-        targetCtx.fillStyle = nebulaGrad;
+      } else {
+        // Stage 9: Vệt sáng Supernova nhẹ nhàng
+        const expandR = starMaxR * (0.35 + oneMinStageProgress * 0.8);
+        const supernovaGrad = targetCtx.createRadialGradient(cx, cy, 2, cx, cy, expandR);
+        supernovaGrad.addColorStop(0, "rgba(255, 255, 255, 0.7)");
+        supernovaGrad.addColorStop(0.35, "rgba(255, 0, 127, 0.25)");
+        supernovaGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        targetCtx.fillStyle = supernovaGrad;
         targetCtx.beginPath();
-        targetCtx.arc(cx, cy, blastR, 0, Math.PI * 2);
+        targetCtx.arc(cx, cy, expandR, 0, Math.PI * 2);
         targetCtx.fill();
       }
-
-      // Relativistic Blast Shockwave Ring
-      targetCtx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-      targetCtx.lineWidth = isGfxLow ? 3.0 : 4.5;
-      if (isGfxHigh) {
-        targetCtx.shadowColor = "#ffffff";
-        targetCtx.shadowBlur = 24;
-      }
-      targetCtx.beginPath();
-      targetCtx.arc(cx, cy, blastR, 0, Math.PI * 2);
-      targetCtx.stroke();
-
-      // Central Neutron Star Pulsar with Twin Relativistic Energy Jets
-      const jetAngle = pulseT * 2.2;
-      const jetLen = 90;
-      targetCtx.strokeStyle = "rgba(0, 229, 255, 0.85)";
-      targetCtx.lineWidth = 3.0;
-      targetCtx.beginPath();
-      targetCtx.moveTo(cx - Math.cos(jetAngle) * jetLen, cy - Math.sin(jetAngle) * jetLen);
-      targetCtx.lineTo(cx + Math.cos(jetAngle) * jetLen, cy + Math.sin(jetAngle) * jetLen);
-      targetCtx.stroke();
-
-      // Pulsar Core
-      targetCtx.fillStyle = "#ffffff";
-      if (isGfxHigh) {
-        targetCtx.shadowColor = "#00e5ff";
-        targetCtx.shadowBlur = 28;
-      }
-      targetCtx.beginPath();
-      targetCtx.arc(cx, cy, 14, 0, Math.PI * 2);
-      targetCtx.fill();
-
-      // Telemetry Text
-      targetCtx.font = "900 11px monospace";
-      targetCtx.fillStyle = "#ff4081";
-      targetCtx.textAlign = "center";
-      targetCtx.fillText("💥 SUPERNOVA BLAST WAVE: t^(2/5) EXPANSION 💥", cx, cy - blastR * 0.75 - 12);
     }
     targetCtx.restore();
 
@@ -66901,6 +66774,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       const isBerserk = (oneMinSpeedBoostTimer > 0);
       const isDashing = (oneMinDashTimer > 0 || dashPunchTimer > 0);
 
+      // Nhấp nháy chấn thương giật đỏ/trắng khi dính đạn
+      if (isInv && Math.floor(Date.now() / 60) % 2 === 0) {
+        targetCtx.globalAlpha = 0.55;
+      }
+
       // Render giun chuẩn xác 100% với Skin đã chọn, hiệu ứng mắt, vảy, màu sắc, bóng ma
       drawWormBody(
         targetCtx,
@@ -66914,6 +66792,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         lastTimePerGrid > 0 ? moveCounter / lastTimePerGrid : 1,
         worm.dir.x !== 0 || worm.dir.y !== 0
       );
+      targetCtx.globalAlpha = 1.0;
 
       // Hiệu ứng khiên bảo vệ phát quang khi có bất tử
       if (worm.isShielded || isInv) {
