@@ -48401,11 +48401,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         dashCooldownTimer -= dt;
         if (dashCooldownTimer < 0) dashCooldownTimer = 0;
       }
-      const shouldDisableDash = (isMenuMode || worm.body.length <= 3 || dashCooldownTimer > 0);
+      const shouldDisableDash = isOneMinMode ? (isMenuMode || oneMinDashCooldown > 0) : (isMenuMode || worm.body.length <= 3 || dashCooldownTimer > 0);
       if (mBtnDash.disabled !== shouldDisableDash) {
         mBtnDash.disabled = shouldDisableDash;
       }
-      if (dashCooldownTimer > 0 && !isMenuMode) {
+      const activeDashCd = isOneMinMode ? oneMinDashCooldown : dashCooldownTimer;
+      if (activeDashCd > 0 && !isMenuMode) {
         if (!cachedDashCooldownOverlay || !cachedDashCooldownOverlay.parentElement) {
           cachedDashCooldownOverlay = mBtnDash.querySelector(".cooldown-overlay");
           if (!cachedDashCooldownOverlay) {
@@ -48414,7 +48415,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             mBtnDash.appendChild(cachedDashCooldownOverlay);
           }
         }
-        const cdText = dashCooldownTimer.toFixed(1) + "s";
+        const cdText = activeDashCd.toFixed(1) + "s";
         if (cachedDashCooldownOverlay.textContent !== cdText) {
           cachedDashCooldownOverlay.textContent = cdText;
         }
@@ -64747,47 +64748,47 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   const ONE_MIN_DIFF_CONFIG = {
     easy: {
       maxHp: 5,
-      dashCooldown: 0.55,
-      spdMult: 0.65,
+      dashCooldown: 0.50, // Hồi lướt nhanh để người mới chơi dễ dàng né
+      spdMult: 0.65, // Đạn bay chậm hơn, đường đạn thưa
       densityMult: 0.60,
-      laserWarnTime: 0.85,
+      laserWarnTime: 0.95, // Báo trước laser gần 1 giây
       laserWidth: 12,
-      shockwaveSpd: 105,
-      wallContract: 0.10,
-      invincibleTime: 1.5
+      shockwaveSpd: 95,
+      wallContract: 0.08,
+      invincibleTime: 1.8 // Bất tử lâu sau khi trúng đòn
     },
     normal: {
       maxHp: 4,
       dashCooldown: 0.75,
-      spdMult: 1.0,
+      spdMult: 1.0, // Chuẩn nhịp gốc 130 BPM
       densityMult: 1.0,
-      laserWarnTime: 0.60,
+      laserWarnTime: 0.65,
       laserWidth: 16,
       shockwaveSpd: 135,
-      wallContract: 0.18,
-      invincibleTime: 1.2
+      wallContract: 0.16,
+      invincibleTime: 1.3
     },
     hard: {
       maxHp: 3,
       dashCooldown: 0.95,
-      spdMult: 1.30,
-      densityMult: 1.30,
-      laserWarnTime: 0.45,
+      spdMult: 1.35, // Đạn nhanh hơn +35%
+      densityMult: 1.35, // Mật độ đạn dày hơn
+      laserWarnTime: 0.45, // Báo trước laser ngắn
       laserWidth: 20,
-      shockwaveSpd: 175,
+      shockwaveSpd: 180,
       wallContract: 0.24,
-      invincibleTime: 1.0
+      invincibleTime: 0.9
     },
     insane: {
-      maxHp: 1, // ONE-HIT KO!
+      maxHp: 1, // ONE-HIT KO! Chạm đạn là Game Over ngay lập tức
       dashCooldown: 1.15,
-      spdMult: 1.55,
-      densityMult: 1.65,
-      laserWarnTime: 0.30,
-      laserWidth: 24,
-      shockwaveSpd: 215,
+      spdMult: 1.65, // Tốc độ đạn cực đại (+65%)
+      densityMult: 1.75, // Mật độ đạn cực dày (+75%)
+      laserWarnTime: 0.30, // Báo trước siêu chớp nhoáng
+      laserWidth: 26,
+      shockwaveSpd: 225,
       wallContract: 0.30,
-      invincibleTime: 0.8
+      invincibleTime: 0.5
     }
   };
 
@@ -66708,13 +66709,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     targetCtx.strokeRect(padX + 2, padY + 2, gw - padX * 2 - 4, gh - padY * 2 - 4);
     targetCtx.restore();
 
-    // 6. Lasers (Warning & Firing with JSAB chevrons)
+    // 6. Lasers (Warning & Firing with Pulse Chevrons)
     oneMinLasers.forEach(l => {
       targetCtx.save();
       if (l.state === "warning") {
-        targetCtx.setLineDash([9, 6]);
+        const warnFrac = Math.max(0, l.warningTimer / 0.65);
+        const dashStep = 8 + Math.sin(oneMinIdlePhase * 12) * 3;
+        targetCtx.setLineDash([12, dashStep]);
         targetCtx.strokeStyle = l.color;
-        targetCtx.lineWidth = 2.5;
+        targetCtx.lineWidth = 2.2;
         targetCtx.beginPath();
         targetCtx.moveTo(l.x1, l.y1);
         targetCtx.lineTo(l.x2, l.y2);
@@ -66723,17 +66726,17 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const midLx = (l.x1 + l.x2) / 2;
         const midLy = (l.y1 + l.y2) / 2;
         targetCtx.fillStyle = l.color;
-        targetCtx.font = "bold 13px monospace";
+        targetCtx.font = "bold 11px monospace";
         targetCtx.textAlign = "center";
-        targetCtx.fillText("⚠ BEAM ALERT ⚠", midLx, midLy - 6);
+        targetCtx.textBaseline = "middle";
+        targetCtx.fillText("⚠ TIA QUÉT ⚠", midLx, midLy - 8);
       } else {
         targetCtx.strokeStyle = l.color;
         if (isGfxHigh) {
           targetCtx.shadowColor = l.color;
-          targetCtx.shadowBlur = 22;
-        } else if (isGfxMedium) {
-          targetCtx.shadowColor = l.color;
-          targetCtx.shadowBlur = 6;
+          targetCtx.shadowBlur = 18;
+        } else {
+          targetCtx.shadowBlur = 0;
         }
         targetCtx.lineWidth = l.width;
         targetCtx.beginPath();
@@ -66741,8 +66744,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         targetCtx.lineTo(l.x2, l.y2);
         targetCtx.stroke();
 
+        // Lõi trắng rực cháy của tia laser
         targetCtx.strokeStyle = "#ffffff";
-        targetCtx.lineWidth = l.width * 0.38;
+        targetCtx.lineWidth = l.width * 0.42;
         targetCtx.beginPath();
         targetCtx.moveTo(l.x1, l.y1);
         targetCtx.lineTo(l.x2, l.y2);
@@ -66766,18 +66770,22 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.restore();
     });
 
-    // 8. Danmaku Bullets (Saws, Shurikens, Diamonds, Darts)
+    // 8. Danmaku Bullets (Saws, Shurikens, Diamonds, Darts) - TỐI ƯU ĐỒ HỌA 2 LỚP SIÊU MƯỢT 60 FPS
     oneMinBullets.forEach(b => {
       targetCtx.save();
       targetCtx.translate(b.x, b.y);
       if (b.rot !== undefined) targetCtx.rotate(b.rot);
-      targetCtx.fillStyle = b.color;
+
+      // Hiệu ứng phát quang chỉ bật ở High để giải phóng 100% GPU fillrate trên Mobile
       if (isGfxHigh && b.glow) {
         targetCtx.shadowColor = b.glow;
-        targetCtx.shadowBlur = 12;
+        targetCtx.shadowBlur = 10;
+      } else {
+        targetCtx.shadowBlur = 0;
       }
 
       if (b.shape === "saw") {
+        // 1. BÁNH CƯA HẮC TINH: Răng cưa xoay sắc nét + lõi tương phản + tâm sáng
         targetCtx.beginPath();
         const teeth = b.teeth || 8;
         const rOut = b.radius;
@@ -66789,32 +66797,87 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           else targetCtx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
         }
         targetCtx.closePath();
+        targetCtx.fillStyle = b.color;
         targetCtx.fill();
+
+        // Lõi giữa tương phản cao
+        targetCtx.fillStyle = "#120610";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, b.radius * 0.48, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        // Trục giữa trắng sáng
         targetCtx.fillStyle = "#ffffff";
         targetCtx.beginPath();
-        targetCtx.arc(0, 0, b.radius * 0.28, 0, Math.PI * 2);
+        targetCtx.arc(0, 0, b.radius * 0.22, 0, Math.PI * 2);
         targetCtx.fill();
       } else if (b.shape === "shuriken") {
+        // 2. PHI TIÊU TINH VÂN: 4 cánh xoay sắc lạnh phong cách Just Shapes & Beats
         targetCtx.beginPath();
         for (let p = 0; p < 4; p++) {
           const a = (p * Math.PI) / 2;
           targetCtx.lineTo(Math.cos(a) * b.radius, Math.sin(a) * b.radius);
           const aMid = a + Math.PI / 4;
-          targetCtx.lineTo(Math.cos(aMid) * (b.radius * 0.32), Math.sin(aMid) * (b.radius * 0.32));
+          targetCtx.lineTo(Math.cos(aMid) * (b.radius * 0.30), Math.sin(aMid) * (b.radius * 0.30));
         }
+        targetCtx.closePath();
+        targetCtx.fillStyle = b.color;
+        targetCtx.fill();
+
+        // Tâm ngọc trắng sáng
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, b.radius * 0.25, 0, Math.PI * 2);
+        targetCtx.fill();
+      } else if (b.shape === "needle" || b.shape === "dart") {
+        // 3. PHI ĐẠN NHỌN / MŨI TÊN PLASMA: Đầu nhọn hướng theo chiều bay + vệt đuôi năng lượng
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -b.radius * 1.5);
+        targetCtx.lineTo(b.radius * 0.65, b.radius * 0.6);
+        targetCtx.lineTo(0, b.radius * 0.3);
+        targetCtx.lineTo(-b.radius * 0.65, b.radius * 0.6);
+        targetCtx.closePath();
+        targetCtx.fillStyle = b.color;
+        targetCtx.fill();
+
+        // Lõi sáng trắng bên trong
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -b.radius * 0.9);
+        targetCtx.lineTo(b.radius * 0.3, b.radius * 0.25);
+        targetCtx.lineTo(0, 0);
+        targetCtx.lineTo(-b.radius * 0.3, b.radius * 0.25);
         targetCtx.closePath();
         targetCtx.fill();
       } else if (b.shape === "diamond") {
+        // 4. KIM CƯƠNG NĂNG LƯỢNG
         targetCtx.beginPath();
-        targetCtx.moveTo(0, -b.radius * 1.2);
-        targetCtx.lineTo(b.radius * 0.8, 0);
-        targetCtx.lineTo(0, b.radius * 1.2);
-        targetCtx.lineTo(-b.radius * 0.8, 0);
+        targetCtx.moveTo(0, -b.radius * 1.25);
+        targetCtx.lineTo(b.radius * 0.85, 0);
+        targetCtx.lineTo(0, b.radius * 1.25);
+        targetCtx.lineTo(-b.radius * 0.85, 0);
+        targetCtx.closePath();
+        targetCtx.fillStyle = b.color;
+        targetCtx.fill();
+
+        targetCtx.fillStyle = "#ffffff";
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -b.radius * 0.55);
+        targetCtx.lineTo(b.radius * 0.38, 0);
+        targetCtx.lineTo(0, b.radius * 0.55);
+        targetCtx.lineTo(-b.radius * 0.38, 0);
         targetCtx.closePath();
         targetCtx.fill();
       } else {
+        // 5. CẦU PLASMA NĂNG LƯỢNG: Vành màu neon + Lõi trắng sáng
         targetCtx.beginPath();
         targetCtx.arc(0, 0, b.radius, 0, Math.PI * 2);
+        targetCtx.fillStyle = b.color;
+        targetCtx.fill();
+
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, b.radius * 0.45, 0, Math.PI * 2);
+        targetCtx.fillStyle = "#ffffff";
         targetCtx.fill();
       }
       targetCtx.restore();
@@ -67030,35 +67093,72 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
     targetCtx.restore();
 
-    // 15. HUD Display - TINH GỌN TUYỆT ĐỐI: CHỈ HIỂN THỊ MÁU VÀ THỜI GIAN
+    // 15. HUD Display - GIAO DIỆN HIỂN THỊ CAO CẤP, TINH GỌN, DỄ NHÌN
     targetCtx.save();
+    const hudTop = Math.max(14, padY + 12);
 
-    // Giai đoạn hiện tại (Góc trên bên trái)
-    targetCtx.font = "900 13px monospace";
+    // [Góc Trên Bên Trái]: Huy hiệu Giai đoạn Ngôi Sao với viền phát quang
+    const stageNum = String(oneMinStageIdx + 1).padStart(2, "0");
+    const badgeText = `GIAI ĐOẠN ${stageNum}/10 · ${stage.id}`;
+    targetCtx.font = "900 12px sans-serif";
+    const badgeW = targetCtx.measureText(badgeText).width + 24;
+    const badgeH = 24;
+    const badgeX = padX + 16;
+    const badgeY = hudTop;
+
+    // Nền huy hiệu bán trong suốt
+    targetCtx.fillStyle = "rgba(10, 8, 20, 0.85)";
+    targetCtx.strokeStyle = stage.color;
+    targetCtx.lineWidth = 1.5;
+    targetCtx.beginPath();
+    targetCtx.roundRect ? targetCtx.roundRect(badgeX, badgeY, badgeW, badgeH, 12) : targetCtx.rect(badgeX, badgeY, badgeW, badgeH);
+    targetCtx.fill();
+    targetCtx.stroke();
+
+    // Chữ giai đoạn
     targetCtx.fillStyle = stage.color;
     targetCtx.textAlign = "left";
-    const stageNum = String(oneMinStageIdx + 1).padStart(2, "0");
-    targetCtx.fillText(`[MÀN ${stageNum}/10] ${stage.id}`, padX + 16, padY + 24);
+    targetCtx.textBaseline = "middle";
+    targetCtx.fillText(badgeText, badgeX + 12, badgeY + badgeH / 2);
 
-    // Thời gian sống sót (Góc trên bên phải)
+    // [Góc Trên Bên Phải]: Đồng hồ thời gian số & Trái tim máu to rõ
     targetCtx.textAlign = "right";
-    const timeFormatted = oneMinPlayTime.toFixed(1).padStart(4, "0") + "s / 67.0s";
-    targetCtx.font = "bold 14px monospace";
-    targetCtx.fillStyle = "#ffffff";
-    targetCtx.fillText(`${timeFormatted}    `, gw - padX - 110, padY + 24);
+    targetCtx.textBaseline = "middle";
 
-    // Trái tim sinh mệnh to rõ ràng
-    let hpStr = "";
+    // Đồng hồ số 00.0s / 67.0s
+    const timeFormatted = oneMinPlayTime.toFixed(1).padStart(4, "0") + "s / 67.0s";
+    targetCtx.font = "900 14px monospace";
+    targetCtx.fillStyle = "#ffffff";
+    const timeX = gw - padX - (oneMinMaxHp * 22) - 30;
+    targetCtx.fillText(timeFormatted, timeX, badgeY + badgeH / 2);
+
+    // Chuỗi trái tim phát quang neon
     for (let i = 0; i < oneMinMaxHp; i++) {
-      hpStr += (i < oneMinHp ? "❤ " : "🖤 ");
+      const hX = gw - padX - ((oneMinMaxHp - i) * 22) + 2;
+      const isAlive = (i < oneMinHp);
+      targetCtx.font = "bold 17px sans-serif";
+      targetCtx.fillStyle = isAlive ? "#ff1744" : "rgba(255, 255, 255, 0.18)";
+      if (isGfxHigh && isAlive) {
+        targetCtx.shadowColor = "#ff1744";
+        targetCtx.shadowBlur = 10;
+      } else {
+        targetCtx.shadowBlur = 0;
+      }
+      targetCtx.fillText(isAlive ? "❤" : "🖤", hX, badgeY + badgeH / 2);
     }
-    targetCtx.font = "bold 15px sans-serif";
-    targetCtx.fillStyle = "#ff1744";
-    if (isGfxHigh) {
-      targetCtx.shadowColor = "#ff1744";
-      targetCtx.shadowBlur = 10;
+    targetCtx.shadowBlur = 0;
+
+    // Trạng thái Lướt (Hiển thị ngay dưới đồng hồ)
+    targetCtx.textAlign = "right";
+    targetCtx.font = "bold 10px monospace";
+    if (oneMinDashCooldown > 0) {
+      targetCtx.fillStyle = "#ffaa00";
+      targetCtx.fillText(`⚡ HỒI LƯỚT: ${oneMinDashCooldown.toFixed(1)}s`, gw - padX - 16, badgeY + badgeH + 14);
+    } else {
+      targetCtx.fillStyle = "#00e5ff";
+      targetCtx.fillText("⚡ LƯỚT SẴN SÀNG", gw - padX - 16, badgeY + badgeH + 14);
     }
-    targetCtx.fillText(hpStr.trim(), gw - padX - 16, padY + 24);
+
     targetCtx.restore();
 
     // 16. 5-Second Countdown Overlay Display - HIỂN THỊ ĐẾM NGƯỢC RÕ RÀNG & MƯỢT MÀ
