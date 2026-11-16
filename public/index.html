@@ -1540,6 +1540,16 @@
       max-width: 500px;
     }
 
+    #panel-map {
+      max-height: 88vh;
+      max-height: 88dvh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      box-sizing: border-box;
+      padding: 10px 14px 18px;
+    }
+
     #panel-root {
       display: flex;
     }
@@ -2322,6 +2332,11 @@
 
       #panel-map {
         max-width: 580px !important;
+        max-height: 88vh !important;
+        max-height: 88dvh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
         flex-direction: row !important;
         flex-wrap: wrap !important;
         justify-content: center !important;
@@ -17541,6 +17556,9 @@
       </div>
       <div id="panel-map" class="menu-panel" style="display: none;">
         <div class="menu-section-label zoom-rotate-item">Chế Độ Chơi Khác</div>
+        <button id="btn-map-top-back" type="button" class="menu-btn back-btn zoom-rotate-item" style="width: auto; min-width: 200px; padding: 7px 18px; margin: 0 auto 10px; font-size: 11.5px; font-weight: 900; background: rgba(255, 255, 255, 0.12); border: 1.5px solid rgba(0, 229, 255, 0.6); border-radius: 999px; box-shadow: 0 0 16px rgba(0, 229, 255, 0.3); color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <span style="font-size: 14px;">↩</span> QUAY LẠI MENU CHÍNH
+        </button>
         <button id="nav-race" class="menu-btn hot-mode-btn zoom-rotate-item" aria-label="Boss Rush Mode">
           <span class="hot-badge-boss">🔥 BOSS BATTLE</span>
           <span class="boss-btn-icon">
@@ -17646,7 +17664,7 @@
           <div class="csoon-title">Coming Soon</div>
           <div class="csoon-sub">Thêm chế độ chơi mới sắp ra mắt...</div>
         </div>
-        <button class="menu-btn back-btn zoom-rotate-item">↩ QUAY LẠI</button>
+        <button id="btn-map-bottom-back" type="button" class="menu-btn back-btn zoom-rotate-item" style="margin-top: 10px; border-color: rgba(255, 255, 255, 0.4);">↩ QUAY LẠI MENU CHÍNH</button>
       </div>
       <div id="panel-tsunami" class="menu-panel" style="display: none;">
         <div class="menu-section-label zoom-rotate-item">🌊 Chế Độ Sóng Thần</div>
@@ -23851,7 +23869,15 @@
           lanShowView("lan-mode-select-view");
         });
       }
-      const lanModeSelectBackBtn = document.getElementById("lan-mode-select-back");
+      const btnMapTopBack = document.getElementById("btn-map-top-back");
+    if (btnMapTopBack) {
+      btnMapTopBack.addEventListener("click", () => {
+        initAudio();
+        playSound("click");
+        switchPanel(panelMap, panelRoot, "out", "map");
+      });
+    }
+    const lanModeSelectBackBtn = document.getElementById("lan-mode-select-back");
       if (lanModeSelectBackBtn) {
         lanModeSelectBackBtn.addEventListener("click", () => {
           initAudio();
@@ -65983,17 +66009,23 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   function spawnOneMinStageAttack(stageIdx, beatStep, arenaW, arenaH) {
     const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
     const baseW = 48 * gridSize; // 960px chuẩn
-    const mapScale = arenaW / baseW;
+    const mapScale = arenaW / baseW; // 1.0 (Nhỏ), 1.73 (Vừa), 2.46 (Lớn), 3.17 (Cực lớn)
 
-    // TĂNG KÍCH THƯỚC ĐẠN THEO CẤP SỐ (GEOMETRIC PROGRESSION) THEO ĐỘ KHÓ & ĐỘ LỚN MAP:
+    // TĂNG KÍCH THƯỚC VÀ SỐ LƯỢNG ĐẠN THEO CẤP SỐ (GEOMETRIC PROGRESSION) CHO BẢN ĐỒ LỚN:
+    // Cân bằng độ khó công bằng giữa bản đồ nhỏ và các bản đồ lớn (Trung bình, Lớn, Cực lớn)
     const diffSizeMult = (oneMinDifficulty === "insane") ? 1.54 : (oneMinDifficulty === "hard" ? 1.24 : (oneMinDifficulty === "easy" ? 0.82 : 1.00));
-    const mapRadiusMult = Math.pow(Math.max(1.0, mapScale), 0.62);
+    // Tăng kích thước đạn theo cấp số lũy thừa 0.85 (Small: 1.0x, Med: ~1.60x, Large: ~2.14x, Huge: ~2.68x)
+    const mapRadiusMult = Math.pow(Math.max(1.0, mapScale), 0.85);
     const bulletSizeMult = diffSizeMult * mapRadiusMult;
 
-    // Tinh chỉnh số lượng đạn theo độ khó & kích thước map:
+    // Số lượng đạn tăng theo cấp số lũy thừa 1.15 (Small: 1.0x, Med: ~1.88x, Large: ~2.80x, Huge: ~3.80x)
     const diffCountMult = (oneMinDifficulty === "insane") ? 2.6 : (oneMinDifficulty === "hard" ? 1.8 : (oneMinDifficulty === "easy" ? 0.8 : 1.0));
-    const countScale = Math.pow(Math.max(1.0, mapScale), 0.58);
+    const countScale = Math.pow(Math.max(1.0, mapScale), 1.15);
     const countMult = diffCountMult;
+
+    // Độ dày và số làn tia laser tăng theo cấp số nhân cho bản đồ lớn
+    const laserWidthScale = Math.pow(Math.max(1.0, mapScale), 1.05);
+    const laserWidthBase = cfg.laserWidth * laserWidthScale;
 
     const speedMult = cfg.spdMult * mapScale;
     const cx = arenaW / 2;
@@ -66007,7 +66039,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const baseSpd = 135 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = (i * Math.PI * 2 / count);
-            // Độ lệch vị trí tọa độ tự nhiên quanh nhật hoa hạch sao (không chụm 1 điểm)
             const spawnDist = (12 + (i % 3) * 6 + (Math.random() - 0.5) * 6) * mapScale;
             const spawnA = angle + (Math.random() - 0.5) * 0.28;
             oneMinBullets.push({
@@ -66015,7 +66046,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
-              radius: 9 * bulletSizeMult,
+              radius: 9.5 * bulletSizeMult,
               color: "#ff5522",
               glow: "#ff9966",
               shape: "shuriken",
@@ -66036,7 +66067,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
-              radius: 8 * bulletSizeMult,
+              radius: 8.5 * bulletSizeMult,
               color: "#00e5ff",
               glow: "#80d8ff",
               shape: "circle",
@@ -66061,7 +66092,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: cy + Math.sin(angle) * sawDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
-              radius: 11 * bulletSizeMult,
+              radius: 12.0 * bulletSizeMult,
               color: "#ffaa33",
               glow: "#ffdd66",
               shape: "saw",
@@ -66073,15 +66104,16 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           }
           // Thêm đạn phụ Plasma Orbs xoay vệ tinh ở Hard/Insane
           if (countMult >= 1.7 && beatStep % 6 === 0) {
-            for (let i = 0; i < 4; i++) {
-              const a = (i * Math.PI / 2) + baseAngle * 0.5;
-              const orbDist = (14 + (i % 2) * 8 + Math.random() * 5) * mapScale;
+            const orbCount = Math.round(4 * Math.pow(mapScale, 0.65));
+            for (let i = 0; i < orbCount; i++) {
+              const a = (i * Math.PI * 2 / orbCount) + baseAngle * 0.5;
+              const orbDist = (16 + (i % 2) * 8 + Math.random() * 6) * mapScale;
               oneMinBullets.push({
                 x: cx + Math.cos(a) * orbDist,
                 y: cy + Math.sin(a) * orbDist,
                 vx: Math.cos(a) * (baseSpd * 0.75),
                 vy: Math.sin(a) * (baseSpd * 0.75),
-                radius: 7 * bulletSizeMult,
+                radius: 8.0 * bulletSizeMult,
                 color: "#ff3d00",
                 glow: "#ff9100",
                 shape: "circle",
@@ -66104,7 +66136,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             y: cy + Math.sin(spawnA) * spawnDist,
             vx: Math.cos(angle) * baseSpd,
             vy: Math.sin(angle) * baseSpd,
-            radius: 8.5 * bulletSizeMult,
+            radius: 9.0 * bulletSizeMult,
             color: "#ffdd44",
             glow: "#ffff99",
             shape: "diamond",
@@ -66113,43 +66145,51 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             life: 5.0
           });
         }
+        // LASER: Chú ý độ dày và phân bố làn cho bản đồ lớn
         if (beatStep % 8 === 0) {
-          const sweepY = (beatStep % 16 === 0) ? arenaH * 0.32 : arenaH * 0.68;
-          oneMinLasers.push({
-            x1: 0, y1: sweepY,
-            x2: arenaW, y2: sweepY,
-            width: cfg.laserWidth * mapScale,
-            state: "warning",
-            warningTimer: cfg.laserWarnTime,
-            fireTimer: 0.28,
-            color: "#ffdd44"
-          });
-          // Ở Insane thêm laser dọc quét vuông góc
-          if (countMult >= 2) {
-            const sweepX = (beatStep % 16 === 0) ? arenaW * 0.35 : arenaW * 0.65;
+          const laserLanes = Math.max(1, Math.round(Math.pow(mapScale, 0.70)));
+          for (let ll = 0; ll < laserLanes; ll++) {
+            const laneFrac = (ll + 0.5) / laserLanes;
+            const sweepY = arenaH * (0.18 + 0.64 * laneFrac + (Math.sin(beatStep + ll) * 0.08));
             oneMinLasers.push({
-              x1: sweepX, y1: 0,
-              x2: sweepX, y2: arenaH,
-              width: cfg.laserWidth * 0.9 * mapScale,
+              x1: 0, y1: sweepY,
+              x2: arenaW, y2: sweepY,
+              width: laserWidthBase,
               state: "warning",
-              warningTimer: cfg.laserWarnTime + 0.15,
-              fireTimer: 0.28,
+              warningTimer: cfg.laserWarnTime,
+              fireTimer: 0.30,
               color: "#ffdd44"
             });
+          }
+          // Ở Insane/Hard thêm laser dọc quét vuông góc
+          if (countMult >= 1.7) {
+            const vLanes = Math.max(1, Math.round(Math.pow(mapScale, 0.60)));
+            for (let vl = 0; vl < vLanes; vl++) {
+              const laneX = arenaW * ((vl + 0.5) / vLanes);
+              oneMinLasers.push({
+                x1: laneX, y1: 0,
+                x2: laneX, y2: arenaH,
+                width: laserWidthBase * 0.95,
+                state: "warning",
+                warningTimer: cfg.laserWarnTime + 0.12,
+                fireTimer: 0.30,
+                color: "#ffdd44"
+              });
+            }
           }
         }
         break;
       }
-      case 3: { // NEON: Laser Grid + Phi tiêu Shuriken (4 -> 8 -> 12 tia chia đều)
+      case 3: { // NEON: Laser Grid + Phi tiêu Shuriken (Laser phủ mạng lưới theo cấp số bản đồ)
         if (beatStep % 8 === 0) {
-          const gridCount = countMult >= 2 ? 2 : 1;
+          const gridCount = Math.round((countMult >= 1.7 ? 2 : 1) * Math.pow(mapScale, 0.72));
           for (let g = 0; g < gridCount; g++) {
             const randCol = (70 * mapScale) + (g + 0.5) * ((arenaW - 140 * mapScale) / gridCount);
             const randRow = (60 * mapScale) + (g + 0.5) * ((arenaH - 120 * mapScale) / gridCount);
             oneMinLasers.push({
               x1: randCol, y1: 0,
               x2: randCol, y2: arenaH,
-              width: cfg.laserWidth * mapScale,
+              width: laserWidthBase,
               state: "warning",
               warningTimer: cfg.laserWarnTime,
               fireTimer: 0.32,
@@ -66158,7 +66198,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             oneMinLasers.push({
               x1: 0, y1: randRow,
               x2: arenaW, y2: randRow,
-              width: cfg.laserWidth * mapScale,
+              width: laserWidthBase,
               state: "warning",
               warningTimer: cfg.laserWarnTime,
               fireTimer: 0.32,
@@ -66178,7 +66218,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(a) * spd,
               vy: Math.sin(a) * spd,
-              radius: 7.5 * bulletSizeMult,
+              radius: 8.5 * bulletSizeMult,
               color: "#33ff88",
               glow: "#aaffcc",
               shape: "shuriken",
@@ -66190,20 +66230,20 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 4: { // OXYGEN: Neutrino Darts Mũi tên Plasma (6 -> 10 -> 14 làn đạn)
+      case 4: { // OXYGEN: Neutrino Darts Mũi tên Plasma (Làn đạn tăng theo cấp số diện tích)
         if (beatStep % 4 === 0) {
           const baseLanes = (countMult >= 2.5) ? 14 : (countMult >= 1.7 ? 10 : 6);
-          const laneCount = Math.round(baseLanes * countScale);
-          const safeLane = Math.floor(Math.random() * (laneCount - 2)) + 1;
+          const laneCount = Math.round(baseLanes * Math.pow(mapScale, 0.85));
+          const safeLane = Math.floor(Math.random() * (laneCount - 3)) + 1;
           const laneWidth = arenaW / laneCount;
           for (let l = 0; l < laneCount; l++) {
-            if (l === safeLane || (countMult < 2.5 && l === safeLane + 1)) continue;
+            if (l === safeLane || l === safeLane + 1) continue; // Luôn giữ 2 làn an toàn rộng rãi
             const lx = l * laneWidth + laneWidth / 2;
             oneMinBullets.push({
               x: lx, y: 10,
               vx: 0,
               vy: 255 * speedMult,
-              radius: 7.5 * bulletSizeMult,
+              radius: 8.5 * bulletSizeMult,
               color: "#44ccff",
               glow: "#aaeeff",
               shape: "needle",
@@ -66218,7 +66258,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             oneMinBullets.push({
               x: 10, y: 10,
               vx: crossSpd, vy: crossSpd * 0.6,
-              radius: 8 * bulletSizeMult,
+              radius: 9.0 * bulletSizeMult,
               color: "#00e5ff",
               glow: "#ffffff",
               shape: "needle",
@@ -66228,7 +66268,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             oneMinBullets.push({
               x: arenaW - 10, y: 10,
               vx: -crossSpd, vy: crossSpd * 0.6,
-              radius: 8 * bulletSizeMult,
+              radius: 9.0 * bulletSizeMult,
               color: "#00e5ff",
               glow: "#ffffff",
               shape: "needle",
@@ -66254,7 +66294,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
-              radius: 8.5 * bulletSizeMult,
+              radius: 9.0 * bulletSizeMult,
               color: "#aa66ff",
               glow: "#ddbbff",
               shape: "diamond",
@@ -66265,9 +66305,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           }
         }
 
-        // 2. LƯỠI CƯA TÍM TĂNG SỐ LƯỢNG: 2 (Dễ) -> 3 (Vừa) -> 4 (Khó) -> 5 (Insane) quét từ 2 biên
+        // 2. LƯỠI CƯA TÍM TĂNG SỐ LƯỢNG: tỉ lệ theo độ khó và độ rộng map
         if (beatStep % 4 === 2) {
-          const sawCount = (oneMinDifficulty === "insane") ? 5 : ((oneMinDifficulty === "hard") ? 4 : ((oneMinDifficulty === "easy") ? 2 : 3));
+          const baseSaws = (oneMinDifficulty === "insane") ? 5 : ((oneMinDifficulty === "hard") ? 4 : ((oneMinDifficulty === "easy") ? 2 : 3));
+          const sawCount = Math.round(baseSaws * Math.pow(mapScale, 0.55));
           for (let sc = 0; sc < sawCount; sc++) {
             const fromLeft = (sc % 2 === 0);
             const startX = fromLeft ? -30 : arenaW + 30;
@@ -66281,14 +66322,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: targetY,
               vx: sawSpd,
               vy: sawVy,
-              radius: 12.5 * bulletSizeMult,
+              radius: 13.5 * bulletSizeMult,
               color: "#aa00ff",
               glow: "#e040fb",
               shape: "saw",
               teeth: 10,
               rot: 0,
               rotSpeed: fromLeft ? 12.0 : -12.0,
-              isShootingSaw: true, // Vừa cưa vừa bắn chỉ 2-3 hạt đạn nhỏ (chỉ vài hạt thôi)
+              isShootingSaw: true,
               shootTimer: 0.10 + sc * 0.08,
               life: 6.0
             });
@@ -66298,7 +66339,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
       case 6: { // IRON: LƯỠI CƯA RƠI XUỐNG SẬP ĐÁY TẠO SÓNG NƯỚC ĐẠN BẮN LÊN TRÊN + ĐẠN LI TI
         if (beatStep % 6 === 0) {
-          const sawDrops = Math.max(1, Math.round(countMult * countScale));
+          const sawDrops = Math.max(1, Math.round(countMult * Math.pow(mapScale, 0.75)));
           for (let s = 0; s < sawDrops; s++) {
             const targetX = (70 * mapScale) + (s + 0.5) * ((arenaW - 140 * mapScale) / sawDrops);
             oneMinBullets.push({
@@ -66306,7 +66347,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: -35,
               vx: 0,
               vy: 360 * speedMult,
-              radius: 16 * bulletSizeMult,
+              radius: 17.0 * bulletSizeMult,
               color: "#e2e8f0",
               glow: "#00e5ff",
               shape: "saw",
@@ -66345,7 +66386,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               x: sx, y: sy,
               vx: Math.cos(angle) * spd,
               vy: Math.sin(angle) * spd,
-              radius: 8.5 * bulletSizeMult,
+              radius: 9.0 * bulletSizeMult,
               color: "#ff1744",
               glow: "#ff8877",
               shape: "shuriken",
@@ -66374,7 +66415,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               x: spawnX, y: spawnY,
               vx: Math.cos(tangentAngle) * spd,
               vy: Math.sin(tangentAngle) * spd,
-              radius: 8.0 * bulletSizeMult,
+              radius: 8.5 * bulletSizeMult,
               color: (oc === 0) ? "#ffffff" : (oc === 1 ? "#00e5ff" : "#e040fb"),
               glow: "#99ccff",
               shape: "circle",
@@ -66387,7 +66428,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
 
         // B. HẠT ĐẠN TỪ XA BAY GIA TỐC VÀO HỐ TRẮNG (Infalling Accretion Bullets):
-        // Bay từ 4 phía viền xa vào tâm hố trắng bị hút gia tốc mạnh mẽ
+        // Chú ý kích thước đạn nhỏ và số lượng tăng theo cấp số bản đồ lớn
         if (beatStep % 2 === 0) {
           const infallingCount = Math.round(((oneMinDifficulty === "insane" ? 4 : (oneMinDifficulty === "hard" ? 3 : 2))) * countScale);
           for (let ic = 0; ic < infallingCount; ic++) {
@@ -66403,11 +66444,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: sy,
               vx: Math.cos(aimAngle) * inSpd,
               vy: Math.sin(aimAngle) * inSpd,
-              radius: 6.5 * bulletSizeMult,
+              radius: 8.0 * bulletSizeMult, // Đạn nhỏ rõ ràng, nổi bật
               color: (ic % 2 === 0) ? "#ffffff" : "#e040fb",
               glow: "#00e5ff",
               shape: "circle",
-              isInfalling: true, // Bị lực hấp dẫn hố trắng hút vào tâm
+              isInfalling: true,
               rot: 0,
               rotSpeed: 0,
               life: 5.5
@@ -66433,7 +66474,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
-              radius: 8.5 * bulletSizeMult,
+              radius: 9.5 * bulletSizeMult,
               color: `hsl(${(i * 360 / count)}, 100%, 65%)`,
               glow: "#ffffff",
               shape: "shuriken",
@@ -66457,7 +66498,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
         // 2. HAI BIÊN TRÁI/PHẢI: Lưỡi cưa xoay quét ngang (Màn 1 & Màn 6)
         if (beatStep % 8 === 2) {
-          const sawCount = (oneMinDifficulty === "insane" ? 3 : (oneMinDifficulty === "hard" ? 2 : 1));
+          const sawCount = Math.round((oneMinDifficulty === "insane" ? 3 : (oneMinDifficulty === "hard" ? 2 : 1)) * Math.pow(mapScale, 0.55));
           for (let sc = 0; sc < sawCount; sc++) {
             const fromLeft = (sc % 2 === 0);
             const startX = fromLeft ? -25 : arenaW + 25;
@@ -66468,7 +66509,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: targetY,
               vx: sawSpd,
               vy: (Math.sin(beatStep + sc) * 35) * speedMult,
-              radius: 12 * bulletSizeMult,
+              radius: 13.0 * bulletSizeMult,
               color: (sc % 2 === 0) ? "#aa00ff" : "#ffaa33",
               glow: "#e040fb",
               shape: "saw",
@@ -66484,7 +66525,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
         // 3. ĐỈNH RƠI XUỐNG: Bánh cưa sập đáy tạo sóng nước đạn vọt lên trời (Màn 7)
         if (beatStep % 8 === 4) {
-          const sawDrops = (oneMinDifficulty === "insane" ? 2 : 1);
+          const sawDrops = Math.max(1, Math.round((oneMinDifficulty === "insane" ? 2 : 1) * Math.pow(mapScale, 0.65)));
           for (let s = 0; s < sawDrops; s++) {
             const targetX = (80 * mapScale) + (s + 0.5) * ((arenaW - 160 * mapScale) / sawDrops);
             oneMinBullets.push({
@@ -66492,7 +66533,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: -30,
               vx: 0,
               vy: 350 * speedMult,
-              radius: 15 * bulletSizeMult,
+              radius: 16.5 * bulletSizeMult,
               color: "#e2e8f0",
               glow: "#00e5ff",
               shape: "saw",
@@ -66509,8 +66550,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
         // 4. TRÊN TRỜI XUỐNG: Mũi tên Plasma / Neutrino Darts mưa rào (Màn 5)
         if (beatStep % 8 === 6) {
-          const laneCount = Math.round(((oneMinDifficulty === "insane" ? 10 : (oneMinDifficulty === "hard" ? 8 : 6))) * countScale);
-          const safeLane = Math.floor(Math.random() * (laneCount - 2)) + 1;
+          const baseLanes = (oneMinDifficulty === "insane" ? 10 : (oneMinDifficulty === "hard" ? 8 : 6));
+          const laneCount = Math.round(baseLanes * Math.pow(mapScale, 0.85));
+          const safeLane = Math.floor(Math.random() * (laneCount - 3)) + 1;
           const laneWidth = arenaW / laneCount;
           for (let l = 0; l < laneCount; l++) {
             if (l === safeLane || l === safeLane + 1) continue; // 2 làn an toàn thoáng rộng
@@ -66519,7 +66561,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               x: lx, y: 10,
               vx: 0,
               vy: 240 * speedMult,
-              radius: 7 * bulletSizeMult,
+              radius: 8.0 * bulletSizeMult,
               color: "#00e5ff",
               glow: "#ffffff",
               shape: "needle",
@@ -66532,7 +66574,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
         // 5. CÁC BIÊN BỐN PHÍA: Chông biên Shuriken & Cánh xoắn kim cương (Màn 3 & 8) + Tia Laser quét
         if (beatStep % 8 === 0) {
-          const spikeCount = (oneMinDifficulty === "insane" ? 3 : (oneMinDifficulty === "hard" ? 2 : 1));
+          const spikeCount = Math.round((oneMinDifficulty === "insane" ? 3 : (oneMinDifficulty === "hard" ? 2 : 1)) * countScale);
           for (let sc = 0; sc < spikeCount; sc++) {
             const side = (Math.floor(Math.random() * 4) + sc) % 4;
             let sx = 0, sy = 0, angle = 0;
@@ -66546,7 +66588,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               x: sx, y: sy,
               vx: Math.cos(angle) * (180 * speedMult),
               vy: Math.sin(angle) * (180 * speedMult),
-              radius: 8 * bulletSizeMult,
+              radius: 9.0 * bulletSizeMult,
               color: "#ff1744",
               glow: "#ff8877",
               shape: "diamond",
@@ -66557,16 +66599,19 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           }
 
           if (countMult >= 1.7) {
-            const sweepY = (beatStep % 16 === 0) ? arenaH * 0.28 : arenaH * 0.72;
-            oneMinLasers.push({
-              x1: 0, y1: sweepY,
-              x2: arenaW, y2: sweepY,
-              width: cfg.laserWidth * 0.85 * mapScale,
-              state: "warning",
-              warningTimer: cfg.laserWarnTime * 0.9,
-              fireTimer: 0.25,
-              color: "#ff3366"
-            });
+            const laserLanes = Math.max(1, Math.round(Math.pow(mapScale, 0.65)));
+            for (let ll = 0; ll < laserLanes; ll++) {
+              const sweepY = arenaH * ((ll + 0.5) / laserLanes + (Math.sin(beatStep + ll) * 0.06));
+              oneMinLasers.push({
+                x1: 0, y1: sweepY,
+                x2: arenaW, y2: sweepY,
+                width: laserWidthBase * 0.90,
+                state: "warning",
+                warningTimer: cfg.laserWarnTime * 0.9,
+                fireTimer: 0.28,
+                color: "#ff3366"
+              });
+            }
           }
         }
         break;
@@ -66916,7 +66961,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const hx = (worm.body[0].x + 0.5) * gridSize;
           const hy = (worm.body[0].y + 0.5) * gridSize;
           const d = distToSegment({ x: hx, y: hy }, { x: l.x1, y: l.y1 }, { x: l.x2, y: l.y2 });
-          if (d <= l.width / 2 + 7) {
+          const hitMargin = 7 * Math.pow(Math.max(1.0, mapScale), 0.75);
+          if (d <= l.width / 2 + hitMargin) {
             if (oneMinDashTimer > 0 || oneMinInvincibleTimer > 0) {
               spawnOneMinGrazeSpark(hx, hy);
             } else {
@@ -66944,9 +66990,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     const cx = arenaW / 2;
     const cy = arenaH / 2;
     const mapScale = (cols || 48) / 48;
-    const mapRadiusMult = Math.pow(Math.max(1.0, mapScale), 0.62);
+    const mapRadiusMult = Math.pow(Math.max(1.0, mapScale), 0.85);
     const diffSizeMult = (oneMinDifficulty === "insane") ? 1.54 : (oneMinDifficulty === "hard" ? 1.24 : (oneMinDifficulty === "easy" ? 0.82 : 1.00));
     const bulletSizeMult = diffSizeMult * mapRadiusMult;
+    const countScale = Math.pow(Math.max(1.0, mapScale), 1.15);
 
     for (let i = oneMinBullets.length - 1; i >= 0; i--) {
       const b = oneMinBullets[i];
@@ -66968,7 +67015,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: b.y,
               vx: Math.cos(sa) * sparkSpeed,
               vy: Math.sin(sa) * sparkSpeed,
-              radius: 3.8 * bulletSizeMult, // Hạt đạn nhỏ gọn
+              radius: 4.8 * bulletSizeMult, // Đạn hạt nhỏ li ti tăng theo cấp số
               color: (sp % 2 === 0) ? "#e040fb" : "#ba68c8",
               glow: "#ffffff",
               shape: "diamond",
@@ -66995,7 +67042,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const impactX = b.x;
         const impactY = Math.min(arenaH - 18, b.y);
 
-        const waveCount = (oneMinDifficulty === "insane" ? 12 : (oneMinDifficulty === "hard" ? 9 : 7));
+        const waveCount = Math.round((oneMinDifficulty === "insane" ? 12 : (oneMinDifficulty === "hard" ? 9 : 7)) * Math.pow(mapScale, 0.65));
         const cfgSpd = (ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult;
         for (let w = 0; w < waveCount; w++) {
           const waveAngle = -Math.PI * (0.15 + (w / (waveCount - 1)) * 0.70);
@@ -67005,7 +67052,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             y: impactY - 6,
             vx: Math.cos(waveAngle) * waveSpd,
             vy: Math.sin(waveAngle) * waveSpd,
-            radius: 6.5 * bulletSizeMult,
+            radius: 7.5 * bulletSizeMult,
             color: (w % 2 === 0) ? "#00e5ff" : "#80d8ff",
             glow: "#ffffff",
             shape: "circle",
@@ -67016,7 +67063,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           });
         }
 
-        const tinyCount = (oneMinDifficulty === "insane" ? 18 : (oneMinDifficulty === "hard" ? 13 : 8));
+        const tinyCount = Math.round((oneMinDifficulty === "insane" ? 20 : (oneMinDifficulty === "hard" ? 14 : 9)) * countScale);
         for (let t = 0; t < tinyCount; t++) {
           const tinyAngle = -Math.PI * (0.08 + Math.random() * 0.84);
           const tinySpd = (100 + Math.random() * 150) * cfgSpd * mapScale;
@@ -67025,7 +67072,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             y: impactY - 4,
             vx: Math.cos(tinyAngle) * tinySpd,
             vy: Math.sin(tinyAngle) * tinySpd,
-            radius: 3.4 * bulletSizeMult,
+            radius: 4.8 * bulletSizeMult,
             color: Math.random() < 0.65 ? "#e0f7fa" : "#ffffff",
             glow: "#00e5ff",
             shape: "circle",
