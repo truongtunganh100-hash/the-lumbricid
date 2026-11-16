@@ -64819,6 +64819,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   let oneMinSpeedBoostTimer = 0;
   let oneMinSpeedMultiplier = 1.0;
   let oneMinFloatingBanners = []; // { text, color, x, y, life, maxLife }
+  let oneMinHitGlitchTimer = 0; // Hiệu ứng giật quang sai Chromatic Aberration khi dính đạn
+  let oneMinDeathTimer = 0; // Bộ đếm thời gian tử trận hoành tráng
+  let oneMinDeathPos = null; // Tọa độ tử trận để tạo tâm nổ Nova
+  let oneMinDeathShards = []; // Mảnh vỡ tinh thể phát quang nổ tung khi chết
 
   // Difficulty Presets
   const ONE_MIN_DIFF_CONFIG = {
@@ -65578,71 +65582,179 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   }
 
   function oneMinTakeDamage() {
+    if (oneMinState === "dying" || oneMinState === "victory") return;
     if (oneMinDashTimer > 0 || dashPunchTimer > 0 || oneMinInvincibleTimer > 0) return;
     oneMinHp -= 1;
     const cfg = ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal;
     oneMinInvincibleTimer = cfg.invincibleTime;
 
-    // Rung lắc mạnh giật màn hình giống lúc chết + chớp đỏ cảnh báo
-    screenShake = 46;
+    // 1. Rung lắc mạnh giật màn hình giống lúc chết + chớp đỏ cảnh báo + Giật quang sai Chromatic Aberration
+    screenShake = 48;
     oneMinScreenFlash = 1.0;
+    oneMinHitGlitchTimer = 0.32;
     playSound("explode");
     try { playSound("gameover"); } catch (_) {}
 
-    // Animation nổ hạt mảnh vỡ mãnh liệt tỏa ra từ thân giun giống hiệu ứng tử trận (Death Burst)
+    // 2. Animation nổ hạt mảnh vỡ mãnh liệt tỏa ra từ thân giun giống hiệu ứng tử trận (Death Burst)
     if (worm.body && worm.body[0]) {
       const hx = (worm.body[0].x + 0.5) * gridSize;
       const hy = (worm.body[0].y + 0.5) * gridSize;
+      const mapScale = (cols || 48) / 48;
 
-      // 1. Sóng xung kích chấn thương màu đỏ rực
+      // Sóng xung kích chấn thương 2 lớp: Đỏ rực và Cam vàng
       oneMinShockwaves.push({
         cx: hx,
         cy: hy,
-        radius: 10,
-        maxRadius: 90,
-        speed: 240,
-        thickness: 5,
+        radius: 12 * mapScale,
+        maxRadius: 115 * mapScale,
+        speed: 260 * mapScale,
+        thickness: 6 * mapScale,
         color: "#ff1744",
         alpha: 1.0
       });
+      oneMinShockwaves.push({
+        cx: hx,
+        cy: hy,
+        radius: 8 * mapScale,
+        maxRadius: 80 * mapScale,
+        speed: 210 * mapScale,
+        thickness: 5 * mapScale,
+        color: "#ff9100",
+        alpha: 0.9
+      });
 
-      // 2. Chùm 32 tia lửa vỡ vụn bắn tung ra 360 độ từ đầu và thân
-      for (let i = 0; i < 32; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const spd = 130 + Math.random() * 260;
-        const pCol = Math.random() < 0.65 ? "#ff1744" : (Math.random() < 0.5 ? "#ffffff" : "#ff9100");
-        oneMinGrazeParticles.push({
-          x: hx + (Math.random() * 10 - 5),
-          y: hy + (Math.random() * 10 - 5),
-          vx: Math.cos(a) * spd,
-          vy: Math.sin(a) * spd,
-          size: 3.5 + Math.random() * 3.5,
-          color: pCol,
-          alpha: 1.0
-        });
-      }
+      // Chùm 42 tia lửa vỡ vụn bắn tung ra 360 độ từ đầu và các đốt thân
+      worm.body.forEach((seg, sIdx) => {
+        const segX = (seg.x + 0.5) * gridSize;
+        const segY = (seg.y + 0.5) * gridSize;
+        const sparksCount = (sIdx === 0) ? 22 : 10;
+        for (let i = 0; i < sparksCount; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const spd = 120 + Math.random() * 260;
+          const pCol = Math.random() < 0.65 ? "#ff1744" : (Math.random() < 0.5 ? "#ffffff" : "#ff9100");
+          oneMinGrazeParticles.push({
+            x: segX + (Math.random() * 10 - 5),
+            y: segY + (Math.random() * 10 - 5),
+            vx: Math.cos(a) * spd,
+            vy: Math.sin(a) * spd,
+            size: 3.5 + Math.random() * 3.5,
+            color: pCol,
+            alpha: 1.0
+          });
+        }
+      });
 
-      // 3. Biểu tượng sát thương bay lên
+      // Biểu tượng sát thương bay lên
       oneMinFloatingBanners.push({
         text: "💥 -1 ❤",
         color: "#ff1744",
         x: hx,
-        y: hy - 22,
-        life: 1.3,
-        maxLife: 1.3
+        y: hy - 26,
+        life: 1.4,
+        maxLife: 1.4
       });
     }
 
     if (oneMinHp <= 0) {
-      wasOneMinMode = true;
-      triggerOneMinGameOver();
+      triggerOneMinDyingSequence();
     }
+  }
+
+  // ANIMATION CHẾT SIÊU ẤN TƯỢNG (CINEMATIC DEATH DETONATION):
+  // Implosion hạch giun, 3 tầng sóng chấn động Nova, vỡ tung thành 72+ mảnh tinh thể neon xoay tròn
+  function triggerOneMinDyingSequence() {
+    if (oneMinState === "dying") return;
+    oneMinState = "dying";
+    oneMinDeathTimer = 1.6;
+    screenShake = 65;
+    oneMinScreenFlash = 1.0;
+    oneMinHitGlitchTimer = 0.45;
+
+    if (oneMinAudio) {
+      try { oneMinAudio.pause(); } catch (_) {}
+    }
+    playSound("explode");
+    try { playSound("gameover"); } catch (_) {}
+
+    let hx = (cols * gridSize) / 2;
+    let hy = (rows * gridSize) / 2;
+    if (worm.body && worm.body[0]) {
+      hx = (worm.body[0].x + 0.5) * gridSize;
+      hy = (worm.body[0].y + 0.5) * gridSize;
+    }
+    oneMinDeathPos = { x: hx, y: hy };
+
+    const mapScale = (cols || 48) / 48;
+    // 3 Sóng xung kích Nova cực đại
+    oneMinShockwaves.push({
+      cx: hx, cy: hy,
+      radius: 12 * mapScale,
+      maxRadius: Math.max(cols * gridSize, rows * gridSize) * 0.85,
+      speed: 360 * mapScale,
+      thickness: 10 * mapScale,
+      color: "#ffffff",
+      alpha: 1.0
+    });
+    oneMinShockwaves.push({
+      cx: hx, cy: hy,
+      radius: 8 * mapScale,
+      maxRadius: Math.max(cols * gridSize, rows * gridSize) * 0.70,
+      speed: 260 * mapScale,
+      thickness: 8 * mapScale,
+      color: "#00e5ff",
+      alpha: 0.95
+    });
+    oneMinShockwaves.push({
+      cx: hx, cy: hy,
+      radius: 6 * mapScale,
+      maxRadius: Math.max(cols * gridSize, rows * gridSize) * 0.55,
+      speed: 180 * mapScale,
+      thickness: 7 * mapScale,
+      color: "#ff1744",
+      alpha: 0.90
+    });
+
+    // 72+ Mảnh vỡ tinh thể phát quang nổ tung từ mọi đốt thân giun
+    oneMinDeathShards = [];
+    const segments = (worm.body && worm.body.length > 0) ? worm.body : [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+    const shardsPerSeg = Math.ceil(72 / segments.length);
+    const colors = ["#ffffff", "#00e5ff", "#ff1744", "#ff007f", "#e040fb", "#ffd700"];
+
+    segments.forEach((seg, sIdx) => {
+      const sx = (seg.x + 0.5) * gridSize;
+      const sy = (seg.y + 0.5) * gridSize;
+      for (let i = 0; i < shardsPerSeg; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd = 70 + Math.random() * 340;
+        oneMinDeathShards.push({
+          x: sx,
+          y: sy,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd,
+          size: 4.0 + Math.random() * 5.5,
+          rot: Math.random() * Math.PI * 2,
+          rotSpd: (Math.random() - 0.5) * 16.0,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          life: 1.6,
+          maxLife: 1.6
+        });
+      }
+    });
+
+    oneMinFloatingBanners.push({
+      text: "💥 TỬ TRẬN! 💥",
+      color: "#ff1744",
+      x: hx,
+      y: hy - 32,
+      life: 1.6,
+      maxLife: 1.6
+    });
   }
 
   function triggerOneMinGameOver() {
     wasOneMinMode = true;
     gameOver = true;
-    screenShake = 55;
+    screenShake = 35;
     playSound("gameover");
     stopOneMinMode();
     wasOneMinMode = true; // Preserve flag after stopOneMinMode
@@ -65676,10 +65788,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           goOverlay.style.opacity = "1";
         }, 50);
       }
-    }, 400);
+    }, 120);
   }
 
-  function triggerOneMinVictory() {
+    function triggerOneMinVictory() {
     if (oneMinState === "victory") return;
     oneMinState = "victory";
     if (oneMinAudio) {
@@ -65759,6 +65871,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     oneMinSpeedBoostTimer = 0;
     oneMinSpeedMultiplier = 1.0;
     oneMinFloatingBanners = [];
+    oneMinHitGlitchTimer = 0;
+    oneMinDeathTimer = 0;
+    oneMinDeathPos = null;
+    oneMinDeathShards = [];
     controlsReverseTimer = 0;
 
     isMenuMode = false;
@@ -65854,6 +65970,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     oneMinWallContractFrac = 0;
     oneMinSpeedBoostTimer = 0;
     oneMinSpeedMultiplier = 1.0;
+    oneMinHitGlitchTimer = 0;
+    oneMinDeathTimer = 0;
+    oneMinDeathPos = null;
+    oneMinDeathShards = [];
   }
 
   // =========================================================================
@@ -65866,11 +65986,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     const mapScale = arenaW / baseW;
 
     // TĂNG KÍCH THƯỚC ĐẠN THEO CẤP SỐ (GEOMETRIC PROGRESSION) THEO ĐỘ KHÓ & ĐỘ LỚN MAP:
-    // Độ khó: Dễ (0.82) -> Bình thường (1.00) -> Khó (1.24) -> Insane (1.54) (cấp số nhân ~1.24x)
     const diffSizeMult = (oneMinDifficulty === "insane") ? 1.54 : (oneMinDifficulty === "hard" ? 1.24 : (oneMinDifficulty === "easy" ? 0.82 : 1.00));
-    // Độ lớn map: Tăng mượt mà theo lũy thừa 0.62 (Nhỏ 1.0 -> Vừa 1.40 -> Lớn 1.74 -> Cực lớn 2.05)
     const mapRadiusMult = Math.pow(Math.max(1.0, mapScale), 0.62);
-    // Kích thước đạn tổng hợp theo cấp số
     const bulletSizeMult = diffSizeMult * mapRadiusMult;
 
     // Tinh chỉnh số lượng đạn theo độ khó & kích thước map:
@@ -65890,8 +66007,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const baseSpd = 135 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = (i * Math.PI * 2 / count);
+            // Độ lệch vị trí tọa độ tự nhiên quanh nhật hoa hạch sao (không chụm 1 điểm)
+            const spawnDist = (12 + (i % 3) * 6 + (Math.random() - 0.5) * 6) * mapScale;
+            const spawnA = angle + (Math.random() - 0.5) * 0.28;
             oneMinBullets.push({
-              x: cx, y: cy,
+              x: cx + Math.cos(spawnA) * spawnDist,
+              y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
               radius: 9 * bulletSizeMult,
@@ -65908,8 +66029,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const baseSpd = 125 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = (i * Math.PI * 2 / count) + (Math.PI / count);
+            const spawnDist = (12 + (i % 3) * 6 + (Math.random() - 0.5) * 6) * mapScale;
+            const spawnA = angle + (Math.random() - 0.5) * 0.28;
             oneMinBullets.push({
-              x: cx, y: cy,
+              x: cx + Math.cos(spawnA) * spawnDist,
+              y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
               radius: 8 * bulletSizeMult,
@@ -65931,9 +66055,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const baseSpd = 150 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = baseAngle + (i * Math.PI * 2 / count);
+            const sawDist = (20 + (i % 3) * 7 + Math.random() * 6) * mapScale;
             oneMinBullets.push({
-              x: cx + Math.cos(angle) * (24 * mapScale),
-              y: cy + Math.sin(angle) * (24 * mapScale),
+              x: cx + Math.cos(angle) * sawDist,
+              y: cy + Math.sin(angle) * sawDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
               radius: 11 * bulletSizeMult,
@@ -65950,8 +66075,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           if (countMult >= 1.7 && beatStep % 6 === 0) {
             for (let i = 0; i < 4; i++) {
               const a = (i * Math.PI / 2) + baseAngle * 0.5;
+              const orbDist = (14 + (i % 2) * 8 + Math.random() * 5) * mapScale;
               oneMinBullets.push({
-                x: cx, y: cy,
+                x: cx + Math.cos(a) * orbDist,
+                y: cy + Math.sin(a) * orbDist,
                 vx: Math.cos(a) * (baseSpd * 0.75),
                 vy: Math.sin(a) * (baseSpd * 0.75),
                 radius: 7 * bulletSizeMult,
@@ -65970,8 +66097,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const baseSpd = 165 * speedMult;
         for (let s = 0; s < spiralCount; s++) {
           const angle = beatStep * 0.38 + (s * Math.PI * 2 / spiralCount);
+          const spawnDist = (14 + (s % 4) * 5 + (Math.random() - 0.5) * 6) * mapScale;
+          const spawnA = angle + (Math.random() - 0.5) * 0.26;
           oneMinBullets.push({
-            x: cx, y: cy,
+            x: cx + Math.cos(spawnA) * spawnDist,
+            y: cy + Math.sin(spawnA) * spawnDist,
             vx: Math.cos(angle) * baseSpd,
             vy: Math.sin(angle) * baseSpd,
             radius: 8.5 * bulletSizeMult,
@@ -66041,8 +66171,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const spd = 135 * speedMult;
           for (let i = 0; i < count; i++) {
             const a = (i * Math.PI * 2 / count) + (beatStep * 0.15);
+            const spawnDist = (12 + (i % 3) * 6 + Math.random() * 6) * mapScale;
+            const spawnA = a + (Math.random() - 0.5) * 0.26;
             oneMinBullets.push({
-              x: cx, y: cy,
+              x: cx + Math.cos(spawnA) * spawnDist,
+              y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(a) * spd,
               vy: Math.sin(a) * spd,
               radius: 7.5 * bulletSizeMult,
@@ -66106,7 +66239,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 5: { // MÀN 6 (MÀU TÍM - SILICON): HOA SAO + LƯỠI CƯA TÍM QUÉT NGANG VỪA CƯA VỪA BẮN ĐẠN XUNG QUANH MÀN
+      case 5: { // MÀN 6 (MÀU TÍM - SILICON): HOA SAO + LƯỠI CƯA TÍM QUÉT NGANG (TĂNG SỐ LƯỢNG LƯỠI CƯA, BẮN CHỈ VÀI HẠT ĐẠN)
         // 1. Hoa sao năng lượng tỏa đều từ tâm (Alpha Ladder Starburst)
         if (beatStep % 4 === 0) {
           const count = Math.round(8 * countMult * countScale);
@@ -66114,8 +66247,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const baseSpd = 155 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = stepOffset + (i * Math.PI * 2 / count);
+            const spawnDist = (14 + (i % 4) * 6 + (Math.random() - 0.5) * 6) * mapScale;
+            const spawnA = angle + (Math.random() - 0.5) * 0.25;
             oneMinBullets.push({
-              x: cx, y: cy,
+              x: cx + Math.cos(spawnA) * spawnDist,
+              y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
               radius: 8.5 * bulletSizeMult,
@@ -66129,31 +66265,32 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           }
         }
 
-        // 2. LƯỠI CƯA TÍM CƯA ĐẾN BẮN ĐẠN XUNG QUANH MÀN: Quét ngang đấu trường và liên tục xả đạn
+        // 2. LƯỠI CƯA TÍM TĂNG SỐ LƯỢNG: 2 (Dễ) -> 3 (Vừa) -> 4 (Khó) -> 5 (Insane) quét từ 2 biên
         if (beatStep % 4 === 2) {
-          const sawCount = (countMult >= 2.5) ? 2 : 1;
+          const sawCount = (oneMinDifficulty === "insane") ? 5 : ((oneMinDifficulty === "hard") ? 4 : ((oneMinDifficulty === "easy") ? 2 : 3));
           for (let sc = 0; sc < sawCount; sc++) {
-            const fromLeft = (beatStep % 8 === 2) ? (sc === 0) : (sc === 1);
-            const startX = fromLeft ? -25 : arenaW + 25;
-            const targetY = arenaH * (0.22 + 0.56 * ((sc * 0.5 + ((beatStep * 0.17) % 1)) % 1));
-            const sawSpd = (fromLeft ? 210 : -210) * speedMult;
-            const sawVy = ((Math.sin(beatStep + sc) * 45)) * speedMult;
+            const fromLeft = (sc % 2 === 0);
+            const startX = fromLeft ? -30 : arenaW + 30;
+            const laneFrac = (sc + 0.5) / sawCount;
+            const targetY = arenaH * (0.16 + 0.68 * laneFrac) + (Math.sin(beatStep + sc) * 15 * mapScale);
+            const sawSpd = (fromLeft ? (195 + sc * 12) : -(195 + sc * 12)) * speedMult;
+            const sawVy = (Math.sin(beatStep * 1.4 + sc) * 35) * speedMult;
 
             oneMinBullets.push({
               x: startX,
               y: targetY,
               vx: sawSpd,
               vy: sawVy,
-              radius: 13.5 * bulletSizeMult,
+              radius: 12.5 * bulletSizeMult,
               color: "#aa00ff",
               glow: "#e040fb",
               shape: "saw",
               teeth: 10,
               rot: 0,
               rotSpeed: fromLeft ? 12.0 : -12.0,
-              isShootingSaw: true, // Kích hoạt cơ chế vừa cưa vừa bắn đạn xung quanh màn!
-              shootTimer: 0.05,
-              life: 5.8
+              isShootingSaw: true, // Vừa cưa vừa bắn chỉ 2-3 hạt đạn nhỏ (chỉ vài hạt thôi)
+              shootTimer: 0.10 + sc * 0.08,
+              life: 6.0
             });
           }
         }
@@ -66169,14 +66306,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: -35,
               vx: 0,
               vy: 360 * speedMult,
-              radius: 16 * bulletSizeMult, // Kích thước đạn cưa khổng lồ uy lực
+              radius: 16 * bulletSizeMult,
               color: "#e2e8f0",
               glow: "#00e5ff",
               shape: "saw",
               teeth: 12,
               rot: 0,
               rotSpeed: 11.0,
-              isFallingSaw: true, // Đánh dấu cưa rơi để khi chạm đáy sinh sóng nước đạn bắn lên trên
+              isFallingSaw: true,
               targetFloorY: arenaH - 26,
               life: 3.5
             });
@@ -66220,8 +66357,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 8: { // COLLAPSE: Singularity Whirlpool Suction (1 -> 2 -> 3 Đạn xoáy bồi tụ bão tố)
+      case 8: { // COLLAPSE: Singularity Whirlpool Suction + HẠT ĐẠN TỪ XA BAY GIA TỐC VÀO HỐ TRẮNG
         oneMinWallContractFrac = cfg.wallContract * 0.45;
+
+        // A. Đạn xoáy bồi tụ bão tố (Tangential Whirlpool Orbs)
         if (beatStep % 2 === 0) {
           const orbCount = Math.round(countMult * countScale);
           for (let oc = 0; oc < orbCount; oc++) {
@@ -66246,21 +66385,55 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             });
           }
         }
+
+        // B. HẠT ĐẠN TỪ XA BAY GIA TỐC VÀO HỐ TRẮNG (Infalling Accretion Bullets):
+        // Bay từ 4 phía viền xa vào tâm hố trắng bị hút gia tốc mạnh mẽ
+        if (beatStep % 2 === 0) {
+          const infallingCount = Math.round(((oneMinDifficulty === "insane" ? 4 : (oneMinDifficulty === "hard" ? 3 : 2))) * countScale);
+          for (let ic = 0; ic < infallingCount; ic++) {
+            const inAngle = Math.random() * Math.PI * 2;
+            const spawnDist = Math.max(arenaW, arenaH) * 0.52;
+            const sx = cx + Math.cos(inAngle) * spawnDist;
+            const sy = cy + Math.sin(inAngle) * spawnDist;
+            const aimAngle = Math.atan2(cy - sy, cx - sx) + (Math.random() - 0.5) * 0.22;
+            const inSpd = 145 * speedMult;
+
+            oneMinBullets.push({
+              x: sx,
+              y: sy,
+              vx: Math.cos(aimAngle) * inSpd,
+              vy: Math.sin(aimAngle) * inSpd,
+              radius: 6.5 * bulletSizeMult,
+              color: (ic % 2 === 0) ? "#ffffff" : "#e040fb",
+              glow: "#00e5ff",
+              shape: "circle",
+              isInfalling: true, // Bị lực hấp dẫn hố trắng hút vào tâm
+              rot: 0,
+              rotSpeed: 0,
+              life: 5.5
+            });
+          }
+        }
         break;
       }
-      case 9: { // SUPERNOVA: Rainbow Petal Cascade (16 -> 32 -> 48 Cánh hoa cầu vồng đại phát nổ)
+      case 9: { // SUPERNOVA: CLIMAX ĐẠI BÙNG NỔ - TỔNG HỢP TOÀN BỘ CÁC LOẠI ĐẠN TRONG LEVEL TẤN CÔNG TỪ MỌI PHÍA!
         oneMinWallContractFrac = 0;
+
+        // 1. TÂM NỔ: Cánh hoa cầu vồng đại phát nổ (Rainbow Petals) từ lõi Supernova
         if (beatStep % 4 === 0) {
-          const baseCount = (oneMinDifficulty === "easy") ? 10 : (16 * countMult);
+          const baseCount = (oneMinDifficulty === "easy") ? 8 : ((oneMinDifficulty === "insane") ? 20 : (countMult >= 1.7 ? 14 : 10));
           const count = Math.round(baseCount * countScale);
-          const baseSpd = 170 * speedMult;
+          const baseSpd = 165 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = (i * Math.PI * 2 / count) + (beatStep * 0.22);
+            const spawnDist = (12 + (i % 3) * 6 + Math.random() * 6) * mapScale;
+            const spawnA = angle + (Math.random() - 0.5) * 0.25;
             oneMinBullets.push({
-              x: cx, y: cy,
+              x: cx + Math.cos(spawnA) * spawnDist,
+              y: cy + Math.sin(spawnA) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
-              radius: 9 * bulletSizeMult,
+              radius: 8.5 * bulletSizeMult,
               color: `hsl(${(i * 360 / count)}, 100%, 65%)`,
               glow: "#ffffff",
               shape: "shuriken",
@@ -66281,25 +66454,196 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             alpha: 0.90
           });
         }
+
+        // 2. HAI BIÊN TRÁI/PHẢI: Lưỡi cưa xoay quét ngang (Màn 1 & Màn 6)
+        if (beatStep % 8 === 2) {
+          const sawCount = (oneMinDifficulty === "insane" ? 3 : (oneMinDifficulty === "hard" ? 2 : 1));
+          for (let sc = 0; sc < sawCount; sc++) {
+            const fromLeft = (sc % 2 === 0);
+            const startX = fromLeft ? -25 : arenaW + 25;
+            const targetY = arenaH * (0.2 + 0.6 * ((sc + 0.5) / sawCount));
+            const sawSpd = (fromLeft ? 210 : -210) * speedMult;
+            oneMinBullets.push({
+              x: startX,
+              y: targetY,
+              vx: sawSpd,
+              vy: (Math.sin(beatStep + sc) * 35) * speedMult,
+              radius: 12 * bulletSizeMult,
+              color: (sc % 2 === 0) ? "#aa00ff" : "#ffaa33",
+              glow: "#e040fb",
+              shape: "saw",
+              teeth: 10,
+              rot: 0,
+              rotSpeed: fromLeft ? 12.0 : -12.0,
+              isShootingSaw: true,
+              shootTimer: 0.12,
+              life: 5.5
+            });
+          }
+        }
+
+        // 3. ĐỈNH RƠI XUỐNG: Bánh cưa sập đáy tạo sóng nước đạn vọt lên trời (Màn 7)
+        if (beatStep % 8 === 4) {
+          const sawDrops = (oneMinDifficulty === "insane" ? 2 : 1);
+          for (let s = 0; s < sawDrops; s++) {
+            const targetX = (80 * mapScale) + (s + 0.5) * ((arenaW - 160 * mapScale) / sawDrops);
+            oneMinBullets.push({
+              x: targetX,
+              y: -30,
+              vx: 0,
+              vy: 350 * speedMult,
+              radius: 15 * bulletSizeMult,
+              color: "#e2e8f0",
+              glow: "#00e5ff",
+              shape: "saw",
+              teeth: 12,
+              rot: 0,
+              rotSpeed: 10.0,
+              isFallingSaw: true,
+              targetFloorY: arenaH - 26,
+              life: 3.5
+            });
+          }
+          screenShake = Math.max(screenShake, 14);
+        }
+
+        // 4. TRÊN TRỜI XUỐNG: Mũi tên Plasma / Neutrino Darts mưa rào (Màn 5)
+        if (beatStep % 8 === 6) {
+          const laneCount = Math.round(((oneMinDifficulty === "insane" ? 10 : (oneMinDifficulty === "hard" ? 8 : 6))) * countScale);
+          const safeLane = Math.floor(Math.random() * (laneCount - 2)) + 1;
+          const laneWidth = arenaW / laneCount;
+          for (let l = 0; l < laneCount; l++) {
+            if (l === safeLane || l === safeLane + 1) continue; // 2 làn an toàn thoáng rộng
+            const lx = l * laneWidth + laneWidth / 2;
+            oneMinBullets.push({
+              x: lx, y: 10,
+              vx: 0,
+              vy: 240 * speedMult,
+              radius: 7 * bulletSizeMult,
+              color: "#00e5ff",
+              glow: "#ffffff",
+              shape: "needle",
+              rot: Math.PI / 2,
+              rotSpeed: 0,
+              life: 3.2
+            });
+          }
+        }
+
+        // 5. CÁC BIÊN BỐN PHÍA: Chông biên Shuriken & Cánh xoắn kim cương (Màn 3 & 8) + Tia Laser quét
+        if (beatStep % 8 === 0) {
+          const spikeCount = (oneMinDifficulty === "insane" ? 3 : (oneMinDifficulty === "hard" ? 2 : 1));
+          for (let sc = 0; sc < spikeCount; sc++) {
+            const side = (Math.floor(Math.random() * 4) + sc) % 4;
+            let sx = 0, sy = 0, angle = 0;
+            const offset = 20 * mapScale;
+            if (side === 0) { sx = -offset; sy = Math.random() * arenaH; angle = 0; }
+            else if (side === 1) { sx = arenaW + offset; sy = Math.random() * arenaH; angle = Math.PI; }
+            else if (side === 2) { sx = Math.random() * arenaW; sy = -offset; angle = Math.PI / 2; }
+            else { sx = Math.random() * arenaW; sy = arenaH + offset; angle = -Math.PI / 2; }
+
+            oneMinBullets.push({
+              x: sx, y: sy,
+              vx: Math.cos(angle) * (180 * speedMult),
+              vy: Math.sin(angle) * (180 * speedMult),
+              radius: 8 * bulletSizeMult,
+              color: "#ff1744",
+              glow: "#ff8877",
+              shape: "diamond",
+              rot: angle,
+              rotSpeed: 6.0,
+              life: 4.5
+            });
+          }
+
+          if (countMult >= 1.7) {
+            const sweepY = (beatStep % 16 === 0) ? arenaH * 0.28 : arenaH * 0.72;
+            oneMinLasers.push({
+              x1: 0, y1: sweepY,
+              x2: arenaW, y2: sweepY,
+              width: cfg.laserWidth * 0.85 * mapScale,
+              state: "warning",
+              warningTimer: cfg.laserWarnTime * 0.9,
+              fireTimer: 0.25,
+              color: "#ff3366"
+            });
+          }
+        }
         break;
       }
     }
   }
 
-  // Update Game Logic Loop
+    // Update Game Logic Loop
   function updateOneMinMode(dt) {
     if (!isOneMinMode || isMenuMode || isPaused || gameOver || gameWin) return;
     const arenaW = cols * gridSize;
     const arenaH = rows * gridSize;
     oneMinIdlePhase += dt * 3.0;
 
+    // QUY TRÌNH TỬ TRẬN HOÀNH TRÁNG (DYING SEQUENCE):
+    // Giun nổ tung thành mảnh vỡ, sóng xung kích tỏa rộng, làm chậm thời gian điện ảnh!
+    if (oneMinState === "dying") {
+      oneMinDeathTimer -= dt;
+      if (oneMinHitGlitchTimer > 0) oneMinHitGlitchTimer = Math.max(0, oneMinHitGlitchTimer - dt);
+
+      // Cập nhật các mảnh tinh thể tử trận
+      for (let i = oneMinDeathShards.length - 1; i >= 0; i--) {
+        const sh = oneMinDeathShards[i];
+        sh.x += sh.vx * dt;
+        sh.y += sh.vy * dt;
+        sh.vx *= 0.96;
+        sh.vy *= 0.96;
+        sh.rot += sh.rotSpd * dt;
+        sh.life -= dt;
+        if (sh.life <= 0) oneMinDeathShards.splice(i, 1);
+      }
+
+      // Cập nhật sóng xung kích
+      for (let i = oneMinShockwaves.length - 1; i >= 0; i--) {
+        const s = oneMinShockwaves[i];
+        s.radius += s.speed * dt;
+        s.alpha = Math.max(0, 1 - (s.radius / s.maxRadius));
+        if (s.radius >= s.maxRadius) oneMinShockwaves.splice(i, 1);
+      }
+
+      // Cập nhật banner bay
+      for (let i = oneMinFloatingBanners.length - 1; i >= 0; i--) {
+        const b = oneMinFloatingBanners[i];
+        b.life -= dt;
+        b.y -= dt * 20;
+        if (b.life <= 0) oneMinFloatingBanners.splice(i, 1);
+      }
+
+      // Cập nhật hạt bụi sao
+      for (let i = oneMinGrazeParticles.length - 1; i >= 0; i--) {
+        const p = oneMinGrazeParticles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.alpha -= dt * 2.0;
+        if (p.alpha <= 0) oneMinGrazeParticles.splice(i, 1);
+      }
+
+      // Làm chậm đạn hiện tại để tạo hiệu ứng Slow-Motion ấn tượng
+      for (let i = 0; i < oneMinBullets.length; i++) {
+        oneMinBullets[i].x += oneMinBullets[i].vx * dt * 0.12;
+        oneMinBullets[i].y += oneMinBullets[i].vy * dt * 0.12;
+      }
+
+      if (oneMinDeathTimer <= 0) {
+        triggerOneMinGameOver();
+      }
+      return;
+    }
+
     // Timers
     if (oneMinInvincibleTimer > 0) oneMinInvincibleTimer = Math.max(0, oneMinInvincibleTimer - dt);
     if (oneMinDashTimer > 0) oneMinDashTimer = Math.max(0, oneMinDashTimer - dt);
     if (oneMinDashCooldown > 0) oneMinDashCooldown = Math.max(0, oneMinDashCooldown - dt);
     if (oneMinScreenFlash > 0) oneMinScreenFlash = Math.max(0, oneMinScreenFlash - dt * 3.5);
+    if (oneMinHitGlitchTimer > 0) oneMinHitGlitchTimer = Math.max(0, oneMinHitGlitchTimer - dt);
 
-    // Speed boost timer from Berserk Core (Cục Đỏ Điên Loạn: CHỈ TĂNG TỐC, KHÔNG ĐẢO CHIỀU)
+    // Speed boost timer from Berserk Core
     if (oneMinSpeedBoostTimer > 0) {
       oneMinSpeedBoostTimer = Math.max(0, oneMinSpeedBoostTimer - dt);
       if (oneMinSpeedBoostTimer <= 0) {
@@ -66318,49 +66662,32 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           y: hy + (Math.random() * 10 - 5),
           vx: (Math.random() * 40 - 20) - (worm.dir.x || 0) * 50,
           vy: (Math.random() * 40 - 20) - (worm.dir.y || 0) * 50,
-          size: 2.8 + Math.random() * 2.0,
-          color: Math.random() < 0.5 ? "#ff1744" : "#ff9100",
+          size: 3.5,
+          color: "#ff1744",
           alpha: 0.95
         });
       }
     }
 
-    // Afterimages fade
-    for (let i = oneMinDashAfterimages.length - 1; i >= 0; i--) {
-      oneMinDashAfterimages[i].alpha -= dt * 4.2;
-      if (oneMinDashAfterimages[i].alpha <= 0) oneMinDashAfterimages.splice(i, 1);
-    }
-
-    // 1. COUNTDOWN STATE (3 seconds: 3 -> 2 -> 1 -> BẮT ĐẦU)
+    // 1. COUNTDOWN STATE (3 - 2 - 1 - BẮT ĐẦU!)
     if (oneMinState === "countdown") {
-      if (!oneMinCountdownStartTime) oneMinCountdownStartTime = performance.now();
-      const elapsedWallSec = Math.max(0, (performance.now() - oneMinCountdownStartTime) / 1000);
-      oneMinCountdownTimer = Math.max(0, 3.0 - elapsedWallSec);
-      const currentSec = Math.ceil(Math.max(0.001, oneMinCountdownTimer));
-      if (currentSec !== oneMinCountdownLastSec) {
-        oneMinCountdownLastSec = currentSec;
-        try {
-          if (typeof oneMinSynth !== 'undefined' && oneMinSynth.playCountdownBeep) {
-            if (currentSec > 0) {
-              oneMinSynth.playCountdownBeep(440 + (3 - currentSec) * 110, 0.16);
-            } else {
-              oneMinSynth.playCountdownBeep(880, 0.30);
-            }
-          }
-        } catch (_) {}
+      oneMinCountdownTimer -= dt;
+      const curSec = Math.ceil(Math.max(0.01, oneMinCountdownTimer));
+      if (curSec !== oneMinCountdownLastSec) {
+        oneMinCountdownLastSec = curSec;
+        playSound("hit_wall");
+        try { if (typeof oneMinSynth !== "undefined" && oneMinSynth.playCountdownBeep) oneMinSynth.playCountdownBeep(curSec === 1 ? 880 : 550, 0.14); } catch (_) {}
       }
       if (oneMinCountdownTimer <= 0) {
         oneMinState = "playing";
         oneMinPlayTime = 0;
         oneMinScreenFlash = 1.0;
         screenShake = 26;
-        // Bắt đầu game: GIUN ĐỨNG YÊN HOÀN TOÀN CHO ĐẾN KHI NGƯỜI CHƠI VUỐT DI CHUYỂN!
         oneMinMoving = false;
         hasStartedMoving = false;
         worm.dir = { x: 0, y: 0 };
         worm.nextDir = { x: 0, y: 0 };
 
-        // Bắt đầu bản nhạc chuẩn xác từ video (có dự phòng bằng synthesizer quy trình)
         let audioStarted = false;
         try {
           const audio = getOneMinAudio();
@@ -66385,7 +66712,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     // 2. PLAYING STATE (0s to 67s)
     if (oneMinState === "playing") {
-      // Đồng bộ thời gian nhịp điệu với bản nhạc chính gốc từ video
       if (oneMinAudio && !oneMinAudio.paused && !oneMinAudio.ended && oneMinAudio.currentTime > 0) {
         oneMinPlayTime = oneMinAudio.currentTime;
       } else {
@@ -66405,10 +66731,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         oneMinSynth.triggerSupernovaExplosion();
       }
 
-      // Generate rhythmic attacks - CẬP NHẬT oneMinLastBeatStep CHÍNH XÁC ĐỂ TRÁNH INFINITE SPAWN
       const currentX = ((oneMinPlayTime % 6.7) / 6.7) * 4;
       const beatStep = Math.floor(currentX * 8);
-      // Đầu game: nếu giun đang đứng yên chờ người chơi vuốt thì trì hoãn phát đạn tối đa 1.8s
       const isInitialGrace = (!oneMinMoving && oneMinStageIdx === 0 && oneMinPlayTime < 1.8);
       if (beatStep !== oneMinLastBeatStep && !isInitialGrace) {
         oneMinLastBeatStep = beatStep;
@@ -66420,11 +66744,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
 
       // HỐ TRẮNG HẤP DẪN (GRAVITATIONAL SINGULARITY PULL) Ở MÀN 9 (COLLAPSE - 53s ĐẾN 60s):
-      // Kéo giun từ từ về phía tâm hố trắng (midX, midY) để tạo cơ chế hút vào tâm kịch tính!
+      // Kéo giun dồn dập, mạnh mẽ và liên tục về phía tâm hố trắng (midX, midY)!
       if (oneMinStageIdx === 8 && worm.body && worm.body[0]) {
         if (typeof oneMinGravPullTimer === "undefined") oneMinGravPullTimer = 0;
         oneMinGravPullTimer += dt;
-        const pullCycle = (oneMinDifficulty === "easy") ? 0.48 : (oneMinDifficulty === "insane" ? 0.24 : 0.36);
+        const pullCycle = (oneMinDifficulty === "easy") ? 0.18 : (oneMinDifficulty === "insane" ? 0.05 : (oneMinDifficulty === "hard" ? 0.08 : 0.12));
         if (oneMinGravPullTimer >= pullCycle) {
           oneMinGravPullTimer = 0;
           const midGridX = Math.floor(cols / 2);
@@ -66432,12 +66756,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           const h = worm.body[0];
           const gdx = midGridX - h.x;
           const gdy = midGridY - h.y;
+          const distToCenter = Math.hypot(gdx, gdy);
           if (Math.abs(gdx) > 1 || Math.abs(gdy) > 1) {
             const stepX = Math.sign(gdx);
             const stepY = Math.sign(gdy);
             const mapScale = Math.max(1, Math.round((cols || 48) / 48));
-            const px = (Math.abs(gdx) >= Math.abs(gdy) ? stepX : 0) * mapScale;
-            const py = (Math.abs(gdx) < Math.abs(gdy) ? stepY : 0) * mapScale;
+            // Càng gần tâm hố trắng lực hút càng tăng gấp đôi (hố sâu hấp dẫn)
+            const pullTiles = (distToCenter < 14 * mapScale) ? 2 : 1;
+            const px = (Math.abs(gdx) >= Math.abs(gdy) ? stepX : 0) * mapScale * pullTiles;
+            const py = (Math.abs(gdx) < Math.abs(gdy) ? stepY : 0) * mapScale * pullTiles;
             for (let s = 0; s < worm.body.length; s++) {
               if (prevWormBody && prevWormBody[s]) {
                 prevWormBody[s].x = worm.body[s].x;
@@ -66446,17 +66773,18 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               worm.body[s].x += px;
               worm.body[s].y += py;
             }
-            // Sinh luồng hạt bụi sao bị hút từ thân giun vào tâm hố trắng
+            screenShake = Math.max(screenShake, 5);
+            // Luồng hạt bụi sao bị hút từ thân giun vào tâm hố trắng
             const hx = (h.x + 0.5) * gridSize;
             const hy = (h.y + 0.5) * gridSize;
-            for (let k = 0; k < 2; k++) {
+            for (let k = 0; k < 3; k++) {
               oneMinGrazeParticles.push({
-                x: hx + (Math.random() * 10 - 5),
-                y: hy + (Math.random() * 10 - 5),
-                vx: (cx - hx) * (1.1 + Math.random() * 0.7),
-                vy: (cy - hy) * (1.1 + Math.random() * 0.7),
+                x: hx + (Math.random() * 12 - 6),
+                y: hy + (Math.random() * 12 - 6),
+                vx: (cx - hx) * (0.8 + Math.random() * 0.4),
+                vy: (cy - hy) * (0.8 + Math.random() * 0.4),
                 size: 3.2,
-                color: Math.random() < 0.65 ? "#ffffff" : "#80d8ff",
+                color: (k % 2 === 0) ? "#ffffff" : "#00e5ff",
                 alpha: 0.95
               });
             }
@@ -66464,63 +66792,55 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
       }
 
-      // Spawn special Cores: Cục Bất Tử & Cục Đỏ Điên Loạn
-      oneMinPickupSpawnTimer -= dt;
-      if (oneMinPickupSpawnTimer <= 0) {
-        oneMinPickupSpawnTimer = 13.0 + Math.random() * 5.0; // Spawns every 13-18 seconds
-        const pType = Math.random() < 0.5 ? "shield" : "berserk";
-        const marginX = Math.max(90, arenaW * 0.15);
-        const marginY = Math.max(90, arenaH * 0.18);
-        const px = marginX + Math.random() * (arenaW - marginX * 2);
-        const py = marginY + Math.random() * (arenaH - marginY * 2);
-        oneMinPickups.push({
-          id: Date.now() + Math.random(),
-          type: pType,
-          x: px,
-          y: py,
-          radius: 17,
-          life: 14.0,
-          maxLife: 14.0,
-          pulse: Math.random() * Math.PI,
-          floatPhase: Math.random() * Math.PI * 2
-        });
-      }
-
-      // End of music -> Spawn Victory Core
+      // Check for Stage 10 completion at 67.0s
       if (oneMinPlayTime >= 67.0) {
         oneMinState = "core_spawned";
-        oneMinBullets = [];
-        oneMinLasers = [];
-        oneMinShockwaves = [];
-        oneMinPickups = [];
-        oneMinWallContractFrac = 0;
         oneMinVictoryCore = {
-          x: arenaW / 2,
-          y: arenaH / 2,
-          radius: 28,
-          pulse: 0,
-          glow: 1.0
+          x: cx,
+          y: cy,
+          radius: 22,
+          pulse: 0
         };
-        screenShake = 34;
-        playSound("win");
+        playSound("powerup");
       }
     }
 
-    // 3. Update Victory Core
+    // 3. CORE SPAWNED STATE
     if (oneMinState === "core_spawned" && oneMinVictoryCore) {
-      oneMinVictoryCore.pulse += dt * 3.5;
+      oneMinVictoryCore.pulse += dt * 5.0;
       if (worm.body && worm.body[0]) {
         const hx = (worm.body[0].x + 0.5) * gridSize;
         const hy = (worm.body[0].y + 0.5) * gridSize;
         const dist = Math.hypot(hx - oneMinVictoryCore.x, hy - oneMinVictoryCore.y);
-        if (dist <= oneMinVictoryCore.radius + gridSize * 0.85) {
+        if (dist <= oneMinVictoryCore.radius + 15) {
           triggerOneMinVictory();
-          return;
         }
       }
     }
 
-    // Update Pickups & Check Collision
+    // Periodic Spawning of Pickups (Every 8.5s)
+    oneMinPickupSpawnTimer -= dt;
+    if (oneMinPickupSpawnTimer <= 0 && oneMinState === "playing") {
+      oneMinPickupSpawnTimer = 8.5;
+      const padW = arenaW * 0.15;
+      const padH = arenaH * 0.15;
+      const px = padW + Math.random() * (arenaW - padW * 2);
+      const py = padH + Math.random() * (arenaH - padH * 2);
+      const isShield = (oneMinPickups.length % 2 === 0);
+      oneMinPickups.push({
+        id: Math.random(),
+        type: isShield ? "shield" : "berserk",
+        x: px,
+        y: py,
+        radius: 12,
+        life: 7.0,
+        maxLife: 7.0,
+        pulse: 0,
+        floatPhase: Math.random() * Math.PI * 2
+      });
+    }
+
+    // Update Pickups
     for (let i = oneMinPickups.length - 1; i >= 0; i--) {
       const p = oneMinPickups[i];
       p.life -= dt;
@@ -66533,7 +66853,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const dist = Math.hypot(hx - p.x, hy - p.y);
         if (dist <= p.radius + 15) {
           if (p.type === "shield") {
-            // CỤC BẤT TỬ: Cho 5s bất tử tuyệt đối
             oneMinInvincibleTimer = Math.max(oneMinInvincibleTimer, 5.0);
             worm.isShielded = true;
             worm.shieldTimer = Math.max(worm.shieldTimer, 5.0);
@@ -66549,8 +66868,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             spawnOneMinGrazeSpark(p.x, p.y, "#00e5ff", 18);
             screenShake = Math.max(screenShake, 14);
           } else if (p.type === "berserk") {
-            // CỤC ĐỎ ĐIÊN LOẠN: KHÔNG LÀM MẤT KIỂM SOÁT, CHỈ ĐI NHANH HƠN
-            controlsReverseTimer = 0; // Tuyệt đối KHÔNG đảo ngược điều khiển
+            controlsReverseTimer = 0;
             oneMinSpeedMultiplier = 1.65;
             oneMinSpeedBoostTimer = 5.0;
             worm.speedMultiplier = 1.65;
@@ -66612,7 +66930,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
     }
 
-    // Update Shockwaves - HIỆU ỨNG THỊ GIÁC & SÓNG ÂM THEO NHỊP ĐIỆU (KHÔNG GÂY MẤT MÁU BẤT NGỜ)
+    // Update Shockwaves
     for (let i = oneMinShockwaves.length - 1; i >= 0; i--) {
       const s = oneMinShockwaves[i];
       s.radius += s.speed * dt;
@@ -66635,13 +66953,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (b.rotSpeed) b.rot += b.rotSpeed * dt;
 
       // 1. CƠ CHẾ LƯỠI CƯA BẮN ĐẠN XUNG QUANH MÀN (MÀN 6 - TÍM)
+      // Tăng số lượng lưỡi cưa, bắn thưa hơn và CHỈ VÀI HẠT ĐẠN nhỏ li ti
       if (b.isShootingSaw) {
         b.shootTimer = (b.shootTimer || 0) + dt;
-        if (b.shootTimer >= 0.22) {
+        if (b.shootTimer >= 0.36) {
           b.shootTimer = 0;
-          const sparkCount = (oneMinDifficulty === "insane" ? 6 : (oneMinDifficulty === "hard" ? 5 : 4));
+          const sparkCount = (oneMinDifficulty === "insane" || oneMinDifficulty === "hard") ? 3 : 2;
           const baseAngle = b.rot || 0;
-          const sparkSpeed = 135 * ((ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult) * mapScale;
+          const sparkSpeed = 120 * ((ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult) * mapScale;
           for (let sp = 0; sp < sparkCount; sp++) {
             const sa = baseAngle + (sp * Math.PI * 2 / sparkCount);
             oneMinBullets.push({
@@ -66649,27 +66968,25 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: b.y,
               vx: Math.cos(sa) * sparkSpeed,
               vy: Math.sin(sa) * sparkSpeed,
-              radius: 4.8 * bulletSizeMult,
+              radius: 3.8 * bulletSizeMult, // Hạt đạn nhỏ gọn
               color: (sp % 2 === 0) ? "#e040fb" : "#ba68c8",
               glow: "#ffffff",
               shape: "diamond",
               rot: sa,
-              rotSpeed: 5.5,
-              life: 3.8
+              rotSpeed: 5.0,
+              life: 3.5
             });
           }
-          // Tia lửa điện tím lướt sau lưng cưa
-          for (let k = 0; k < 2; k++) {
-            oneMinGrazeParticles.push({
-              x: b.x + (Math.random() * 10 - 5),
-              y: b.y + (Math.random() * 10 - 5),
-              vx: (Math.random() - 0.5) * 60,
-              vy: (Math.random() - 0.5) * 60,
-              size: 3.2,
-              color: "#ea80fc",
-              alpha: 0.85
-            });
-          }
+          // Vệt tia lửa cưa
+          oneMinGrazeParticles.push({
+            x: b.x,
+            y: b.y,
+            vx: (Math.random() - 0.5) * 50,
+            vy: (Math.random() - 0.5) * 50,
+            size: 3.0,
+            color: "#ea80fc",
+            alpha: 0.8
+          });
         }
       }
 
@@ -66678,11 +66995,9 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const impactX = b.x;
         const impactY = Math.min(arenaH - 18, b.y);
 
-        // A. Sóng nước đạn bắn lên trên: 7 - 12 viên đạn sóng nước vòng cung bay vút lên trời
         const waveCount = (oneMinDifficulty === "insane" ? 12 : (oneMinDifficulty === "hard" ? 9 : 7));
         const cfgSpd = (ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult;
         for (let w = 0; w < waveCount; w++) {
-          // Góc xòe hình quạt bắn ngược lên trên từ -25 độ đến -155 độ
           const waveAngle = -Math.PI * (0.15 + (w / (waveCount - 1)) * 0.70);
           const waveSpd = (175 + (w % 3) * 35) * cfgSpd * mapScale;
           oneMinBullets.push({
@@ -66694,14 +67009,13 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
             color: (w % 2 === 0) ? "#00e5ff" : "#80d8ff",
             glow: "#ffffff",
             shape: "circle",
-            isWaveBullet: true, // Đạn sóng nước có quỹ đạo vòng cung trọng lực
+            isWaveBullet: true,
             rot: 0,
             rotSpeed: 0,
             life: 3.6
           });
         }
 
-        // B. Chùm đạn li ti nước bắn tung tóe văng lên trên
         const tinyCount = (oneMinDifficulty === "insane" ? 18 : (oneMinDifficulty === "hard" ? 13 : 8));
         for (let t = 0; t < tinyCount; t++) {
           const tinyAngle = -Math.PI * (0.08 + Math.random() * 0.84);
@@ -66719,7 +67033,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           });
         }
 
-        // C. Sóng chấn động đáy & âm thanh va chạm uy lực
         oneMinShockwaves.push({
           cx: impactX,
           cy: impactY,
@@ -66733,12 +67046,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         screenShake = Math.max(screenShake, 20);
         playSound("explode");
 
-        // Xóa cưa rơi vì đã va chạm nổ thành sóng
         oneMinBullets.splice(i, 1);
         continue;
       }
 
-      // Trọng lực tự nhiên uốn lượn cho các viên đạn sóng nước
       if (b.isWaveBullet) {
         b.vy += 65 * mapScale * dt;
       }
@@ -66754,6 +67065,22 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
       }
 
+      // HẠT ĐẠN TỪ XA BAY VÀO TÂM HỐ TRẮNG (INWARD ACCRETION BULLETS):
+      // Gia tốc hút ngày càng nhanh khi tiến gần tâm hố trắng
+      if (b.isInfalling) {
+        const dx = cx - b.x;
+        const dy = cy - b.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 16 * mapScale) {
+          const pullAccel = (280 * mapScale) / Math.max(0.35, dist / (arenaW * 0.45));
+          b.vx += (dx / dist) * pullAccel * dt;
+          b.vy += (dy / dist) * pullAccel * dt;
+        } else {
+          spawnOneMinGrazeSpark(cx, cy, "#ffffff", 2);
+          b.life = 0;
+        }
+      }
+
       b.x += b.vx * dt;
       b.y += b.vy * dt;
       b.life -= dt;
@@ -66761,28 +67088,22 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
       if (worm.body && worm.body[0]) {
         let hit = false;
-        // Chuẩn hóa Hitbox công bằng kiểu Beat Dash:
-        // Chỉ có ĐẦU GIUN (Core) là vùng nhận sát thương chuẩn xác với bán kính vừa khít
         const headX = (worm.body[0].x + 0.5) * gridSize;
         const headY = (worm.body[0].y + 0.5) * gridSize;
         const coreDist = Math.hypot(headX - b.x, headY - b.y);
 
-        // Bỏ qua đạn vừa sinh ra trong 0.2s đầu ở tâm màn 10
         const isSpawningGrace = (b.spawnGrace && b.spawnGrace > 0);
         const mapScale = (cols || 48) / 48;
 
         if (!isSpawningGrace && coreDist <= b.radius + (5.0 * mapScale)) {
           hit = true;
         } else if (!isSpawningGrace && coreDist <= b.radius + (12.0 * mapScale)) {
-          // Graze suýt dính đạn ở cự ly gần: Sinh tia lửa Graze đẹp mắt mà không trừ máu
           spawnOneMinGrazeSpark(b.x, b.y, "#00e5ff", 1);
         }
 
         if (hit) {
           if (oneMinDashTimer > 0 || dashPunchTimer > 0 || oneMinInvincibleTimer > 0) {
-            // Lướt né đạn chuẩn xác: XUYÊN QUA ĐẠN MÀ KHÔNG PHÁ ĐẠN
             spawnOneMinGrazeSpark(b.x, b.y, "#00e5ff", 4);
-            // Đạn không bị xóa, tiếp tục bay bình thường
           } else {
             oneMinTakeDamage();
             oneMinBullets.splice(i, 1);
@@ -66823,7 +67144,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
   }
 
-  function spawnOneMinGrazeSpark(x, y, color = "#00e5ff", count = 6) {
+    function spawnOneMinGrazeSpark(x, y, color = "#00e5ff", count = 6) {
     const isGfxLow = (graphicsQuality === "ultralow" || graphicsQuality === "low");
     const effCount = isGfxLow ? Math.min(3, count) : count;
     for (let i = 0; i < effCount; i++) {
@@ -67388,7 +67709,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }
 
     // 10. Worm Character Rendering - DÙNG HỆ THỐNG RENDER GIUN VÀ TRANG PHỤC MẶC ĐỊNH
-    if (worm && worm.body && worm.body.length > 0) {
+    if (oneMinState !== "dying" && worm && worm.body && worm.body.length > 0) {
       targetCtx.save();
       const isInv = (oneMinInvincibleTimer > 0);
       const isBerserk = (oneMinSpeedBoostTimer > 0);
@@ -67427,6 +67748,32 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         targetCtx.arc((h.x + 0.5) * gridSize, (h.y + 0.5) * gridSize, gridSize * 1.35, 0, Math.PI * 2);
         targetCtx.stroke();
       }
+      targetCtx.restore();
+    }
+
+    // 10b. MẢNH VỠ TINH THỂ TỬ TRẬN HOÀNH TRÁNG (DEATH NOVA CRYSTAL SHARDS)
+    if (oneMinDeathShards.length > 0) {
+      targetCtx.save();
+      oneMinDeathShards.forEach(sh => {
+        targetCtx.save();
+        const alpha = Math.max(0, sh.life / sh.maxLife);
+        targetCtx.globalAlpha = alpha;
+        targetCtx.translate(sh.x, sh.y);
+        targetCtx.rotate(sh.rot);
+        targetCtx.fillStyle = sh.color;
+        if (isGfxHigh) {
+          targetCtx.shadowColor = sh.color;
+          targetCtx.shadowBlur = 12;
+        }
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, -sh.size * 1.5);
+        targetCtx.lineTo(sh.size * 0.85, sh.size * 0.65);
+        targetCtx.lineTo(0, sh.size * 0.35);
+        targetCtx.lineTo(-sh.size * 0.85, sh.size * 0.65);
+        targetCtx.closePath();
+        targetCtx.fill();
+        targetCtx.restore();
+      });
       targetCtx.restore();
     }
 
@@ -67720,6 +68067,39 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       targetCtx.save();
       targetCtx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, oneMinScreenFlash)})`;
       targetCtx.fillRect(0, 0, gw, gh);
+      targetCtx.restore();
+    }
+
+    // 17b. HIỆU ỨNG TỬ TRẬN & QUANG SAI CHROMATIC ABERRATION KHI DÍNH ĐẠN
+    if (oneMinHitGlitchTimer > 0) {
+      const glitchFrac = Math.min(1.0, oneMinHitGlitchTimer / 0.32);
+      targetCtx.save();
+      targetCtx.globalCompositeOperation = "screen";
+      targetCtx.fillStyle = `rgba(255, 23, 68, ${0.30 * glitchFrac})`;
+      targetCtx.fillRect((Math.random() - 0.5) * 8 * glitchFrac, 0, gw, gh);
+      targetCtx.fillStyle = `rgba(0, 229, 255, ${0.30 * glitchFrac})`;
+      targetCtx.fillRect(0, (Math.random() - 0.5) * 8 * glitchFrac, gw, gh);
+      targetCtx.restore();
+    }
+
+    if (oneMinState === "dying") {
+      targetCtx.save();
+      const deathFrac = Math.max(0, oneMinDeathTimer / 1.6);
+      targetCtx.fillStyle = `rgba(10, 4, 18, ${(1.0 - deathFrac) * 0.68})`;
+      targetCtx.fillRect(0, 0, gw, gh);
+
+      if (oneMinDeathPos) {
+        const expR = (1.0 - deathFrac) * (gw * 0.44);
+        const expGrad = targetCtx.createRadialGradient(oneMinDeathPos.x, oneMinDeathPos.y, 4, oneMinDeathPos.x, oneMinDeathPos.y, expR);
+        expGrad.addColorStop(0, "rgba(255, 255, 255, 0.92)");
+        expGrad.addColorStop(0.35, "rgba(255, 23, 68, 0.55)");
+        expGrad.addColorStop(0.70, "rgba(224, 64, 251, 0.28)");
+        expGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        targetCtx.fillStyle = expGrad;
+        targetCtx.beginPath();
+        targetCtx.arc(oneMinDeathPos.x, oneMinDeathPos.y, expR, 0, Math.PI * 2);
+        targetCtx.fill();
+      }
       targetCtx.restore();
     }
   }</script>
