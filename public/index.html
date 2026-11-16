@@ -44824,6 +44824,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         winOverlay.style.opacity = "0";
         setTimeout(() => {
           winOverlay.style.display = "none";
+          if (typeof wasOneMinMode !== "undefined" && wasOneMinMode) {
+            startOneMinMode();
+            return;
+          }
           resetAllStats();
           resetGame(false);
           showMobileActionBtns(true);
@@ -47000,13 +47004,37 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       document.getElementById("win-steps-val").textContent = `${totalStepsWalked} ô`;
       document.getElementById("win-rocks-val").textContent = totalRocksDestroyed;
       let diffLabel = "TRUNG BÌNH";
-      if (isDarkNightMode) diffLabel = "MÀN ĐÊM TỐI (" + darkNightDifficulty.toUpperCase() + ")";
+      if (typeof wasOneMinMode !== "undefined" && wasOneMinMode || (typeof isOneMinMode !== "undefined" && isOneMinMode)) {
+        diffLabel = "1 MINS · BEAT DASH (" + (typeof oneMinDifficulty !== "undefined" ? oneMinDifficulty : "normal").toUpperCase() + ")";
+      } else if (isDarkNightMode) diffLabel = "MÀN ĐÊM TỐI (" + darkNightDifficulty.toUpperCase() + ")";
       else if (isRaceMode) diffLabel = "BOSS RUSH (" + raceDifficulty.toUpperCase() + ")";
       else if (currentDifficulty === "easy") diffLabel = "DỄ"; else if (currentDifficulty === "hard") diffLabel = "KHÓ"; else if (currentDifficulty === "insane") diffLabel = "INSANE"; else if (currentDifficulty === "endless") diffLabel = "TĂNG TỐC VÔ TẬN";
       document.getElementById("win-diff-val").textContent = diffLabel;
       const winSubTitleEl = document.getElementById("win-sub-title");
       if (winSubTitleEl) {
-        if (isDarkNightMode) {
+        if (typeof wasOneMinMode !== "undefined" && wasOneMinMode || (typeof isOneMinMode !== "undefined" && isOneMinMode)) {
+          winSubTitleEl.textContent = "🌟 CHINH PHỤC THÀNH CÔNG 67.0S - VŨ TRỤ HOÀN TẤT SUPERNOVA! 🌟";
+          const winScoreVal = document.getElementById("win-score-val");
+          if (winScoreVal) winScoreVal.textContent = "67.0s / 67.0s (10/10 Màn)";
+          const winStepsVal = document.getElementById("win-steps-val");
+          if (winStepsVal) winStepsVal.textContent = `${typeof oneMinHp !== "undefined" ? oneMinHp : 4}/${typeof oneMinMaxHp !== "undefined" ? oneMinMaxHp : 4} ❤ Máu Còn Lại`;
+          const winRocksVal = document.getElementById("win-rocks-val");
+          if (winRocksVal) winRocksVal.textContent = "100% Hoàn Thành";
+          const winReplayBtn = document.getElementById("btn-win-replay");
+          if (winReplayBtn) winReplayBtn.textContent = "⚡ CHƠI LẠI (1 MINS) ⚡";
+
+          // Thưởng điểm và mở khóa Skin khi thắng chế độ 1 Mins:
+          addLifetimeScore(5000);
+          checkScoreSkinUnlock();
+          unlockSkin("cosmicVoid");
+          if (oneMinDifficulty === "hard" || oneMinDifficulty === "insane") {
+            unlockSkin("sunsetPrism");
+            unlockSkin("ultra20");
+          }
+          if (oneMinDifficulty === "insane") {
+            unlockSkin("twilightHorizon");
+          }
+        } else if (isDarkNightMode) {
           winSubTitleEl.textContent = `🌌 Thu Thập Đủ Mảnh Linh Hồn - Triệu Hồi Bình Minh! 🌌`;
         } else if (isRaceMode) {
           const goalM = getBossRushGoalHeight();
@@ -65817,35 +65845,52 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     }, 120);
   }
 
-    function triggerOneMinVictory() {
+  function triggerOneMinVictory() {
     if (oneMinState === "victory") return;
     oneMinState = "victory";
+    wasOneMinMode = true;
     if (oneMinAudio) {
       try { oneMinAudio.pause(); } catch (_) {}
     }
-    screenShake = 52;
+    screenShake = 55;
     playSound("win");
-    stopOneMinMode();
+
+    // Dọn sạch đạn để ăn mừng chiến thắng an toàn
+    oneMinBullets = [];
+    oneMinLasers = [];
+    oneMinShockwaves = [];
+    oneMinWallContractFrac = 0;
 
     const gw = cols * gridSize, gh = rows * gridSize;
-    for (let i = 0; i < 110; i++) {
+    for (let i = 0; i < 140; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const spd = 60 + Math.random() * 280;
+      const spd = 60 + Math.random() * 320;
       oneMinGrazeParticles.push({
         x: gw / 2,
         y: gh / 2,
         vx: Math.cos(angle) * spd,
         vy: Math.sin(angle) * spd,
-        size: 2.5 + Math.random() * 4.5,
+        size: 3.0 + Math.random() * 5.0,
         color: `hsl(${Math.floor(Math.random() * 360)}, 100%, 65%)`,
         alpha: 1.0,
-        life: 2.8
+        life: 3.0
       });
     }
 
+    oneMinFloatingBanners.push({
+      text: "🏆 CHIẾN THẮNG 1 MINS! 🏆",
+      color: "#00e5ff",
+      x: gw / 2,
+      y: gh / 2 - 45,
+      life: 2.5,
+      maxLife: 2.5
+    });
+
     setTimeout(() => {
+      stopOneMinMode();
+      wasOneMinMode = true; // Bảo lưu cờ sau stop
       triggerGameWin();
-    }, 1200);
+    }, 1400);
   }
 
   function startOneMinMode() {
@@ -66840,13 +66885,28 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       // Check for Stage 10 completion at 67.0s
       if (oneMinPlayTime >= 67.0) {
         oneMinState = "core_spawned";
+        // Dọn sạch toàn bộ đạn và bẫy ngay khi đạt 67s để người chơi an tâm chạm lõi chiến thắng
+        oneMinBullets = [];
+        oneMinLasers = [];
+        oneMinShockwaves = [];
+        oneMinWallContractFrac = 0;
         oneMinVictoryCore = {
           x: cx,
           y: cy,
-          radius: 22,
+          radius: 26,
           pulse: 0
         };
+        oneMinScreenFlash = 0.8;
+        screenShake = 24;
         playSound("powerup");
+        oneMinFloatingBanners.push({
+          text: "🌟 CHẠM LÕI CHIẾN THẮNG! 🌟",
+          color: "#00e5ff",
+          x: cx,
+          y: cy - 38,
+          life: 3.5,
+          maxLife: 3.5
+        });
       }
     }
 
@@ -68105,7 +68165,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       // Lời nhắc chạm để bắt đầu ngay
       targetCtx.font = "bold 11px sans-serif";
       targetCtx.fillStyle = "rgba(255, 255, 255, 0.72)";
-      targetCtx.fillText("⚡ CHẠM MÀN HÌNH ĐỂ VÀO TRẬN NGAY (BỎ QUA 5S) ⚡", gw / 2, gh / 2 + 126);
+      targetCtx.fillText("⚡ CHUẨN BỊ CHIẾN ĐẤU (3 - 2 - 1) ⚡", gw / 2, gh / 2 + 126);
       targetCtx.restore();
     }
 
