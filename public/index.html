@@ -48762,15 +48762,10 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const mapWormScale = (cols || 48) / 48;
         if (oneMinDashTimer > 0) {
           finalCalculatedSpeed = 38 * (oneMinDifficulty === "insane" ? 1.30 : (oneMinDifficulty === "hard" ? 1.15 : 1.0)) * mapWormScale;
+        } else if (!oneMinMoving) {
+          // Khi mới vào đếm số 1 2 3: giun đứng yên tuyệt đối cho đến khi người chơi bắt đầu ấn / vuốt điều khiển!
+          finalCalculatedSpeed = 0;
         } else {
-          if (!oneMinMoving) {
-            oneMinMoving = true;
-            if (!worm.dir || (worm.dir.x === 0 && worm.dir.y === 0)) {
-              const fDir = oneMinFacingDir || { x: 1, y: 0 };
-              worm.dir = { x: fDir.x || 1, y: fDir.y || 0 };
-              worm.nextDir = { x: fDir.x || 1, y: fDir.y || 0 };
-            }
-          }
           const spdBoost = (typeof oneMinSpeedMultiplier !== "undefined" ? oneMinSpeedMultiplier : 1.0) * (worm.speedMultiplier || 1.0);
           finalCalculatedSpeed = 16 * diffWormMult * spdBoost * mapWormScale;
         }
@@ -65964,11 +65959,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       { x: startX - 1, y: startY },
       { x: startX - 2, y: startY }
     ];
-    // Khởi tạo vận tốc hoạt bát cho giun ngay từ đầu để tránh lỗi đơ đứng yên
-    hasStartedMoving = true;
-    oneMinMoving = true;
-    worm.dir = { x: 1, y: 0 };
-    worm.nextDir = { x: 1, y: 0 };
+    // Khi bắt đầu vào màn chơi đếm 1 2 3: giun đứng yên tại chỗ và chỉ di chuyển khi người chơi bắt đầu ấn
+    hasStartedMoving = false;
+    oneMinMoving = false;
+    worm.dir = { x: 0, y: 0 };
+    worm.nextDir = { x: 0, y: 0 };
     oneMinFacingDir = { x: 1, y: 0 };
     prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     wormDisplayBody = worm.body.map(s => ({ x: s.x, y: s.y }));
@@ -66221,51 +66216,91 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 3: { // NEON: Laser Grid + Phi tiêu Shuriken (Laser phủ mạng lưới theo cấp số bản đồ)
-        if (beatStep % 8 === 0) {
-          const gridCount = Math.round((countMult >= 1.7 ? 2 : 1) * Math.pow(mapScale, 0.72));
+      case 3: { // MÀN 4 (LASER XANH LÁ - NEON): TĂNG CƯỜNG NHIỀU TIA LASER & CHÙM ĐẠN PHÁT QUANG
+        // 1. TĂNG DÀY ĐẶC CÁC LÀN TIA LASER XANH LÁ (Bắn xen kẽ mỗi 4 nhịp)
+        if (beatStep % 4 === 0) {
+          const isVerticalWave = (beatStep % 8 === 0);
+          const gridCount = Math.round((oneMinDifficulty === "insane" ? 3 : 2) * Math.pow(mapScale, 0.65));
           for (let g = 0; g < gridCount; g++) {
-            const randCol = (70 * mapScale) + (g + 0.5) * ((arenaW - 140 * mapScale) / gridCount);
-            const randRow = (60 * mapScale) + (g + 0.5) * ((arenaH - 120 * mapScale) / gridCount);
+            if (isVerticalWave) {
+              const randCol = (55 * mapScale) + (g + 0.5) * ((arenaW - 110 * mapScale) / gridCount) + (Math.sin(beatStep + g) * 20 * mapScale);
+              oneMinLasers.push({
+                x1: randCol, y1: 0,
+                x2: randCol, y2: arenaH,
+                width: laserWidthBase * 1.1,
+                state: "warning",
+                warningTimer: cfg.laserWarnTime,
+                fireTimer: 0.36,
+                color: "#44ff66"
+              });
+            } else {
+              const randRow = (50 * mapScale) + (g + 0.5) * ((arenaH - 100 * mapScale) / gridCount) + (Math.cos(beatStep + g) * 15 * mapScale);
+              oneMinLasers.push({
+                x1: 0, y1: randRow,
+                x2: arenaW, y2: randRow,
+                width: laserWidthBase * 1.1,
+                state: "warning",
+                warningTimer: cfg.laserWarnTime,
+                fireTimer: 0.36,
+                color: "#44ff66"
+              });
+            }
+          }
+          // Thêm tia laser chéo góc ấn tượng ở các nhịp đôi
+          if (beatStep % 8 === 4) {
             oneMinLasers.push({
-              x1: randCol, y1: 0,
-              x2: randCol, y2: arenaH,
-              width: laserWidthBase,
+              x1: 0, y1: 0,
+              x2: arenaW, y2: arenaH,
+              width: laserWidthBase * 0.9,
               state: "warning",
-              warningTimer: cfg.laserWarnTime,
-              fireTimer: 0.32,
-              color: "#44ff66"
-            });
-            oneMinLasers.push({
-              x1: 0, y1: randRow,
-              x2: arenaW, y2: randRow,
-              width: laserWidthBase,
-              state: "warning",
-              warningTimer: cfg.laserWarnTime,
-              fireTimer: 0.32,
-              color: "#44ff66"
+              warningTimer: cfg.laserWarnTime * 1.1,
+              fireTimer: 0.30,
+              color: "#33ff88"
             });
           }
         }
+
+        // 2. TĂNG SỐ LƯỢNG TIA ĐẠN PHI TIÊU SHURIKEN XANH LÁ (8-12 tia tỏa 360 độ)
         if (beatStep % 4 === 0) {
-          const count = Math.round(4 * countMult * countScale);
-          const spd = 135 * speedMult;
+          const count = Math.round(8 * countMult * Math.pow(mapScale, 0.70));
+          const spd = 145 * speedMult;
           for (let i = 0; i < count; i++) {
-            const a = (i * Math.PI * 2 / count) + (beatStep * 0.15);
-            const spawnDist = (12 + (i % 3) * 6 + Math.random() * 6) * mapScale;
-            const spawnA = a + (Math.random() - 0.5) * 0.26;
+            const a = (i * Math.PI * 2 / count) + (beatStep * 0.12);
+            const spawnDist = (14 + (i % 3) * 6) * mapScale;
             oneMinBullets.push({
-              x: cx + Math.cos(spawnA) * spawnDist,
-              y: cy + Math.sin(spawnA) * spawnDist,
+              x: cx + Math.cos(a) * spawnDist,
+              y: cy + Math.sin(a) * spawnDist,
               vx: Math.cos(a) * spd,
               vy: Math.sin(a) * spd,
               radius: 8.5 * bulletSizeMult,
-              color: "#33ff88",
+              color: "#44ff66",
               glow: "#aaffcc",
               shape: "shuriken",
               rot: a,
-              rotSpeed: 6.0,
-              life: 4.8
+              rotSpeed: 7.0,
+              life: 5.0
+            });
+          }
+        }
+
+        // 3. THÊM CÁC TIA ĐẠN PHI ĐẠN NHỌN LASER BẮN BỔ SUNG Ở NHỊP LỆCH
+        if (beatStep % 4 === 2) {
+          const dartCount = Math.round(4 * countMult);
+          const dartSpd = 160 * speedMult;
+          for (let d = 0; d < dartCount; d++) {
+            const da = (d * Math.PI * 2 / dartCount) + Math.PI / 4;
+            oneMinBullets.push({
+              x: cx + Math.cos(da) * 20 * mapScale,
+              y: cy + Math.sin(da) * 20 * mapScale,
+              vx: Math.cos(da) * dartSpd,
+              vy: Math.sin(da) * dartSpd,
+              radius: 7.5 * bulletSizeMult,
+              color: "#00e676",
+              glow: "#ffffff",
+              shape: "needle",
+              rot: da,
+              rotSpeed: 0,
+              life: 4.2
             });
           }
         }
@@ -66320,59 +66355,57 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 5: { // MÀN 6 (MÀU TÍM - SILICON): HOA SAO + LƯỠI CƯA TÍM QUÉT NGANG (TĂNG SỐ LƯỢNG LƯỠI CƯA, BẮN CHỈ VÀI HẠT ĐẠN)
-        // 1. Hoa sao năng lượng tỏa đều từ tâm (Alpha Ladder Starburst)
-        if (beatStep % 4 === 0) {
-          const count = Math.round(8 * countMult * countScale);
-          const stepOffset = (beatStep % 8) * (Math.PI / 8);
-          const baseSpd = 155 * speedMult;
+      case 5: { // MÀN 6 (MÀU TÍM - SILICON): ĐIỀU CHỈNH GIẢM ĐẠN VỪA PHẢI, THOÁNG ĐÃNG ĐỂ NGƯỜI CHƠI VƯỢT QUA
+        // 1. Hoa sao năng lượng tỏa từ tâm: GIẢM ĐẠN (Chỉ 4-5 viên mỗi 8 nhịp thay vì 8-16 viên mỗi 4 nhịp)
+        if (beatStep % 8 === 0) {
+          const count = (oneMinDifficulty === "insane") ? 6 : ((oneMinDifficulty === "hard") ? 5 : ((oneMinDifficulty === "easy") ? 3 : 4));
+          const stepOffset = (beatStep % 16) * (Math.PI / 8);
+          const baseSpd = 125 * speedMult;
           for (let i = 0; i < count; i++) {
             const angle = stepOffset + (i * Math.PI * 2 / count);
-            const spawnDist = (14 + (i % 4) * 6 + (Math.random() - 0.5) * 6) * mapScale;
-            const spawnA = angle + (Math.random() - 0.5) * 0.25;
+            const spawnDist = (14 + (i % 3) * 6) * mapScale;
             oneMinBullets.push({
-              x: cx + Math.cos(spawnA) * spawnDist,
-              y: cy + Math.sin(spawnA) * spawnDist,
+              x: cx + Math.cos(angle) * spawnDist,
+              y: cy + Math.sin(angle) * spawnDist,
               vx: Math.cos(angle) * baseSpd,
               vy: Math.sin(angle) * baseSpd,
-              radius: 9.0 * bulletSizeMult,
+              radius: 8.5 * bulletSizeMult,
               color: "#aa66ff",
               glow: "#ddbbff",
               shape: "diamond",
               rot: angle,
-              rotSpeed: 4.5,
-              life: 5.5
+              rotSpeed: 4.0,
+              life: 5.0
             });
           }
         }
 
-        // 2. LƯỠI CƯA TÍM TĂNG SỐ LƯỢNG: tỉ lệ theo độ khó và độ rộng map
-        if (beatStep % 4 === 2) {
-          const baseSaws = (oneMinDifficulty === "insane") ? 5 : ((oneMinDifficulty === "hard") ? 4 : ((oneMinDifficulty === "easy") ? 2 : 3));
-          const sawCount = Math.round(baseSaws * Math.pow(mapScale, 0.55));
+        // 2. LƯỠI CƯA TÍM: GIẢM XUỐNG CHỈ 1-2 LƯỠI CƯA, DI CHUYỂN RÕ RÀNG DỄ NÉ
+        if (beatStep % 8 === 4) {
+          const baseSaws = (oneMinDifficulty === "insane") ? 2 : ((oneMinDifficulty === "hard") ? 2 : 1);
+          const sawCount = baseSaws;
           for (let sc = 0; sc < sawCount; sc++) {
             const fromLeft = (sc % 2 === 0);
             const startX = fromLeft ? -30 : arenaW + 30;
             const laneFrac = (sc + 0.5) / sawCount;
-            const targetY = arenaH * (0.16 + 0.68 * laneFrac) + (Math.sin(beatStep + sc) * 15 * mapScale);
-            const sawSpd = (fromLeft ? (195 + sc * 12) : -(195 + sc * 12)) * speedMult;
-            const sawVy = (Math.sin(beatStep * 1.4 + sc) * 35) * speedMult;
+            const targetY = arenaH * (0.25 + 0.50 * laneFrac);
+            const sawSpd = (fromLeft ? 170 : -170) * speedMult;
 
             oneMinBullets.push({
               x: startX,
               y: targetY,
               vx: sawSpd,
-              vy: sawVy,
-              radius: 13.5 * bulletSizeMult,
+              vy: 0,
+              radius: 12.0 * bulletSizeMult,
               color: "#aa00ff",
               glow: "#e040fb",
               shape: "saw",
-              teeth: 10,
+              teeth: 8,
               rot: 0,
-              rotSpeed: fromLeft ? 12.0 : -12.0,
+              rotSpeed: fromLeft ? 10.0 : -10.0,
               isShootingSaw: true,
-              shootTimer: 0.10 + sc * 0.08,
-              life: 6.0
+              shootTimer: 0.15,
+              life: 4.2
             });
           }
         }
@@ -66776,13 +66809,12 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         oneMinPlayTime = 0;
         oneMinScreenFlash = 1.0;
         screenShake = 26;
-        oneMinMoving = true;
-        hasStartedMoving = true;
-        if (!worm.dir || (worm.dir.x === 0 && worm.dir.y === 0)) {
-          worm.dir = { x: 1, y: 0 };
-          worm.nextDir = { x: 1, y: 0 };
-        }
-        oneMinFacingDir = { x: worm.dir.x || 1, y: worm.dir.y || 0 };
+        // Hết đếm ngược: giun tiếp tục đứng yên và chỉ bắt đầu di chuyển khi người chơi ấn phím / gạt cần
+        oneMinMoving = false;
+        hasStartedMoving = false;
+        worm.dir = { x: 0, y: 0 };
+        worm.nextDir = { x: 0, y: 0 };
+        oneMinFacingDir = { x: 1, y: 0 };
 
         let audioStarted = false;
         try {
@@ -66833,7 +66865,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
       const currentX = ((oneMinPlayTime % 6.7) / 6.7) * 4;
       const beatStep = Math.floor(currentX * 8);
-      const isInitialGrace = (!oneMinMoving && oneMinStageIdx === 0 && oneMinPlayTime < 1.8);
+      const isInitialGrace = (!oneMinMoving && oneMinStageIdx === 0 && oneMinPlayTime < 3.0);
       if (beatStep !== oneMinLastBeatStep && !isInitialGrace) {
         oneMinLastBeatStep = beatStep;
         try {
@@ -67063,14 +67095,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (b.rotSpeed) b.rot += b.rotSpeed * dt;
 
       // 1. CƠ CHẾ LƯỠI CƯA BẮN ĐẠN XUNG QUANH MÀN (MÀN 6 - TÍM)
-      // Tăng số lượng lưỡi cưa, bắn thưa hơn và CHỈ VÀI HẠT ĐẠN nhỏ li ti
+      // Bắn rất thưa (mỗi 0.85s) và CHỈ 1 VIÊN để tạo đường luồn lách dễ dàng cho người chơi
       if (b.isShootingSaw) {
         b.shootTimer = (b.shootTimer || 0) + dt;
-        if (b.shootTimer >= 0.36) {
+        if (b.shootTimer >= 0.85) {
           b.shootTimer = 0;
-          const sparkCount = (oneMinDifficulty === "insane" || oneMinDifficulty === "hard") ? 3 : 2;
+          const sparkCount = (oneMinDifficulty === "insane") ? 2 : 1;
           const baseAngle = b.rot || 0;
-          const sparkSpeed = 120 * ((ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult) * mapScale;
+          const sparkSpeed = 100 * ((ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult) * mapScale;
           for (let sp = 0; sp < sparkCount; sp++) {
             const sa = baseAngle + (sp * Math.PI * 2 / sparkCount);
             oneMinBullets.push({
@@ -67078,24 +67110,24 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: b.y,
               vx: Math.cos(sa) * sparkSpeed,
               vy: Math.sin(sa) * sparkSpeed,
-              radius: 4.8 * bulletSizeMult, // Đạn hạt nhỏ li ti tăng theo cấp số
-              color: (sp % 2 === 0) ? "#e040fb" : "#ba68c8",
+              radius: 4.5 * bulletSizeMult,
+              color: "#e040fb",
               glow: "#ffffff",
               shape: "diamond",
               rot: sa,
-              rotSpeed: 5.0,
-              life: 3.5
+              rotSpeed: 4.0,
+              life: 3.0
             });
           }
           // Vệt tia lửa cưa
           oneMinGrazeParticles.push({
             x: b.x,
             y: b.y,
-            vx: (Math.random() - 0.5) * 50,
-            vy: (Math.random() - 0.5) * 50,
-            size: 3.0,
+            vx: (Math.random() - 0.5) * 40,
+            vy: (Math.random() - 0.5) * 40,
+            size: 2.8,
             color: "#ea80fc",
-            alpha: 0.8
+            alpha: 0.7
           });
         }
       }
