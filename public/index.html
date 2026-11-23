@@ -45398,8 +45398,8 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         if (touch.target.closest("#mobile-action-buttons, #roll-btn-fab, #dpad-container, #control-panel, #p2-player-badge, #twop-exit-btn, #pvp-hud, #pvp-exit-btn, #pvp-exit-confirm, #pvp-round-over-overlay") || (skipOpponentPane && touch.target.closest("#lan-opponent-pane"))) continue;
         const paneRect = getOwnPaneRect();
         if (touch.clientX < paneRect.left || touch.clientX > paneRect.right || touch.clientY < paneRect.top || touch.clientY > paneRect.bottom) continue;
-        const isLeftHalf = touch.clientX < paneRect.left + paneRect.width / 2;
-        if (isLeftHalf && !joystickActive) {
+        const isSteerArea = (typeof isOneMinMode !== "undefined" && isOneMinMode) ? (!touch.target.closest("#mobile-action-buttons, #btn-pause")) : (touch.clientX < paneRect.left + paneRect.width / 2);
+        if (isSteerArea && !joystickActive) {
           e.preventDefault();
           joystickActive = true;
           joystickTouchId = touch.identifier;
@@ -48762,10 +48762,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const mapWormScale = (cols || 48) / 48;
         if (oneMinDashTimer > 0) {
           finalCalculatedSpeed = 38 * (oneMinDifficulty === "insane" ? 1.30 : (oneMinDifficulty === "hard" ? 1.15 : 1.0)) * mapWormScale;
-        } else if (!oneMinMoving) {
-          // Khi mới bắt đầu hoặc ở chế độ dễ khi thả tay: giun đứng yên tuyệt đối cho đến khi vuốt!
-          finalCalculatedSpeed = 0;
         } else {
+          if (!oneMinMoving) {
+            oneMinMoving = true;
+            if (!worm.dir || (worm.dir.x === 0 && worm.dir.y === 0)) {
+              const fDir = oneMinFacingDir || { x: 1, y: 0 };
+              worm.dir = { x: fDir.x || 1, y: fDir.y || 0 };
+              worm.nextDir = { x: fDir.x || 1, y: fDir.y || 0 };
+            }
+          }
           const spdBoost = (typeof oneMinSpeedMultiplier !== "undefined" ? oneMinSpeedMultiplier : 1.0) * (worm.speedMultiplier || 1.0);
           finalCalculatedSpeed = 16 * diffWormMult * spdBoost * mapWormScale;
         }
@@ -65595,16 +65600,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
   // Direction & Dash Handlers (Manual movement - JS&B style)
   function updateOneMinDirection(dx, dy) {
     if (!isOneMinMode || isMenuMode || gameOver || gameWin || isPaused) return;
-    if (dx === 0 && dy === 0) {
-      if (oneMinDifficulty === "easy") {
-        // Chế độ DỄ: Cho phép đứng yên khi nhả nút điều khiển / thả cần gạt ảo!
-        oneMinMoving = false;
-        worm.dir = { x: 0, y: 0 };
-        worm.nextDir = { x: 0, y: 0 };
-        moveCounter = 0;
-      }
-    } else {
-      // Khi người chơi vuốt trên màn hình hoặc thao tác điều khiển: giun bắt đầu di chuyển!
+    if (dx !== 0 || dy !== 0) {
       oneMinMoving = true;
       hasStartedMoving = true;
       const sx = Math.sign(dx);
@@ -65968,11 +65964,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       { x: startX - 1, y: startY },
       { x: startX - 2, y: startY }
     ];
-    // Bắt đầu game: giun đứng yên tuyệt đối cho đến khi người chơi vuốt / điều khiển
-    hasStartedMoving = false;
-    oneMinMoving = false;
-    worm.dir = { x: 0, y: 0 };
-    worm.nextDir = { x: 0, y: 0 };
+    // Khởi tạo vận tốc hoạt bát cho giun ngay từ đầu để tránh lỗi đơ đứng yên
+    hasStartedMoving = true;
+    oneMinMoving = true;
+    worm.dir = { x: 1, y: 0 };
+    worm.nextDir = { x: 1, y: 0 };
     oneMinFacingDir = { x: 1, y: 0 };
     prevWormBody = worm.body.map(s => ({ x: s.x, y: s.y }));
     wormDisplayBody = worm.body.map(s => ({ x: s.x, y: s.y }));
@@ -66669,6 +66665,13 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     if (!isOneMinMode || isMenuMode || isPaused || gameOver || gameWin) return;
     const arenaW = cols * gridSize;
     const arenaH = rows * gridSize;
+    const cx = arenaW / 2;
+    const cy = arenaH / 2;
+    const mapScale = (cols || 48) / 48;
+    const mapRadiusMult = Math.pow(Math.max(1.0, mapScale), 0.85);
+    const diffSizeMult = (oneMinDifficulty === "insane") ? 1.54 : (oneMinDifficulty === "hard" ? 1.24 : (oneMinDifficulty === "easy" ? 0.82 : 1.00));
+    const bulletSizeMult = diffSizeMult * mapRadiusMult;
+    const countScale = Math.pow(Math.max(1.0, mapScale), 1.15);
     oneMinIdlePhase += dt * 3.0;
 
     // QUY TRÌNH TỬ TRẬN HOÀNH TRÁNG (DYING SEQUENCE):
@@ -66773,10 +66776,13 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         oneMinPlayTime = 0;
         oneMinScreenFlash = 1.0;
         screenShake = 26;
-        oneMinMoving = false;
-        hasStartedMoving = false;
-        worm.dir = { x: 0, y: 0 };
-        worm.nextDir = { x: 0, y: 0 };
+        oneMinMoving = true;
+        hasStartedMoving = true;
+        if (!worm.dir || (worm.dir.x === 0 && worm.dir.y === 0)) {
+          worm.dir = { x: 1, y: 0 };
+          worm.nextDir = { x: 1, y: 0 };
+        }
+        oneMinFacingDir = { x: worm.dir.x || 1, y: worm.dir.y || 0 };
 
         let audioStarted = false;
         try {
@@ -66802,10 +66808,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
 
     // 2. PLAYING STATE (0s to 67s)
     if (oneMinState === "playing") {
-      if (oneMinAudio && !oneMinAudio.paused && !oneMinAudio.ended && oneMinAudio.currentTime > 0) {
-        oneMinPlayTime = oneMinAudio.currentTime;
+      // Đảm bảo thời gian trận đấu luôn tăng mượt mà theo dt thực tế, không bao giờ bị đứng đơ do audio buffer/stall
+      oneMinPlayTime += dt;
+      if (oneMinAudio && !oneMinAudio.paused && !oneMinAudio.ended && !isNaN(oneMinAudio.currentTime) && oneMinAudio.currentTime > 0) {
+        const audioDiff = oneMinAudio.currentTime - oneMinPlayTime;
+        if (Math.abs(audioDiff) > 0.05 && Math.abs(audioDiff) < 1.5) {
+          oneMinPlayTime += audioDiff * Math.min(1.0, dt * 4.0);
+        }
       } else {
-        oneMinPlayTime += dt;
         if (typeof oneMinSynth !== 'undefined' && oneMinSynth.update) {
           oneMinSynth.update(oneMinPlayTime, dt);
         }
@@ -66850,11 +66860,11 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
           if (Math.abs(gdx) > 1 || Math.abs(gdy) > 1) {
             const stepX = Math.sign(gdx);
             const stepY = Math.sign(gdy);
-            const mapScale = Math.max(1, Math.round((cols || 48) / 48));
+            const gridMapScale = Math.max(1, Math.round((cols || 48) / 48));
             // Càng gần tâm hố trắng lực hút càng tăng gấp đôi (hố sâu hấp dẫn)
-            const pullTiles = (distToCenter < 14 * mapScale) ? 2 : 1;
-            const px = (Math.abs(gdx) >= Math.abs(gdy) ? stepX : 0) * mapScale * pullTiles;
-            const py = (Math.abs(gdx) < Math.abs(gdy) ? stepY : 0) * mapScale * pullTiles;
+            const pullTiles = (distToCenter < 14 * gridMapScale) ? 2 : 1;
+            const px = (Math.abs(gdx) >= Math.abs(gdy) ? stepX : 0) * gridMapScale * pullTiles;
+            const py = (Math.abs(gdx) < Math.abs(gdy) ? stepY : 0) * gridMapScale * pullTiles;
             for (let s = 0; s < worm.body.length; s++) {
               if (prevWormBody && prevWormBody[s]) {
                 prevWormBody[s].x = worm.body[s].x;
@@ -67046,14 +67056,7 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       }
     }
 
-    // Update Bullets & Collisions
-    const cx = arenaW / 2;
-    const cy = arenaH / 2;
-    const mapScale = (cols || 48) / 48;
-    const mapRadiusMult = Math.pow(Math.max(1.0, mapScale), 0.85);
-    const diffSizeMult = (oneMinDifficulty === "insane") ? 1.54 : (oneMinDifficulty === "hard" ? 1.24 : (oneMinDifficulty === "easy" ? 0.82 : 1.00));
-    const bulletSizeMult = diffSizeMult * mapRadiusMult;
-    const countScale = Math.pow(Math.max(1.0, mapScale), 1.15);
+    // Update Bullets & Collisions (sử dụng các biến cx, cy, mapScale đã được khởi tạo toàn vẹn từ đầu hàm updateOneMinMode)
 
     for (let i = oneMinBullets.length - 1; i >= 0; i--) {
       const b = oneMinBullets[i];
@@ -67200,7 +67203,6 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         const coreDist = Math.hypot(headX - b.x, headY - b.y);
 
         const isSpawningGrace = (b.spawnGrace && b.spawnGrace > 0);
-        const mapScale = (cols || 48) / 48;
 
         if (!isSpawningGrace && coreDist <= b.radius + (5.0 * mapScale)) {
           hit = true;
