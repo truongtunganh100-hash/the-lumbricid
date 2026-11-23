@@ -66306,52 +66306,105 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
         }
         break;
       }
-      case 4: { // OXYGEN: Neutrino Darts Mũi tên Plasma (Làn đạn tăng theo cấp số diện tích)
+      case 4: { // MÀN 5 (OXYGEN - XANH DƯƠNG): ĐA DẠNG HÓA CÁC KIỂU ĐẠN TĂNG ĐỘ KHÓ
+        // KIỂU 1: MƯA PHI ĐẠN PLASMA RƠI THẲNG TỪ TRÊN XUỐNG
         if (beatStep % 4 === 0) {
-          const baseLanes = (countMult >= 2.5) ? 14 : (countMult >= 1.7 ? 10 : 6);
-          const laneCount = Math.round(baseLanes * Math.pow(mapScale, 0.85));
-          const safeLane = Math.floor(Math.random() * (laneCount - 3)) + 1;
+          const baseLanes = (oneMinDifficulty === "insane") ? 13 : ((oneMinDifficulty === "hard") ? 10 : 8);
+          const laneCount = Math.round(baseLanes * Math.pow(mapScale, 0.80));
+          const safeLane = Math.floor(Math.random() * (laneCount - 2)) + 1;
           const laneWidth = arenaW / laneCount;
           for (let l = 0; l < laneCount; l++) {
-            if (l === safeLane || l === safeLane + 1) continue; // Luôn giữ 2 làn an toàn rộng rãi
+            if (l === safeLane) continue; // 1 làn an toàn hẹp hơn để tăng độ kịch tính
             const lx = l * laneWidth + laneWidth / 2;
             oneMinBullets.push({
-              x: lx, y: 10,
+              x: lx, y: 8,
               vx: 0,
-              vy: 255 * speedMult,
-              radius: 8.5 * bulletSizeMult,
+              vy: 260 * speedMult,
+              radius: 8.0 * bulletSizeMult,
               color: "#44ccff",
               glow: "#aaeeff",
               shape: "needle",
               rot: Math.PI / 2,
               rotSpeed: 0,
-              life: 3.5
+              life: 3.4
             });
           }
-          // Ở Insane/Hard thêm mưa phi đạn bắn chéo từ góc
-          if (countMult >= 1.7 && beatStep % 8 === 0) {
-            const crossSpd = 180 * speedMult;
+        }
+
+        // KIỂU 2: LÀN ĐẠN PHÓNG NGANG 2 BÊN TƯỜNG (HORIZONTAL CROSS-STREAMS)
+        if (beatStep % 4 === 2) {
+          const rowCount = (oneMinDifficulty === "insane") ? 4 : ((oneMinDifficulty === "hard") ? 3 : 2);
+          for (let r = 0; r < rowCount; r++) {
+            const fromLeft = (r % 2 === 0);
+            const startX = fromLeft ? 8 : arenaW - 8;
+            const targetY = (arenaH * 0.20) + (r + 0.5) * ((arenaH * 0.65) / rowCount);
+            const hSpd = (fromLeft ? 210 : -210) * speedMult;
             oneMinBullets.push({
-              x: 10, y: 10,
-              vx: crossSpd, vy: crossSpd * 0.6,
-              radius: 9.0 * bulletSizeMult,
+              x: startX,
+              y: targetY,
+              vx: hSpd,
+              vy: 0,
+              radius: 8.0 * bulletSizeMult,
               color: "#00e5ff",
               glow: "#ffffff",
               shape: "needle",
-              rot: Math.atan2(crossSpd * 0.6, crossSpd),
-              life: 4.0
-            });
-            oneMinBullets.push({
-              x: arenaW - 10, y: 10,
-              vx: -crossSpd, vy: crossSpd * 0.6,
-              radius: 9.0 * bulletSizeMult,
-              color: "#00e5ff",
-              glow: "#ffffff",
-              shape: "needle",
-              rot: Math.atan2(crossSpd * 0.6, -crossSpd),
-              life: 4.0
+              rot: fromLeft ? 0 : Math.PI,
+              rotSpeed: 0,
+              life: 3.6
             });
           }
+        }
+
+        // KIỂU 3: CHÙM HOA SAO OXY XOẮN ỐC TỎA RA TỪ TÂM (OXYGEN SPIRAL VORTEX)
+        if (beatStep % 8 === 4) {
+          const spiralCount = (oneMinDifficulty === "insane") ? 8 : 6;
+          const spiralSpd = 140 * speedMult;
+          const sOffset = (beatStep * 0.25);
+          for (let s = 0; s < spiralCount; s++) {
+            const sa = sOffset + (s * Math.PI * 2 / spiralCount);
+            oneMinBullets.push({
+              x: cx + Math.cos(sa) * 18 * mapScale,
+              y: cy + Math.sin(sa) * 18 * mapScale,
+              vx: Math.cos(sa) * spiralSpd,
+              vy: Math.sin(sa) * spiralSpd,
+              radius: 7.5 * bulletSizeMult,
+              color: (s % 2 === 0) ? "#00e5ff" : "#80d8ff",
+              glow: "#ffffff",
+              shape: "diamond",
+              rot: sa,
+              rotSpeed: 5.5,
+              life: 4.2
+            });
+          }
+        }
+
+        // KIỂU 4: PHI ĐẠN BẮN TỈA NHẮM VÀO GIUN (AIMED CYAN PLASMA DARTS)
+        if (beatStep % 8 === 6 && worm.body && worm.body[0]) {
+          const head = worm.body[0];
+          const hx = (head.x + 0.5) * gridSize;
+          const hy = (head.y + 0.5) * gridSize;
+          const snipeSpd = 220 * speedMult;
+          // Bắn 2 viên từ 2 góc trên nhắm về vị trí giun
+          const origins = [
+            { x: 12, y: 12 },
+            { x: arenaW - 12, y: 12 }
+          ];
+          origins.forEach(og => {
+            const angleToHead = Math.atan2(hy - og.y, hx - og.x);
+            oneMinBullets.push({
+              x: og.x,
+              y: og.y,
+              vx: Math.cos(angleToHead) * snipeSpd,
+              vy: Math.sin(angleToHead) * snipeSpd,
+              radius: 8.5 * bulletSizeMult,
+              color: "#38bdf8",
+              glow: "#ffffff",
+              shape: "needle",
+              rot: angleToHead,
+              rotSpeed: 0,
+              life: 3.8
+            });
+          });
         }
         break;
       }
@@ -66769,6 +66822,15 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
     if (oneMinScreenFlash > 0) oneMinScreenFlash = Math.max(0, oneMinScreenFlash - dt * 3.5);
     if (oneMinHitGlitchTimer > 0) oneMinHitGlitchTimer = Math.max(0, oneMinHitGlitchTimer - dt);
 
+    // Cập nhật bóng ma lướt (Dash Afterimages): Mờ dần và giải phóng trong 0.22s, triệt tiêu vệt giun lưu lại
+    for (let i = oneMinDashAfterimages.length - 1; i >= 0; i--) {
+      const af = oneMinDashAfterimages[i];
+      af.alpha -= dt * 4.4;
+      if (af.alpha <= 0) {
+        oneMinDashAfterimages.splice(i, 1);
+      }
+    }
+
     // Speed boost timer from Berserk Core
     if (oneMinSpeedBoostTimer > 0) {
       oneMinSpeedBoostTimer = Math.max(0, oneMinSpeedBoostTimer - dt);
@@ -67095,14 +67157,14 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
       if (b.rotSpeed) b.rot += b.rotSpeed * dt;
 
       // 1. CƠ CHẾ LƯỠI CƯA BẮN ĐẠN XUNG QUANH MÀN (MÀN 6 - TÍM)
-      // Bắn rất thưa (mỗi 0.85s) và CHỈ 1 VIÊN để tạo đường luồn lách dễ dàng cho người chơi
+      // Tăng thêm một chút đạn (bắn mỗi 0.52s, mỗi lần bắn 2 tia đạn kim cương tím đối xứng)
       if (b.isShootingSaw) {
         b.shootTimer = (b.shootTimer || 0) + dt;
-        if (b.shootTimer >= 0.85) {
+        if (b.shootTimer >= 0.52) {
           b.shootTimer = 0;
-          const sparkCount = (oneMinDifficulty === "insane") ? 2 : 1;
+          const sparkCount = (oneMinDifficulty === "insane") ? 3 : 2;
           const baseAngle = b.rot || 0;
-          const sparkSpeed = 100 * ((ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult) * mapScale;
+          const sparkSpeed = 115 * ((ONE_MIN_DIFF_CONFIG[oneMinDifficulty] || ONE_MIN_DIFF_CONFIG.normal).spdMult) * mapScale;
           for (let sp = 0; sp < sparkCount; sp++) {
             const sa = baseAngle + (sp * Math.PI * 2 / sparkCount);
             oneMinBullets.push({
@@ -67110,24 +67172,24 @@ function drawEpicSkinBackground(ctx, skinId, w, h, t, isDashing, dashFrac) {
               y: b.y,
               vx: Math.cos(sa) * sparkSpeed,
               vy: Math.sin(sa) * sparkSpeed,
-              radius: 4.5 * bulletSizeMult,
-              color: "#e040fb",
+              radius: 4.6 * bulletSizeMult,
+              color: (sp % 2 === 0) ? "#e040fb" : "#ba68c8",
               glow: "#ffffff",
               shape: "diamond",
               rot: sa,
-              rotSpeed: 4.0,
-              life: 3.0
+              rotSpeed: 4.5,
+              life: 3.2
             });
           }
           // Vệt tia lửa cưa
           oneMinGrazeParticles.push({
             x: b.x,
             y: b.y,
-            vx: (Math.random() - 0.5) * 40,
-            vy: (Math.random() - 0.5) * 40,
+            vx: (Math.random() - 0.5) * 45,
+            vy: (Math.random() - 0.5) * 45,
             size: 2.8,
             color: "#ea80fc",
-            alpha: 0.7
+            alpha: 0.75
           });
         }
       }
